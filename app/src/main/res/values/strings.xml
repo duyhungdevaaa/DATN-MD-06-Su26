@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Trendify</string>
+    <string name="splash_title">Trendify</string>
+    <string name="splash_subtitle">THỜI TRANG CAO CẤP</string>
+    <string name="onboarding_title_1">Khám Phá Xu Hướng</string>
+    <string name="onboarding_desc_1">Khám phá những xu hướng thời trang mới nhất từ các thương hiệu hàng đầu</string>
+    <string name="onboarding_title_2">Bộ Sưu Tập Yêu Thích</string>
+    <string name="onboarding_desc_2">Lưu những sản phẩm yêu thích và tạo danh sách mua sắm cá nhân</string>
+    <string name="onboarding_title_3">Giao Hàng Nhanh</string>
+    <string name="onboarding_desc_3">Giao hàng nhanh chóng và đáng tin cậy đến tận nhà bạn</string>
+    <string name="btn_start">Bắt đầu</string>
 </resources>
