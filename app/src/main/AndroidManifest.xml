@@ -41,10 +41,6 @@
         <activity
             android:name=".activity.ForgotPasswordActivity"
             android:exported="false" />
-            
-        <activity
-            android:name=".activity.ProductDetailActivity"
-            android:exported="false" />
     </application>
 
 </manifest>
