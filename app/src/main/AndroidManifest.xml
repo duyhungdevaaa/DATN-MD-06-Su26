@@ -46,10 +46,27 @@
             android:name=".activity.PrivacyPolicyActivity"
             
         <activity
+            android:name=".activity.NotificationsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".activity.ProductDetailActivity"
             android:exported="false" />
 
         <activity
+            android:name=".activity.OrderConfirmActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.PayOSPaymentActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.OrderSuccessActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.TrackOrderActivity"
             android:name=".activity.AddressManagementActivity"
             android:exported="false" />
 
