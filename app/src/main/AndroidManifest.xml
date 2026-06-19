@@ -69,6 +69,10 @@
         <activity
             android:name=".activity.TermsActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".activity.TrackOrderActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
