@@ -65,6 +65,10 @@
         <activity
             android:name=".activity.ShippingAddressActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".activity.TermsActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
