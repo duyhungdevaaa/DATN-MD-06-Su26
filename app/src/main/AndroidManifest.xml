@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -11,18 +12,54 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Trendify">
+        
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <activity
             android:name=".activity.OrderHistoryActivity"
+            android:name=".activity.LoginActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.OnboardingActivity"
+            android:exported="false" />
+        
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+            
+        <activity
+            android:name=".activity.RegisterActivity"
+            android:exported="false" />
+            
+        <activity
+            android:name=".activity.ForgotPasswordActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.PrivacyPolicyActivity"
+            
+        <activity
+            android:name=".activity.NotificationsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.ProductDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.OrderConfirmActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.PayOSPaymentActivity"
             android:exported="false" />
 
         <activity
@@ -39,6 +76,15 @@
 
         <activity
             android:name=".activity.OrderConfirmActivity"
+            android:name=".activity.AddressManagementActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.CartActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.HelpCenterActivity"
             android:exported="false" />
     </application>
 

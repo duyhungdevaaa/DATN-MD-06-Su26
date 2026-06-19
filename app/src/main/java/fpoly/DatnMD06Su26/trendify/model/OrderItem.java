@@ -9,6 +9,8 @@ public class OrderItem {
     private String price;
     private int productImageRes;
 
+    public OrderItem() {} // Bắt buộc cho Firestore
+
     public OrderItem(String orderId, String status, String date, String productName, int quantity, String price, int productImageRes) {
         this.orderId = orderId;
         this.status = status;
