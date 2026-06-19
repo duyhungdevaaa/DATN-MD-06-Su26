@@ -91,6 +91,15 @@
             android:exported="false" />
 
         <activity
+            android:name=".activity.ShippingAddressActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.TermsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.TrackOrderActivity"
             android:name=".activity.ProductListActivity"
             android:exported="false" />
 
