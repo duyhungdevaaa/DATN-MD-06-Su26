@@ -2,6 +2,7 @@ package fpoly.DatnMD06Su26.trendify.model;
 
 import androidx.annotation.NonNull;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.text.ParseException;
