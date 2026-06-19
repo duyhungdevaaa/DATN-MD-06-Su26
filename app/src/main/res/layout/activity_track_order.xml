@@ -385,6 +385,7 @@
         </LinearLayout>
 
     </LinearLayout>
+</androidx.core.widget.NestedScrollView>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
