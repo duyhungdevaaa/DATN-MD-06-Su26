@@ -49,6 +49,22 @@
         <activity
             android:name=".activity.ProductDetailActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".activity.OrderConfirmActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.PayOSPaymentActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.OrderSuccessActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.TrackOrderActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
