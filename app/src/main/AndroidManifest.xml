@@ -44,6 +44,7 @@
 
         <activity
             android:name=".activity.PrivacyPolicyActivity"
+            android:exported="false" />
             
         <activity
             android:name=".activity.ProductDetailActivity"
@@ -59,6 +60,10 @@
 
         <activity
             android:name=".activity.HelpCenterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.ShippingAddressActivity"
             android:exported="false" />
     </application>
 
