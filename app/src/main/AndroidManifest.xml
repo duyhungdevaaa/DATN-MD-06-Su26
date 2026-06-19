@@ -23,6 +23,7 @@
         </activity>
 
         <activity
+            android:name=".activity.OrderHistoryActivity"
             android:name=".activity.LoginActivity"
             android:exported="false" />
 
@@ -67,6 +68,14 @@
 
         <activity
             android:name=".activity.TrackOrderActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.PaymentMethodActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.OrderConfirmActivity"
             android:name=".activity.AddressManagementActivity"
             android:exported="false" />
 
