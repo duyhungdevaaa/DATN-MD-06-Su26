@@ -45,6 +45,10 @@
         <activity
             android:name=".activity.PrivacyPolicyActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".activity.AddressManagementActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
