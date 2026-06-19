@@ -41,6 +41,9 @@
         <activity
             android:name=".activity.ForgotPasswordActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".activity.PrivacyPolicyActivity"
             
         <activity
             android:name=".activity.NotificationsActivity"
@@ -64,6 +67,15 @@
 
         <activity
             android:name=".activity.TrackOrderActivity"
+            android:name=".activity.AddressManagementActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.CartActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.HelpCenterActivity"
             android:exported="false" />
     </application>
 
