@@ -43,6 +43,10 @@
             android:exported="false" />
             
         <activity
+            android:name=".activity.NotificationsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".activity.ProductDetailActivity"
             android:exported="false" />
     </application>
