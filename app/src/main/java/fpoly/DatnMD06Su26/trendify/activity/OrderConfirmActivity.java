@@ -1,5 +1,10 @@
 package fpoly.DatnMD06Su26.trendify.activity;
 
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import fpoly.DatnMD06Su26.trendify.R;
+
+public class OrderConfirmActivity extends AppCompatActivity {
 import fpoly.DatnMD06Su26.trendify.SessionManager;
 import fpoly.DatnMD06Su26.trendify.R;
 import fpoly.DatnMD06Su26.trendify.helper.CartManager;

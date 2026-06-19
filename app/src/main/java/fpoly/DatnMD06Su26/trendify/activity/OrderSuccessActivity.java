@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class OrderSuccessActivity extends AppCompatActivity {
 
+    private ImageView ivBack;
     private ImageView ivClose;
     private TextView tvOrderId;
     private Button btnContinueShopping;
