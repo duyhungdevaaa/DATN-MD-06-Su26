@@ -2,6 +2,12 @@ package fpoly.DatnMD06Su26.trendify;
 
 import fpoly.DatnMD06Su26.trendify.activity.CartActivity;
 import fpoly.DatnMD06Su26.trendify.adapter.ScreenPagerAdapter;
+import fpoly.DatnMD06Su26.trendify.R;
+import fpoly.DatnMD06Su26.trendify.activity.CartActivity;
+import fpoly.DatnMD06Su26.trendify.adapter.ScreenPagerAdapter;
+
+import android.content.Intent;
+import android.os.Bundle;
 
 import android.content.Intent;
 import android.os.Bundle;

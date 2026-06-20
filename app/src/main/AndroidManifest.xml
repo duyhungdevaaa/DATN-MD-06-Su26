@@ -23,6 +23,10 @@
         </activity>
 
         <activity
+            android:name=".activity.OrderHistoryActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".activity.LoginActivity"
             android:exported="false" />
 
@@ -44,9 +48,34 @@
 
         <activity
             android:name=".activity.PrivacyPolicyActivity"
+            android:exported="false" />
             
         <activity
+            android:name=".activity.NotificationsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".activity.ProductDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.OrderConfirmActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.PayOSPaymentActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.OrderSuccessActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.TrackOrderActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.PaymentMethodActivity"
             android:exported="false" />
 
         <activity
@@ -55,6 +84,27 @@
 
         <activity
             android:name=".activity.CartActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.HelpCenterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.ShippingAddressActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.TermsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.TrackOrderActivity"
+            android:name=".activity.ProductListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.ReturnRequestActivity"
             android:exported="false" />
     </application>
 
