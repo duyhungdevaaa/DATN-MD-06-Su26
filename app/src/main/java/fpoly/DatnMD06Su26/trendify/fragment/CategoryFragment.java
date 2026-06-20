@@ -16,6 +16,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import fpoly.DatnMD06Su26.trendify.R;
 
 public class CategoryFragment extends Fragment {
 
@@ -42,5 +46,6 @@ public class CategoryFragment extends Fragment {
         });
         
         return view;
+        return inflater.inflate(R.layout.fragment_category, container, false);
     }
 }

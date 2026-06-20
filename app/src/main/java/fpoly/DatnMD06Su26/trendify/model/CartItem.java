@@ -12,6 +12,7 @@ public class CartItem {
     private String color = "";
     private String cartItemId = "";
 
+    public CartItem() {} // bắt buộc cho Firestore
     public CartItem() {} // Bắt buộc cho Firestore
 
     public CartItem(String productId, String name, String price, int quantity, String imageUrl) {
@@ -60,6 +61,9 @@ public class CartItem {
     }
     public void setCartItemId(String cartItemId) { this.cartItemId = cartItemId; }
 
+    public void setPriceAsLong(long priceAsLong) { /* Ignore - required to prevent Firestore mapping warnings */ }
+
+    // Tính giá số để cộng tổng (bỏ "đ" và dấu chấm)
     public void setPriceAsLong(long priceAsLong) { /* Bắt buộc để tránh cảnh báo mapping của Firestore */ }
 
     // Tính toán giá tiền số thực tế để cộng tổng hóa đơn (bỏ ký tự 'đ' và các dấu chấm phân cách)
