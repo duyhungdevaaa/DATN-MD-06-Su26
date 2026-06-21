@@ -44,6 +44,9 @@
 
         <activity
             android:name=".activity.PrivacyPolicyActivity"
+            
+        <activity
+            android:name=".activity.ProductDetailActivity"
             android:exported="false" />
     </application>
 
