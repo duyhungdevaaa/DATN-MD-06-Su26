@@ -8,5 +8,28 @@
     <string name="onboarding_desc_2">Lưu những sản phẩm yêu thích và tạo danh sách mua sắm cá nhân</string>
     <string name="onboarding_title_3">Giao Hàng Nhanh</string>
     <string name="onboarding_desc_3">Giao hàng nhanh chóng và đáng tin cậy đến tận nhà bạn</string>
-    <string name="btn_start">Bắt đầu</string>
+    <string name="btn_start">Bắt Đầu</string>
+    
+    <!-- Login Screen -->
+    <string name="login_welcome">Chào mừng trở lại!</string>
+    <string name="login_subtitle">Đăng nhập để tiếp tục</string>
+    <string name="email">EMAIL</string>
+    <string name="password">MẬT KHẨU</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+    <string name="login">Đăng Nhập</string>
+    <string name="no_account">Chưa có tài khoản?</string>
+    <string name="register">Đăng Ký</string>
+    
+    <!-- Register Screen -->
+    <string name="create_account">Tạo Tài Khoản</string>
+    <string name="register_subtitle">Đăng ký để bắt đầu</string>
+    <string name="full_name">HỌ VÀ TÊN</string>
+    <string name="create_account_btn">Tạo Tài Khoản</string>
+    <string name="have_account">Đã có tài khoản?</string>
+    
+    <!-- Forgot Password Screen -->
+    <string name="reset_password">Đặt Lại Mật Khẩu</string>
+    <string name="forgot_subtitle">Nhập email của bạn để nhận liên kết đặt lại mật khẩu</string>
+    <string name="send_link">Gửi Liên Kết</string>
+    <string name="remember_password">Đã nhớ mật khẩu?</string>
 </resources>

@@ -1,16 +1,16 @@
-package fpoly.DatnMD06Su26.trendify;
+package fpoly.DatnMD06Su26.trendify.activity;
 
-import fpoly.DatnMD06Su26.trendify.activity.CartActivity;
-import fpoly.DatnMD06Su26.trendify.adapter.ScreenPagerAdapter;
 import fpoly.DatnMD06Su26.trendify.R;
-import fpoly.DatnMD06Su26.trendify.activity.CartActivity;
-import fpoly.DatnMD06Su26.trendify.adapter.ScreenPagerAdapter;
 
-import android.content.Intent;
-import android.os.Bundle;
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
+import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -19,6 +19,10 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -66,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.fabCart).setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, CartActivity.class));
+            startActivity(new android.content.Intent(MainActivity.this, CartActivity.class));
         });
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {

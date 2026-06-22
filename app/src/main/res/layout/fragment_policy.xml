@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/trend_bg"
+    android:fillViewport="true"
+    android:paddingBottom="96dp"
+    tools:context=".PolicyFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:id="@+id/tvPolicyMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="☰"
+                android:textColor="@color/trend_text"
+                android:textSize="20sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvPolicyBrand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="serif"
+                android:text="TRENDIFY"
+                android:textColor="@color/trend_text"
+                android:textSize="22sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvPolicyBag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="👜"
+                android:textColor="@color/trend_text"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="serif"
+            android:gravity="center"
+            android:lineSpacingExtra="2dp"
+            android:text="CHÍNH SÁCH &amp; ĐIỀU\nKHOẢN"
+            android:textColor="@color/trend_text"
+            android:textSize="31sp"
+            android:textStyle="normal" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:lineSpacingExtra="5dp"
+            android:paddingTop="24dp"
+            android:text="Chào mừng bạn đến với Trendify. Cam kết về sự hoàn hảo của chúng tôi không chỉ dừng lại ở các bộ sưu tập được tuyển chọn mà còn ở tinh minh bạch trong hoạt động. Dưới đây bạn sẽ tìm thấy các hướng dẫn toàn diện điều chỉnh trải nghiệm mua sắm của mình, đảm bảo các tiêu chuẩn cao nhất về dịch vụ và bảo mật."
+            android:textColor="@color/trend_text"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="serif"
+            android:paddingTop="34dp"
+            android:text="CHÍNH SÁCH GIAO HÀNG"
+            android:textColor="@color/trend_text"
+            android:textSize="24sp"
+            android:textStyle="normal" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="5dp"
+            android:paddingTop="10dp"
+            android:text="Chúng tôi cung cấp dịch vụ giao hàng tận nơi cao cấp trên toàn thế giới. Mỗi đơn hàng đều được kiểm tra tỉ mỉ và đóng gói trong hộp dựng bền vững đặc trưng của chúng tôi."
+            android:textColor="@color/trend_text"
+            android:textSize="14sp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            app:cardBackgroundColor="#F7F5F1"
+            app:cardCornerRadius="6dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="serif"
+                    android:text="TRONG NƯỚC"
+                    android:textColor="@color/trend_text"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingExtra="4dp"
+                    android:paddingTop="6dp"
+                    android:text="Giao hàng nhanh miễn phí cho mọi đơn hàng. Thời gian dự kiến: 2-3 ngày làm việc."
+                    android:textColor="@color/trend_muted"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:cardBackgroundColor="#F7F5F1"
+            app:cardCornerRadius="6dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="serif"
+                    android:text="QUỐC TẾ"
+                    android:textColor="@color/trend_text"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingExtra="4dp"
+                    android:paddingTop="6dp"
+                    android:text="Phí cố định 45$ qua DHL Priority. Thời gian dự kiến: 5-7 ngày làm việc tùy thuộc vào thủ tục hải quan."
+                    android:textColor="@color/trend_muted"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="26dp"
+            android:background="@color/trend_border" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="18dp"
+            android:text="ĐỔI &amp; TRẢ HÀNG   ˅"
+            android:textColor="@color/trend_text"
+            android:textSize="24sp"
+            android:fontFamily="serif" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/trend_border" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="18dp"
+            android:text="CHÍNH SÁCH BẢO MẬT   ˅"
+            android:textColor="@color/trend_text"
+            android:textSize="24sp"
+            android:fontFamily="serif" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/trend_border" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="18dp"
+            android:text="ĐIỀU KHOẢN DỊCH VỤ   ˅"
+            android:textColor="@color/trend_text"
+            android:textSize="24sp"
+            android:fontFamily="serif" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/trend_border" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="serif"
+            android:gravity="center"
+            android:paddingTop="34dp"
+            android:text="BẠN CẦN TRỢ GIÚP?"
+            android:textColor="@color/trend_text"
+            android:textSize="24sp"
+            android:textStyle="normal" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:paddingTop="12dp"
+            android:text="Đội ngũ Chăm sóc khách hàng của chúng tôi sẵn sàng 24/7 để trả lời bất kỳ câu hỏi nào về pháp lý hoặc chính sách."
+            android:textColor="@color/trend_muted"
+            android:textSize="13sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/trend_text"
+            android:text="HỖ TRỢ QUA EMAIL"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:cornerRadius="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@android:color/white"
+            android:text="TRÒ CHUYỆN TRỰC TIẾP"
+            android:textAllCaps="false"
+            android:textColor="@color/trend_text"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:cornerRadius="0dp"
+            app:strokeColor="@color/trend_gold"
+            app:strokeWidth="1dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="260dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginBottom="22dp"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/scene_policy_boutique" />
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

@@ -2,6 +2,12 @@ package fpoly.DatnMD06Su26.trendify.activity;
 
 import fpoly.DatnMD06Su26.trendify.R;
 
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
+import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -39,7 +45,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         btnSendLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                 // Gửi link khôi phục mật khẩu (tùy chọn triển khai thêm)
+                 
             }
         });
     }
