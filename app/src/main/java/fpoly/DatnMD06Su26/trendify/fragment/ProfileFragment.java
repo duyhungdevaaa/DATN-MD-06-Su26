@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +49,26 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        ImageView ivSearch = view.findViewById(R.id.ivSearch);
+        ImageView ivNotification = view.findViewById(R.id.ivNotification);
+        ImageView ivMenu = view.findViewById(R.id.ivMenu);
+
+        if (ivMenu != null) {
+            ivMenu.setOnClickListener(v -> Toast.makeText(requireContext(), "Menu chính", Toast.LENGTH_SHORT).show());
+        }
+        if (ivSearch != null) {
+            ivSearch.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).setCurrentPage(1);
+                }
+            });
+        }
+        if (ivNotification != null) {
+            ivNotification.setOnClickListener(v -> {
+                startActivity(new Intent(requireContext(), CartActivity.class));
+            });
+        }
 
         tvUserName = view.findViewById(R.id.tvUserName);
         tvUserEmail = view.findViewById(R.id.tvUserEmail);
