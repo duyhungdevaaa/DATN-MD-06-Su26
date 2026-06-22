@@ -8,10 +8,10 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Họ tên">
+        android:hint="Tên người nhận">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etFullName"
+            android:id="@+id/etAddressName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPersonName" />
@@ -24,9 +24,22 @@
         android:hint="Số điện thoại">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etPhone"
+            android:id="@+id/etAddressPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="phone" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="Địa chỉ">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etAddressDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPostalAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>
