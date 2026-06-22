@@ -41,20 +41,9 @@
         <activity
             android:name=".activity.ForgotPasswordActivity"
             android:exported="false" />
-
-        <activity
-            android:name=".activity.PrivacyPolicyActivity"
             
         <activity
             android:name=".activity.ProductDetailActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".activity.AddressManagementActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".activity.CartActivity"
             android:exported="false" />
     </application>
 
