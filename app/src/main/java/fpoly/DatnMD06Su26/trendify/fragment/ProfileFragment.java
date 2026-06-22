@@ -1,9 +1,14 @@
 package fpoly.DatnMD06Su26.trendify.fragment;
 
 import fpoly.DatnMD06Su26.trendify.SessionManager;
+
 import fpoly.DatnMD06Su26.trendify.R;
-import fpoly.DatnMD06Su26.trendify.activity.LoginActivity;
-import fpoly.DatnMD06Su26.trendify.model.UserProfile;
+
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
+import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -19,6 +24,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.textfield.TextInputEditText;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProfileFragment extends Fragment {
 
@@ -71,15 +79,40 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadUserProfile() {
-        // Sử dụng dữ liệu giả lập (Mock) cho Front-end
-        currentProfile = new UserProfile("mock_uid", "Nguyễn Văn A", "nguyenvana@email.com", "0123456789", null);
-        tvUserName.setText(currentProfile.getFullName());
-        tvUserEmail.setText(currentProfile.getEmail());
+        if (!SessionManager.getInstance().isLoggedIn()) {
+            showLoggedOutState();
+            return;
+        }
+
+        FirestoreHelper.loadUserProfile(new FirestoreHelper.ProfileCallback() {
+            @Override
+            public void onLoaded(UserProfile profile) {
+                currentProfile = profile;
+                tvUserName.setText(profile.getFullName());
+                tvUserEmail.setText(profile.getEmail());
+            }
+
+            @Override
+            public void onFailure(String error) {
+                String displayName = "Khách hàng";
+                String email = "";
+                currentProfile = new UserProfile(SessionManager.getInstance().getUserId(), displayName, email, "", null);
+                tvUserName.setText(displayName);
+                tvUserEmail.setText(email);
+                Toast.makeText(getContext(), "Không thể tải hồ sơ: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void handleEditProfile() {
+        if (!SessionManager.getInstance().isLoggedIn()) {
+            startActivity(new Intent(requireContext(), LoginActivity.class));
+            return;
+        }
         if (currentProfile == null) {
+            Toast.makeText(getContext(), "Đang tải hồ sơ...", Toast.LENGTH_SHORT).show();
             loadUserProfile();
+            return;
         }
         showEditProfileDialog();
     }
@@ -102,47 +135,58 @@ public class ProfileFragment extends Fragment {
                         Toast.makeText(getContext(), "Họ tên không được để trống", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    
-                    // Giả lập lưu cục bộ cho Front-end
-                    currentProfile.setFullName(fullName);
-                    currentProfile.setPhone(phone);
-                    tvUserName.setText(fullName);
-                    Toast.makeText(getContext(), "Cập nhật hồ sơ thành công", Toast.LENGTH_SHORT).show();
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("fullName", fullName);
+                    updates.put("phone", phone);
+                    FirestoreHelper.updateUserProfile(updates, new FirestoreHelper.SimpleCallback() {
+                        @Override
+                        public void onSuccess() {
+                            currentProfile.setFullName(fullName);
+                            currentProfile.setPhone(phone);
+                            tvUserName.setText(fullName);
+                            Toast.makeText(getContext(), "Cập nhật hồ sơ thành công", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            Toast.makeText(getContext(), "Cập nhật hồ sơ thất bại: " + error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
     }
 
     private void handleMyOrders() {
-        Toast.makeText(getContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(getContext(), OrderHistoryActivity.class));
     }
 
     private void handleDeliveryAddress() {
-        Toast.makeText(getContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(getContext(), AddressManagementActivity.class));
     }
 
     private void handlePaymentMethods() {
-        Toast.makeText(getContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(getContext(), PaymentMethodActivity.class));
     }
 
     private void handleNotifications() {
-        Toast.makeText(getContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(getContext(), NotificationsActivity.class));
     }
 
     private void handleHelpCenter() {
-        Toast.makeText(getContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(getContext(), HelpCenterActivity.class));
     }
 
     private void handlePrivacyPolicy() {
-        Toast.makeText(getContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(getContext(), PrivacyPolicyActivity.class));
     }
 
     private void handleTermsOfService() {
-        Toast.makeText(getContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(getContext(), TermsActivity.class));
     }
 
     private void handleSettings() {
-        Toast.makeText(getContext(), "Tính năng đang phát triển", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(getContext(), SettingsActivity.class));
     }
 
     private void showLogoutDialog() {
@@ -159,5 +203,10 @@ public class ProfileFragment extends Fragment {
         Intent intent = new Intent(getContext(), LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+    }
+
+    private void showLoggedOutState() {
+        tvUserName.setText("Chưa đăng nhập");
+        tvUserEmail.setText("");
     }
 }
