@@ -1,11 +1,14 @@
 package fpoly.DatnMD06Su26.trendify.fragment;
 
 import fpoly.DatnMD06Su26.trendify.SessionManager;
+
 import fpoly.DatnMD06Su26.trendify.R;
-import fpoly.DatnMD06Su26.trendify.activity.LoginActivity;
-import fpoly.DatnMD06Su26.trendify.adapter.FavoriteAdapter;
-import fpoly.DatnMD06Su26.trendify.model.ProductItem;
-import fpoly.DatnMD06Su26.trendify.helper.FirestoreHelper;
+
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
+import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -19,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,3 +117,4 @@ public class FavoriteFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_favorite, container, false);
     }
 }
+
