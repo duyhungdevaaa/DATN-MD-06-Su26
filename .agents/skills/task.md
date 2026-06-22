@@ -1,0 +1,22 @@
+# Các nhiệm vụ sao chép và commit 4 màn hình hoạt động
+
+- [x] **Phần 1: Màn hình thanh toán PayOS (Commit 1)**
+    - [x] Sao chép `PayOSPaymentActivity.java` và layout `activity_payos_payment.xml`
+    - [x] Cập nhật `AndroidManifest.xml` đăng ký `PayOSPaymentActivity`
+    - [x] Commit Nhất định: `"Thêm màn hình thanh toán PayOS"` và Push lên `main`
+- [x] **Phần 2: Màn hình chi tiết sản phẩm (Commit 2)**
+    - [x] Cập nhật `FirestoreHelper.java` với các phương thức bổ sung
+    - [x] Sao chép `ProductDetailActivity.java` và layout `activity_product_detail.xml`
+    - [x] Cập nhật `AndroidManifest.xml` đăng ký `ProductDetailActivity`
+    - [x] Commit Phần 2: `"Thêm màn hình chi tiết sản phẩm"` và Push lên `main`
+- [x] **Phần 3: Màn hình danh sách sản phẩm theo danh mục (Commit 3)**
+    - [x] Sao chép `ProductListActivity.java` và layout `activity_product_list.xml`
+    - [x] Sao chép `ProductAdapter.java` và layout `item_product.xml`
+    - [x] Sao chép `FilterBottomSheetFragment.java` và layout `fragment_filter_bottom_sheet.xml`
+    - [x] Sao chép `ic_filter.xml`
+    - [x] Cập nhật `AndroidManifest.xml` đăng ký `ProductListActivity`
+    - [x] Commit Phần 3: `"Thêm màn hình danh sách sản phẩm theo danh mục"` và Push lên `main`
+- [x] **Phần 4: Màn hình yêu cầu đổi trả (Commit 4)**
+    - [x] Sao chép `ReturnRequestActivity.java` và layout `activity_return_request.xml`
+    - [x] Cập nhật `AndroidManifest.xml` đăng ký `ReturnRequestActivity`
+    - [x] Commit Phần 4: `"Thêm màn hình yêu cầu đổi trả sản phẩm"` và Push lên `main`
