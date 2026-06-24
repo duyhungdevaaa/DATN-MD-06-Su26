@@ -41,13 +41,13 @@
         <activity
             android:name=".activity.ForgotPasswordActivity"
             android:exported="false" />
-
+            
         <activity
-            android:name=".activity.PrivacyPolicyActivity"
+            android:name=".activity.NotificationsActivity"
             android:exported="false" />
 
         <activity
-            android:name=".activity.AddressManagementActivity"
+            android:name=".activity.ProductDetailActivity"
             android:exported="false" />
     </application>
 
