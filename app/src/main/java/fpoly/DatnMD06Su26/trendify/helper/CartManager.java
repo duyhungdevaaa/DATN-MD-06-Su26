@@ -52,6 +52,7 @@ public class CartManager {
     }
 
     // Đường dẫn: users/{uid}/cart/{productId}
+    // Đường dẫn Firestore: users/{uid}/cart/{productId}
     private DocumentReference cartItemRef(String productId) {
         return db.collection(COLLECTION_USERS)
                 .document(userId)
@@ -60,6 +61,7 @@ public class CartManager {
     }
 
     // Thêm hoặc tăng số lượng sản phẩm trong giỏ
+    // Thêm sản phẩm mới hoặc tăng số lượng nếu đã tồn tại trong giỏ hàng
     public void addToCart(CartItem item, CartCallback callback) {
         if (!ensureAuthenticated(callback)) return;
         if (item == null || item.getProductId() == null || item.getProductId().isEmpty()) {
@@ -89,6 +91,7 @@ public class CartManager {
     }
 
     // Xóa 1 sản phẩm khỏi giỏ
+    // Xóa sản phẩm khỏi giỏ hàng
     public void removeFromCart(String productId, CartCallback callback) {
         cartItemRef(productId).delete()
                 .addOnSuccessListener(v -> callback.onSuccess())
@@ -96,6 +99,7 @@ public class CartManager {
     }
 
     // Cập nhật số lượng
+    // Cập nhật số lượng của một sản phẩm trong giỏ hàng
     public void updateQuantity(String productId, int newQty, CartCallback callback) {
         if (!ensureAuthenticated(callback)) return;
         if (productId == null || productId.isEmpty()) {
@@ -112,6 +116,7 @@ public class CartManager {
     }
 
     // Load toàn bộ giỏ hàng
+    // Tải danh sách sản phẩm trong giỏ hàng của người dùng hiện tại
     public void loadCart(CartLoadCallback callback) {
         if (!ensureAuthenticated(callback)) return;
         db.collection(COLLECTION_USERS)
@@ -130,6 +135,7 @@ public class CartManager {
     }
 
     // Xóa toàn bộ giỏ sau khi đặt hàng thành công
+    // Xóa sạch toàn bộ giỏ hàng của người dùng (gọi khi đặt hàng thành công)
     public void clearCart(CartCallback callback) {
         if (!ensureAuthenticated(callback)) return;
         db.collection(COLLECTION_USERS).document(userId)
