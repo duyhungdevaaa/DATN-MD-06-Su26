@@ -95,6 +95,11 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             bottomNavigationView.setSelectedItemId(R.id.nav_home);
         }
+
+        findViewById(R.id.fabChat).setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(this, fpoly.DatnMD06Su26.trendify.activity.ChatActivity.class);
+            startActivity(intent);
+        });
     }
 
     public void setCurrentPage(int page) {
