@@ -24,6 +24,8 @@ import java.util.List;
 import fpoly.DatnMD06Su26.trendify.R;
 import fpoly.DatnMD06Su26.trendify.adapter.ChatAdapter;
 import fpoly.DatnMD06Su26.trendify.model.ChatMessage;
+import fpoly.DatnMD06Su26.trendify.model.ProductItem;
+import fpoly.DatnMD06Su26.trendify.helper.FirestoreHelper;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -40,9 +42,10 @@ public class ChatActivity extends AppCompatActivity {
     private ChatAdapter chatAdapter;
     private List<ChatMessage> messageList;
 
-    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + fpoly.DatnMD06Su26.trendify.BuildConfig.GEMINI_API_KEY;
+    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + fpoly.DatnMD06Su26.trendify.BuildConfig.GEMINI_API_KEY;
     private OkHttpClient client;
     private Handler mainHandler;
+    private String productContext = "Hiện tại cửa hàng chưa tải được danh mục sản phẩm.";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +76,40 @@ public class ChatActivity extends AppCompatActivity {
         // Hiển thị tin nhắn chào mừng từ bot
         addBotMessage("Xin chào! Tôi là trợ lý ảo AI của Trendify. Tôi có thể giúp gì cho bạn?");
 
+        loadProductsForContext();
+
         btnSend.setOnClickListener(v -> sendMessage());
+    }
+
+    private void loadProductsForContext() {
+        FirestoreHelper.loadAllProducts(new FirestoreHelper.ProductsCallback() {
+            @Override
+            public void onLoaded(List<ProductItem> products) {
+                if (products == null || products.isEmpty()) {
+                    productContext = "Hiện tại cửa hàng không có sản phẩm nào.";
+                    return;
+                }
+                StringBuilder sb = new StringBuilder("Danh sách sản phẩm hiện tại của cửa hàng Trendify:\n");
+                for (int i = 0; i < products.size(); i++) {
+                    ProductItem p = products.get(i);
+                    sb.append("- ").append(p.getName())
+                      .append(" (Giá: ").append(p.getPrice()).append("đ");
+                    if (p.getSizes() != null && !p.getSizes().isEmpty()) {
+                        sb.append(", Size: ").append(android.text.TextUtils.join("/", p.getSizes()));
+                    }
+                    if (p.getColors() != null && !p.getColors().isEmpty()) {
+                        sb.append(", Màu: ").append(android.text.TextUtils.join("/", p.getColors()));
+                    }
+                    sb.append(")\n");
+                }
+                productContext = sb.toString();
+            }
+
+            @Override
+            public void onFailure(String error) {
+                productContext = "Danh sách sản phẩm tạm thời không khả dụng do lỗi hệ thống.";
+            }
+        });
     }
 
     private void sendMessage() {
@@ -105,7 +141,11 @@ public class ChatActivity extends AppCompatActivity {
             JSONArray parts = new JSONArray();
             JSONObject part = new JSONObject();
 
-            part.put("text", "Bạn là một trợ lý ảo tư vấn bán hàng thời trang cho ứng dụng Trendify. Hãy trả lời ngắn gọn, thân thiện và hữu ích. Khách hàng hỏi: " + prompt);
+            part.put("text", "Bạn là một trợ lý ảo tư vấn bán hàng thời trang cho ứng dụng Trendify. Hãy tư vấn nhiệt tình, thân thiện dựa vào dữ liệu sản phẩm có sẵn.\n" +
+                             "--- DỮ LIỆU SẢN PHẨM ---\n" +
+                             productContext + "\n" +
+                             "------------------------\n" +
+                             "Khách hàng hỏi: " + prompt);
             parts.put(part);
             content.put("parts", parts);
             contents.put(content);
