@@ -23,10 +23,22 @@ android {
         buildConfig = true
     }
 
+    def localProperties = new Properties()
+    def localPropertiesFile = rootProject.file('local.properties')
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.withReader('UTF-8') { reader ->
+            localProperties.load(reader)
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "GEMINI_API_KEY", localProperties.getProperty('GEMINI_API_KEY', '""')
+        }
+        debug {
+            buildConfigField "String", "GEMINI_API_KEY", localProperties.getProperty('GEMINI_API_KEY', '""')
         }
     }
     compileOptions {
@@ -52,4 +64,5 @@ dependencies {
     implementation "com.google.firebase:firebase-database"
     implementation "org.mindrot:jbcrypt:0.4"
     implementation "com.github.bumptech.glide:glide:4.15.1"
+    implementation "com.squareup.okhttp3:okhttp:4.12.0"
 }
