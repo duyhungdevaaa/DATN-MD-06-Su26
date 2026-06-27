@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class OrderHistoryActivity extends AppCompatActivity {
 
@@ -91,10 +92,18 @@ public class OrderHistoryActivity extends AppCompatActivity {
                         List<?> items      = (List<?>) doc.get("items");
                         String productName = items != null && !items.isEmpty()
                                 ? "Đơn hàng " + orderId : "Đơn hàng";
+                        String imageUrl = "";
+                        if (items != null && !items.isEmpty()) {
+                            Map<?, ?> firstItem = (Map<?, ?>) items.get(0);
+                            if (firstItem != null && firstItem.get("imageUrl") != null) {
+                                imageUrl = firstItem.get("imageUrl").toString();
+                            }
+                        }
+
                         orders.add(new OrderItem(
                                 orderId, status, date, productName, 1,
                                 total != null ? String.format("%,dđ", total).replace(",", ".") : "0đ",
-                                0));
+                                0, imageUrl));
                     }
                     adapter.setOrderList(orders);
                 })

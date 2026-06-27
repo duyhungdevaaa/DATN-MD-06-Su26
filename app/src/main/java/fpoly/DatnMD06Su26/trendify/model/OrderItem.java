@@ -16,8 +16,8 @@ public class OrderItem {
     private int quantity;
     private String price;
     private int productImageRes;
-
-    public OrderItem(String orderId, String status, String date, String productName, int quantity, String price, int productImageRes) {
+    private String imageUrl;
+    public OrderItem(String orderId, String status, String date, String productName, int quantity, String price, int productImageRes, String imageUrl) {
         this.orderId = orderId;
         this.status = status;
         this.date = date;
@@ -25,6 +25,7 @@ public class OrderItem {
         this.quantity = quantity;
         this.price = price;
         this.productImageRes = productImageRes;
+        this.imageUrl = imageUrl;
     }
 
     public String getOrderId() {
@@ -81,5 +82,12 @@ public class OrderItem {
 
     public void setProductImageRes(int productImageRes) {
         this.productImageRes = productImageRes;
+    }
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
