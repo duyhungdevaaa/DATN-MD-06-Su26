@@ -50,6 +50,7 @@
         <activity android:name=".activity.SettingsActivity" android:exported="false" />
         <activity android:name=".activity.TermsActivity" android:exported="false" />
         <activity android:name=".activity.PrivacyPolicyActivity" android:exported="false" />
+        <activity android:name=".activity.ChatActivity" android:exported="false" />
     </application>
 
 </manifest>
