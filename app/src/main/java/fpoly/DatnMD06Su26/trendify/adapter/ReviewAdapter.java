@@ -49,6 +49,20 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         } else {
             holder.tvReviewDate.setText("");
         }
+        
+        String avatarUrl = review.getUserAvatar();
+        if (avatarUrl != null && !avatarUrl.isEmpty()) {
+            holder.ivReviewerAvatar.setPadding(0, 0, 0, 0);
+            holder.ivReviewerAvatar.setColorFilter(null); // Remove tint
+            com.bumptech.glide.Glide.with(holder.itemView.getContext())
+                    .load(avatarUrl)
+                    .circleCrop()
+                    .into(holder.ivReviewerAvatar);
+        } else {
+            holder.ivReviewerAvatar.setImageResource(R.drawable.ic_person);
+            holder.ivReviewerAvatar.setPadding(8, 8, 8, 8);
+            holder.ivReviewerAvatar.setColorFilter(android.graphics.Color.parseColor("#777777"));
+        }
     }
 
     @Override
@@ -61,6 +75,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         TextView tvReviewDate;
         RatingBar ratingBar;
         TextView tvReviewComment;
+        android.widget.ImageView ivReviewerAvatar;
 
         public ReviewViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -68,6 +83,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
             tvReviewDate = itemView.findViewById(R.id.tvReviewDate);
             ratingBar = itemView.findViewById(R.id.ratingBar);
             tvReviewComment = itemView.findViewById(R.id.tvReviewComment);
+            ivReviewerAvatar = itemView.findViewById(R.id.ivReviewerAvatar);
         }
     }
 }
