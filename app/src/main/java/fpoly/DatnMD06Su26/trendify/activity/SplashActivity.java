@@ -39,5 +39,10 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void onAnimationRepeat(Animator animation) {}
         });
+            public void run() {
+                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+                finish();
+            }
+        }, 2500);
     }
 }

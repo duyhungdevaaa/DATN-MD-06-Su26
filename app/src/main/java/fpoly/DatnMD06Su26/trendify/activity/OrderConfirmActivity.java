@@ -1,24 +1,24 @@
 package fpoly.DatnMD06Su26.trendify.activity;
 
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
+import fpoly.DatnMD06Su26.trendify.SessionManager;
+
 import fpoly.DatnMD06Su26.trendify.R;
 
-public class OrderConfirmActivity extends AppCompatActivity {
-import fpoly.DatnMD06Su26.trendify.SessionManager;
-import fpoly.DatnMD06Su26.trendify.R;
-import fpoly.DatnMD06Su26.trendify.helper.CartManager;
-import fpoly.DatnMD06Su26.trendify.helper.FirestoreHelper;
-import fpoly.DatnMD06Su26.trendify.model.CartItem;
-import fpoly.DatnMD06Su26.trendify.model.Voucher;
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
+import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.net.Uri;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ImageView;
+import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -605,5 +605,4 @@ public class OrderConfirmActivity extends AppCompatActivity {
 
     private String formatCurrency(long value) {
         return String.format("%,dđ", value).replace(",", ".");
-    }
-}
+    }}

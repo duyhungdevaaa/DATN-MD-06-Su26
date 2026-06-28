@@ -71,6 +71,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (this.isUserTyping != isUserTyping) {
             this.isUserTyping = isUserTyping;
             notifyDataSetChanged();
+            ((BotMessageViewHolder) holder).tvBotMessage.setText(message.getText());
         }
     }
 
