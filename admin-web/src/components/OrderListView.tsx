@@ -61,24 +61,24 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 animate-fade-in text-left">
+    <div className="space-y-6 animate-fade-in text-left font-sans">
       
       {/* Search and control filter line */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-6 rounded-xl border border-[#cfc4c5]/30 custom-shadow">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-zinc-200/60 shadow-sm">
         <div>
-          <h3 className="font-serif text-lg text-neutral-900 font-medium font-medium font-medium">Bản ghi vận đơn & Giao dịch</h3>
-          <p className="font-sans text-xs text-neutral-400 mt-1">
+          <h3 className="font-serif text-lg text-zinc-900 font-bold">Bản ghi vận đơn & Giao dịch</h3>
+          <p className="font-sans text-xs text-zinc-400 mt-1">
             Ghi nhận trạng thái hoàn thiện sản hóa Haute Couture, theo dõi thời trình giao nhận thông qua Giao Hàng Tiết Kiệm (GHTK).
           </p>
         </div>
 
         {/* Status filters selection dropdown */}
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest">Bộ trạng thái:</span>
+          <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest font-bold">Bộ trạng thái:</span>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#6c5e06] focus:outline-none focus:bg-white font-sans text-neutral-700"
+            className="bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none focus:bg-white font-sans text-zinc-700 font-bold"
           >
             <option value="All">Tất cả vận đơn</option>
             <option value={OrderStatus.PENDING}>Đang xử lý ({orders.filter(o => o.status === OrderStatus.PENDING).length})</option>
@@ -91,21 +91,21 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
 
       {/* Main Table Grid View */}
       {filteredOrders.length === 0 ? (
-        <div className="bg-white rounded-xl border border-[#cfc4c5]/30 p-16 text-center custom-shadow">
-          <div className="mx-auto w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center mb-4">
-            <ShoppingBag className="h-6 w-6 text-neutral-400" />
+        <div className="bg-white rounded-2xl border border-zinc-200/60 p-16 text-center shadow-sm">
+          <div className="mx-auto w-12 h-12 rounded-full bg-zinc-50 border border-zinc-150 flex items-center justify-center mb-4">
+            <ShoppingBag className="h-5 w-5 text-zinc-400" />
           </div>
-          <h3 className="font-serif text-lg text-neutral-800 font-medium">Không tìm thấy mã đơn hàng phù hợp</h3>
-          <p className="font-sans text-xs text-neutral-500 mt-2 max-w-sm mx-auto">
+          <h3 className="font-serif text-lg text-zinc-800 font-medium">Không tìm thấy mã đơn hàng phù hợp</h3>
+          <p className="font-sans text-xs text-zinc-500 mt-2 max-w-sm mx-auto leading-relaxed">
             Vui lòng thử gõ từ khóa tìm kiếm khác hoặc đổi bộ lọc trạng thái đơn hàng.
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-[#cfc4c5]/30 custom-shadow overflow-hidden">
+        <div className="bg-white rounded-2xl border border-zinc-200/50 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#fbf9f9] border-b border-neutral-100 font-sans text-[10px] text-neutral-400 uppercase tracking-widest font-bold">
+                <tr className="bg-zinc-50/50 border-b border-zinc-100 font-sans text-[9px] text-zinc-400 uppercase tracking-widest font-bold">
                   <th className="p-5 pl-8">Mã vận đơn (ID)</th>
                   <th className="p-5">Thượng khách</th>
                   <th className="p-5">Chi tiết sản phẩm dệt may</th>
@@ -114,28 +114,28 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
                   <th className="p-5 pr-8 text-center">Tác vụ</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100">
+              <tbody className="divide-y divide-zinc-100">
                 {filteredOrders.map((order) => {
                   return (
                     <tr 
                       key={order.id} 
-                      className="hover:bg-[#6c5e06]/5/20 transition-all cursor-pointer font-sans"
+                      className="hover:bg-zinc-50/60 transition-colors duration-250 cursor-pointer font-sans"
                       onClick={() => onSelectOrder(order)}
                     >
                       {/* Code ID */}
-                      <td className="p-5 pl-8 vertical-align-middle">
-                        <span className="font-mono text-xs font-bold text-[#1b1c1c] tracking-wider uppercase block">
+                      <td className="p-5 pl-8 align-middle">
+                        <span className="font-mono text-xs font-bold text-zinc-950 tracking-wider uppercase block">
                           #{order.id}
                         </span>
-                        <span className="font-mono text-[9px] text-neutral-400 block mt-1">
+                        <span className="font-mono text-[9px] text-zinc-400 block mt-1 font-bold">
                           {order.date} • {order.time}
                         </span>
                       </td>
 
                       {/* Customer Info */}
-                      <td className="p-5 vertical-align-middle">
+                      <td className="p-5 align-middle">
                         <div className="flex items-center gap-3">
-                          <div className="w-8.5 h-8.5 rounded-full overflow-hidden ring-2 ring-neutral-100/50 bg-neutral-100 shrink-0">
+                          <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-zinc-100 bg-zinc-50 shrink-0">
                             <img 
                               src={order.customerAvatar} 
                               alt={order.customerName}
@@ -144,10 +144,10 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
                             />
                           </div>
                           <div>
-                            <p className="text-xs font-bold text-neutral-800 leading-none">
+                            <p className="text-xs font-bold text-zinc-800 leading-none">
                               {order.customerName}
                             </p>
-                            <span className="text-[10px] text-neutral-400 mt-1 block tracking-tight truncate max-w-[140px]">
+                            <span className="text-[10px] text-zinc-400 mt-1 block tracking-tight truncate max-w-[140px]">
                               {order.email}
                             </span>
                           </div>
@@ -155,7 +155,7 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
                       </td>
 
                       {/* Items previews summary */}
-                      <td className="p-5 vertical-align-middle">
+                      <td className="p-5 align-middle">
                         <div className="flex items-center gap-2 max-w-sm">
                           <div className="flex -space-x-2.5 overflow-hidden shrink-0">
                             {order.items.slice(0, 3).map((item, idx) => (
@@ -170,10 +170,10 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
                             ))}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-xs font-bold text-neutral-800 truncate leading-none">
+                            <p className="text-xs font-bold text-zinc-850 truncate leading-none">
                               {order.items[0]?.name || "Đang dệt may..."}
                             </p>
-                            <span className="text-[9px] text-neutral-400 mt-1 block">
+                            <span className="text-[9px] text-zinc-400 mt-1 block font-bold">
                               {order.items.length > 1 ? `và ${order.items.length - 1} áo quần phụ kiện khác` : `Mã hàng: ${order.items[0]?.sku || "-"}`}
                             </span>
                           </div>
@@ -181,36 +181,52 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
                       </td>
 
                       {/* Calculations total sum block */}
-                      <td className="p-5 vertical-align-middle text-right">
-                        <strong className="font-mono text-xs font-bold text-neutral-900 block">
+                      <td className="p-5 align-middle text-right">
+                        <strong className="font-mono text-xs font-bold text-zinc-950 block">
                           {formatVND(order.total)}
                         </strong>
-                        <span className="text-[9px] font-mono text-neutral-400 uppercase tracking-widest mt-1 block">
-                          {order.paymentMethod || "Visa Premium"}
+                        <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest mt-1 block font-bold">
+                          {order.paymentMethod || "Thẻ Visa"}
                         </span>
                       </td>
 
                       {/* Status design control */}
-                      <td className="p-5 vertical-align-middle text-center">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-semibold ${getStatusBadgeClass(order.status)}`}>
+                      <td className="p-5 align-middle text-center">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold ${
+                          order.status === OrderStatus.AWAITING_PAYMENT
+                            ? "bg-amber-50 text-amber-700 border-amber-100"
+                            : order.status === OrderStatus.PROCESSING
+                            ? "bg-purple-50 text-purple-700 border-purple-100"
+                            : order.status === OrderStatus.SHIPPING
+                            ? "bg-sky-50 text-sky-700 border-sky-100"
+                            : order.status === OrderStatus.DELIVERED
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                            : order.status === OrderStatus.REFUNDED
+                            ? "bg-rose-50 text-rose-700 border-rose-100"
+                            : "bg-red-50 text-red-700 border-red-100" // Cancelled
+                        }`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${
-                            order.status === OrderStatus.PENDING 
-                              ? 'bg-amber-500' 
+                            order.status === OrderStatus.AWAITING_PAYMENT 
+                              ? 'bg-amber-500 animate-pulse' 
+                              : order.status === OrderStatus.PROCESSING 
+                              ? 'bg-purple-500 animate-pulse' 
                               : order.status === OrderStatus.SHIPPING 
-                              ? "bg-sky-500" 
+                              ? "bg-sky-500 animate-pulse" 
                               : order.status === OrderStatus.CANCELLED
                               ? "bg-red-500"
-                              : "bg-green-500"
+                              : order.status === OrderStatus.REFUNDED
+                              ? "bg-rose-500"
+                              : "bg-emerald-500" // DELIVERED
                           }`} />
                           {order.status}
                         </span>
                       </td>
 
                       {/* Actions */}
-                      <td className="p-5 vertical-align-middle pr-8 text-center" onClick={(e) => e.stopPropagation()}>
+                      <td className="p-5 align-middle pr-8 text-center" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => onSelectOrder(order)}
-                          className="p-1.5 px-3 text-[10px] font-bold uppercase tracking-wider font-sans rounded-lg bg-neutral-100 hover:bg-[#6c5e06]/10 text-neutral-600 hover:text-[#6c5e06] border border-neutral-200 transition-colors duration-200 inline-flex items-center gap-1.5"
+                          className="p-1.5 px-3 text-[10px] font-bold uppercase tracking-wider font-sans rounded-lg bg-zinc-50 hover:bg-[#8c7623]/10 text-zinc-650 hover:text-[#8c7623] border border-zinc-200/80 transition-colors duration-200 inline-flex items-center gap-1.5"
                         >
                           <Eye className="h-3.5 w-3.5" />
                           Xem chi tiết
