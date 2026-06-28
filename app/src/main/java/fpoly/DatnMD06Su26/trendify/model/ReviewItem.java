@@ -6,6 +6,7 @@ public class ReviewItem {
     private String productId;
     private String userId;
     private String userName;
+    private String userAvatar;
     private float rating;
     private String comment;
     private long createdAt;
@@ -14,11 +15,12 @@ public class ReviewItem {
         // Required for Firestore deserialization
     }
 
-    public ReviewItem(String reviewId, String productId, String userId, String userName, float rating, String comment, long createdAt) {
+    public ReviewItem(String reviewId, String productId, String userId, String userName, String userAvatar, float rating, String comment, long createdAt) {
         this.reviewId = reviewId;
         this.productId = productId;
         this.userId = userId;
         this.userName = userName;
+        this.userAvatar = userAvatar;
         this.rating = rating;
         this.comment = comment;
         this.createdAt = createdAt;
@@ -54,6 +56,14 @@ public class ReviewItem {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getUserAvatar() {
+        return userAvatar;
+    }
+
+    public void setUserAvatar(String userAvatar) {
+        this.userAvatar = userAvatar;
     }
 
     public float getRating() {
