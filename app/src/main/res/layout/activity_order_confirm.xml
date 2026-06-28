@@ -291,6 +291,7 @@
                             android:textColor="@color/trend_muted"
                             android:textSize="14sp" />
                         <TextView
+                            android:id="@+id/tvShippingFee"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="30.000đ"

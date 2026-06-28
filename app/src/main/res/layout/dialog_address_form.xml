@@ -30,6 +30,30 @@
             android:inputType="phone" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <Spinner
+        android:id="@+id/spinnerProvince"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:padding="12dp"
+        android:background="@android:drawable/btn_dropdown" />
+
+    <Spinner
+        android:id="@+id/spinnerDistrict"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:padding="12dp"
+        android:background="@android:drawable/btn_dropdown" />
+
+    <Spinner
+        android:id="@+id/spinnerWard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:padding="12dp"
+        android:background="@android:drawable/btn_dropdown" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -40,6 +64,7 @@
             android:id="@+id/etAddressDetail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="Địa chỉ cụ thể (Số nhà, tên đường...)"
             android:inputType="textPostalAddress" />
     </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>
