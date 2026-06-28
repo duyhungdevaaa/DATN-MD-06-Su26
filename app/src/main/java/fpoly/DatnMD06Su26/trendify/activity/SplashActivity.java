@@ -28,8 +28,8 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                // Chuyển sang màn hình Onboarding giới thiệu ứng dụng
-                startActivity(new Intent(SplashActivity.this, OnboardingActivity.class));
+                // Chuyển sang màn hình Đăng nhập luôn
+                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
                 finish();
             }
 
@@ -39,10 +39,6 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void onAnimationRepeat(Animator animation) {}
         });
-            public void run() {
-                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
-                finish();
-            }
-        }, 2500);
+
     }
 }
