@@ -1,397 +1,261 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/trend_bg"
-    android:fillViewport="true">
+    android:background="#F5F5F5">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="48dp">
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
 
-        <!-- Top Bar -->
+        <!-- Top Bar (Search + Icons) -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/topBar"
             android:layout_width="match_parent"
             android:layout_height="64dp"
-            android:background="@color/trend_bg"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:background="#EE4D2D"
+            app:layout_scrollFlags="scroll|enterAlways">
 
-            <ImageView
-                android:id="@+id/ivMenu"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_menu"
-                android:layout_marginStart="20dp"
-                app:tint="@color/trend_text"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <TextView
-                android:id="@+id/tvLogo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TRENDIFY"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="@color/trend_text"
-                android:letterSpacing="0.08"
-                android:fontFamily="serif"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <ImageView
-                android:id="@+id/ivSearch"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_search"
+            <LinearLayout
+                android:id="@+id/searchBarContainer"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                app:tint="@color/trend_text"
-                app:layout_constraintTop_toTopOf="parent"
+                android:background="@drawable/bg_card_surface"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="12dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/ivNotification" />
+                app:layout_constraintEnd_toStartOf="@id/ivCart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_search"
+                    app:tint="#757575" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Tìm kiếm sản phẩm, thương hiệu..."
+                    android:textColor="#757575"
+                    android:textSize="13sp" />
+            </LinearLayout>
 
             <ImageView
-                android:id="@+id/ivNotification"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:id="@+id/ivCart"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginEnd="16dp"
                 android:src="@drawable/ic_shopping_bag"
-                android:layout_marginEnd="20dp"
-                app:tint="@color/trend_text"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- Hero Banner -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/heroBanner"
-            android:layout_width="match_parent"
-            android:layout_height="520dp"
-            app:layout_constraintTop_toBottomOf="@id/topBar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+                app:layout_constraintEnd_toStartOf="@id/ivChat"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white" />
 
             <ImageView
-                android:id="@+id/ivHeroImage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop" />
+                android:id="@+id/ivChat"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_notifications"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#15000000" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:layout_marginBottom="48dp"
-                android:paddingHorizontal="24dp"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="BỘ SƯU TẬP MỚI NHẤT"
-                    android:textColor="@color/white"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.15"
-                    android:fontFamily="sans-serif-medium" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Mùa Hè Bình Yên '24"
-                    android:textColor="@color/white"
-                    android:textSize="32sp"
-                    android:textStyle="bold"
-                    android:fontFamily="serif"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center" />
-
-                <Button
-                    android:id="@+id/btnExplore"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="KHÁM PHÁ NGAY"
-                    android:textColor="@color/black"
-                    android:backgroundTint="@color/white"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:fontFamily="sans-serif-medium"
-                    android:letterSpacing="0.05"
-                    android:layout_marginTop="28dp"
-                    android:paddingHorizontal="28dp"
-                    android:paddingVertical="14dp"
-                    app:cornerRadius="2dp" />
-
-            </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
-        <!-- Categories Section Header -->
-        <TextView
-            android:id="@+id/tvCategories"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Danh Mục Nổi Bật"
-            android:textColor="@color/trend_text"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:fontFamily="serif"
-            android:layout_marginTop="40dp"
-            android:layout_marginStart="20dp"
-            app:layout_constraintTop_toBottomOf="@id/heroBanner"
-            app:layout_constraintStart_toStartOf="parent" />
+    <!-- Main Scrollable Content -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Category Váy Card -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layoutCatVay"
-            android:layout_width="match_parent"
-            android:layout_height="320dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginHorizontal="20dp"
-            android:background="@color/color_grey_bg"
-            app:layout_constraintTop_toBottomOf="@id/tvCategories">
-
-            <ImageView
-                android:id="@+id/ivCatVay"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="#D9FFFFFF"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="14dp"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Váy"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:fontFamily="serif" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_chevron_right"
-                    app:tint="@color/black" />
-            </LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- Category Áo Card -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layoutCatAo"
-            android:layout_width="match_parent"
-            android:layout_height="320dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginHorizontal="20dp"
-            android:background="@color/color_grey_bg"
-            app:layout_constraintTop_toBottomOf="@id/layoutCatVay">
-
-            <ImageView
-                android:id="@+id/ivCatAo"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="#D9FFFFFF"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="14dp"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Áo"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:fontFamily="serif" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_chevron_right"
-                    app:tint="@color/black" />
-            </LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- Category Phụ kiện Card -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/layoutCatPhuKien"
-            android:layout_width="match_parent"
-            android:layout_height="320dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginHorizontal="20dp"
-            android:background="@color/color_grey_bg"
-            app:layout_constraintTop_toBottomOf="@id/layoutCatAo">
-
-            <ImageView
-                android:id="@+id/ivCatPhuKien"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:background="#D9FFFFFF"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="14dp"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Phụ kiện"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:fontFamily="serif" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_chevron_right"
-                    app:tint="@color/black" />
-            </LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- Quote Section -->
         <LinearLayout
-            android:id="@+id/layoutQuote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center"
-            android:background="@color/color_grey_bg"
-            android:layout_marginTop="48dp"
-            android:paddingVertical="48dp"
-            android:paddingHorizontal="24dp"
-            app:layout_constraintTop_toBottomOf="@id/layoutCatPhuKien"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:paddingBottom="64dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="“"
-                android:textColor="@color/trend_gold"
-                android:textSize="54sp"
-                android:textStyle="bold"
-                android:fontFamily="serif"
-                android:lineHeight="24dp" />
+            <!-- Banner Area (Hardcoded View instead of ViewPager for now) -->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:background="#FF9800"
+                android:scaleType="centerCrop" />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- Menu Grid 2x4 -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Thời trang có thể mua được, nhưng phong cách là thứ bạn phải sở hữu."
-                android:textColor="@color/trend_text"
-                android:textSize="17sp"
-                android:textStyle="italic"
-                android:fontFamily="serif"
+                android:background="@color/white"
+                android:orientation="vertical"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp">
+
+                <!-- Row 1 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Menu Item -->
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#2196F3" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Khung Giờ Săn Sale" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#4CAF50" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Miễn Phí Vận Chuyển" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#FFC107" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hoàn Xu 20%" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#E91E63" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hàng Mới Về" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Row 2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp">
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#9C27B0" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tech Zone" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#F44336" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Siêu Thị Điện Tử" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#00BCD4" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mã Giảm Giá" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#795548" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tất Cả Danh Mục" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Spacer -->
+            <View android:layout_width="match_parent" android:layout_height="8dp" android:background="#F5F5F5" />
+
+            <!-- Flash Sale Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:orientation="vertical"
+                android:paddingTop="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="FLASH SALE"
+                        android:textColor="#EE4D2D"
+                        android:textSize="16sp"
+                        android:textStyle="bold|italic" />
+
+                    <!-- Countdown dummy -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:orientation="horizontal">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@color/black" android:textColor="@color/white" android:text="02" android:padding="2dp" android:textStyle="bold" android:textSize="12sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=":" android:textColor="@color/black" android:textStyle="bold" android:paddingHorizontal="2dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@color/black" android:textColor="@color/white" android:text="45" android:padding="2dp" android:textStyle="bold" android:textSize="12sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=":" android:textColor="@color/black" android:textStyle="bold" android:paddingHorizontal="2dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@color/black" android:textColor="@color/white" android:text="13" android:padding="2dp" android:textStyle="bold" android:textSize="12sp" />
+                    </LinearLayout>
+                    
+                    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Xem tất cả >"
+                        android:textColor="#757575"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Horizontal RecyclerView for Flash Sale -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvFlashSale"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:clipToPadding="false"
+                    android:layout_marginTop="8dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            </LinearLayout>
+
+            <!-- Spacer -->
+            <View android:layout_width="match_parent" android:layout_height="8dp" android:background="#F5F5F5" />
+
+            <!-- Daily Discovery Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@color/white"
                 android:gravity="center"
-                android:layout_marginTop="8dp" />
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="GỢI Ý HÔM NAY"
+                    android:textColor="#EE4D2D"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+                <View
+                    android:layout_width="100dp"
+                    android:layout_height="3dp"
+                    android:layout_marginTop="4dp"
+                    android:background="#EE4D2D" />
+            </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- Daily Discovery Grid -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvNewArrivals"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="— TRENDIFY EDITORIAL"
-                android:textColor="@color/color_text_secondary"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.12"
-                android:fontFamily="sans-serif-medium"
-                android:layout_marginTop="20dp" />
+                android:layout_marginHorizontal="4dp"
+                android:layout_marginTop="4dp"
+                android:nestedScrollingEnabled="false"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="2" />
+
         </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-        <!-- Recommended Products Section -->
-        <TextView
-            android:id="@+id/tvNewArrivalsLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Dành cho bạn"
-            android:textColor="@color/trend_text"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:fontFamily="serif"
-            android:layout_marginTop="48dp"
-            android:layout_marginStart="20dp"
-            app:layout_constraintTop_toBottomOf="@id/layoutQuote"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/tvNewArrivalsSub"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="GỢI Ý"
-            android:textColor="@color/trend_gold"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.15"
-            android:layout_marginBottom="4dp"
-            android:layout_marginStart="20dp"
-            app:layout_constraintBottom_toTopOf="@id/tvNewArrivalsLabel"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/tvSeeAll"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="XEM TẤT CẢ"
-            android:textColor="@color/trend_text"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.05"
-            android:layout_marginEnd="20dp"
-            app:layout_constraintTop_toTopOf="@id/tvNewArrivalsLabel"
-            app:layout_constraintBottom_toBottomOf="@id/tvNewArrivalsLabel"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvNewArrivals"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginHorizontal="12dp"
-            android:nestedScrollingEnabled="false"
-            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            app:spanCount="2"
-            app:layout_constraintTop_toBottomOf="@id/tvNewArrivalsLabel"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
