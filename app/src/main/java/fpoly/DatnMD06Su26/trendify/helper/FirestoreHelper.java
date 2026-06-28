@@ -179,6 +179,10 @@ public class FirestoreHelper {
     private static List<ProductItem> parseProducts(QuerySnapshot snapshot) {
         List<ProductItem> products = new ArrayList<>();
         for (DocumentSnapshot document : snapshot.getDocuments()) {
+            String status = document.getString("status");
+            if (status != null && !status.equals("active")) {
+                continue;
+            }
             String id = document.getId();
             String name = document.getString("name");
             String catId = document.getString("categoryId");
