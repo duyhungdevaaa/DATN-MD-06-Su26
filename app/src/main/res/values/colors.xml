@@ -1,10 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Core Brand Colors (Modern Trendify) -->
+    <color name="primary">#0F172A</color>       <!-- Slate 900 (Dark/Elegant) -->
+    <color name="primary_variant">#334155</color>
+    <color name="secondary">#3B82F6</color>     <!-- Blue 500 (Accent) -->
+    
+    <!-- Backgrounds & Surfaces (Light Mode) -->
+    <color name="background">#F8FAFC</color>    <!-- Slate 50 (Very Light Gray) -->
+    <color name="surface">#FFFFFF</color>       <!-- White -->
+    
+    <!-- Backgrounds & Surfaces (Dark Mode) -->
+    <color name="background_dark">#020617</color> <!-- Slate 950 -->
+    <color name="surface_dark">#0F172A</color>    <!-- Slate 900 -->
+
+    <!-- Semantic Colors -->
+    <color name="error">#EF4444</color>         <!-- Red 500 -->
+    <color name="success">#22C55E</color>       <!-- Green 500 -->
+
+    <!-- Text & Ink (Light Mode) -->
+    <color name="text_primary">#0F172A</color>  <!-- Slate 900 -->
+    <color name="text_secondary">#64748B</color> <!-- Slate 500 -->
+    <color name="text_hint">#94A3B8</color>      <!-- Slate 400 -->
+
+    <!-- Text & Ink (Dark Mode) -->
+    <color name="text_primary_dark">#F8FAFC</color> <!-- Slate 50 -->
+    <color name="text_secondary_dark">#94A3B8</color> <!-- Slate 400 -->
+    <color name="text_hint_dark">#64748B</color>      <!-- Slate 500 -->
+    
+    <!-- Utilities -->
+    <color name="divider">#E2E8F0</color>       <!-- Slate 200 -->
+    <color name="divider_dark">#1E293B</color>  <!-- Slate 800 -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="color_gold">#B89C76</color>
-    <color name="color_grey_bg">#f5f3f3</color>
-    <color name="color_circle_bg">#D9D9D9</color>
-    <color name="color_text_primary">#000000</color>
-    <color name="color_text_secondary">#757575</color>
+    
+    <!-- Legacy colors for backwards compatibility -->
+    <color name="color_gold">#F59E0B</color>    <!-- Amber 500 (Modern gold replacement) -->
+    <color name="color_grey_bg">#F1F5F9</color> <!-- Slate 100 -->
+    <color name="color_circle_bg">#E2E8F0</color> <!-- Slate 200 -->
+    <color name="color_text_primary">#0F172A</color>
+    <color name="color_text_secondary">#64748B</color>
 </resources>
