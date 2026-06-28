@@ -1,8 +1,12 @@
 package fpoly.DatnMD06Su26.trendify.activity;
 
 import fpoly.DatnMD06Su26.trendify.R;
-import fpoly.DatnMD06Su26.trendify.model.UserAddress;
-import fpoly.DatnMD06Su26.trendify.helper.FirestoreHelper;
+
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
+import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
 
 import android.app.AlertDialog;
 import android.os.Bundle;

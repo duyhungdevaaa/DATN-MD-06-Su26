@@ -1,11 +1,16 @@
 package fpoly.DatnMD06Su26.trendify.activity;
 
 import fpoly.DatnMD06Su26.trendify.JwtHelper;
+
 import fpoly.DatnMD06Su26.trendify.SessionManager;
+
 import fpoly.DatnMD06Su26.trendify.R;
-import fpoly.DatnMD06Su26.trendify.MainActivity;
-import fpoly.DatnMD06Su26.trendify.model.UserProfile;
-import fpoly.DatnMD06Su26.trendify.helper.FirestoreHelper;
+
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
+import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +24,8 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class RegisterActivity extends AppCompatActivity {
 

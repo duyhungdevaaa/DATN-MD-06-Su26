@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Bảng Điều Khiển</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🛍️ Bảng Điều Khiển - Quản Lý Ảnh</h1>
+            <div class="header-info">
+                <span id="firebaseStatus" class="status-badge">Đang kết nối...</span>
+            </div>
+        </header>
+
+        <div id="authSection" class="auth-section">
+            <div class="auth-card">
+                <h2>Đăng nhập Admin</h2>
+                <div class="form-group">
+                    <label for="adminEmail">Email</label>
+                    <input type="email" id="adminEmail" placeholder="admin@testt.com">
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">Mật khẩu</label>
+                    <input type="password" id="adminPassword" placeholder="•••••••">
+                </div>
+                <button id="btnAdminLogin" class="btn btn-primary">Đăng nhập</button>
+                <button id="btnAdminLogout" class="btn btn-secondary" style="display:none; margin-left: 10px;">Đăng xuất</button>
+                <div id="authMessage" class="auth-message"></div>
+                <small>Admin phải đăng nhập để upload và quản lý dữ liệu.</small>
+            </div>
+        </div>
+
+        <div class="content" id="adminContent" style="display:none;">
+            <nav class="tabs">
+                <button class="tab-btn active" data-tab="upload-products">📦 Upload Sản Phẩm</button>
+                <button class="tab-btn" data-tab="upload-categories">📁 Upload Danh Mục</button>
+                <button class="tab-btn" data-tab="manage-data">📊 Quản Lý Dữ Liệu</button>
+                <button class="tab-btn" data-tab="manage-orders">🧾 Quản Lý Đơn Hàng</button>
+            </nav>
+
+            <div class="tab-content active" id="upload-products">
+                <div class="section">
+                    <h2>Upload Ảnh Sản Phẩm</h2>
+                    <form id="productForm">
+                        <div class="form-group">
+                            <label for="productImage">Chọn Ảnh:</label>
+                            <input type="file" id="productImage" accept="image/*" required>
+                            <small>Hỗ trợ JPG, PNG, GIF</small>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productName">Tên Sản Phẩm:</label>
+                                <input type="text" id="productName" placeholder="Ví dụ: Áo Thun Xanh" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="productPrice">Giá (VND):</label>
+                                <input type="number" id="productPrice" placeholder="Ví dụ: 450000" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productCategory">Danh Mục:</label>
+                            <select id="productCategory" required>
+                                <option value="">Chọn Danh Mục...</option>
+                                <option value="women-fashion">Thời Trang Nữ</option>
+                                <option value="men-fashion">Thời Trang Nam</option>
+                                <option value="shoes">Giày Dép</option>
+                                <option value="bags">Túi Xách</option>
+                                <option value="accessories">Phụ Kiện</option>
+                                <option value="sports">Đồ Thể Thao</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productTags">Thẻ (cách nhau bằng dấu phẩy):</label>
+                            <input type="text" id="productTags" placeholder="Ví dụ: thời trang,hè,sale">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Kích cỡ:</label>
+                                <div class="sizes-checkboxes" style="display: flex; gap: 12px; flex-wrap: wrap; background: #fff; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="size-checkbox" value="S"> S</label>
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="size-checkbox" value="M"> M</label>
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="size-checkbox" value="L"> L</label>
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="size-checkbox" value="XL"> XL</label>
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="size-checkbox" value="XXL"> XXL</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Màu sắc:</label>
+                                <div class="colors-checkboxes" style="display: flex; gap: 12px; flex-wrap: wrap; background: #fff; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="color-checkbox" value="Xanh"> Xanh</label>
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="color-checkbox" value="Đỏ"> Đỏ</label>
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="color-checkbox" value="Tím"> Tím</label>
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="color-checkbox" value="Vàng"> Vàng</label>
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="color-checkbox" value="Trắng"> Trắng</label>
+                                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="color-checkbox" value="Đen"> Đen</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="productQuantityGroup">
+                            <label for="productQuantity">Số lượng sản phẩm:</label>
+                            <input type="number" id="productQuantity" placeholder="Ví dụ: 100" min="0" value="10" required>
+                        </div>
+
+                        <div id="productVariantsWrapper" style="display:none; margin-bottom: 15px;">
+                            <label style="font-weight: bold; margin-bottom: 5px; display: block;">Số lượng chi tiết theo Kích cỡ & Màu sắc:</label>
+                            <div id="productVariantsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; background: #f8f9fa; padding: 10px; border-radius: 6px; border: 1px solid #dee2e6;"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Upload Sản Phẩm</button>
+                    </form>
+
+                    <div id="productLog" class="log-container"></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="upload-categories">
+                <div class="section">
+                    <h2>Upload Ảnh Danh Mục</h2>
+                    <div class="upload-mode-select">
+                        <button class="mode-btn active" data-mode="single">Upload Đơn</button>
+                        <button class="mode-btn" data-mode="batch">Upload Hàng Loạt</button>
+                    </div>
+
+                    <div id="singleCategoryMode" class="mode-content active">
+                        <form id="singleCategoryForm">
+                            <div class="form-group">
+                                <label for="categoryImage">Chọn Ảnh:</label>
+                                <input type="file" id="categoryImage" accept="image/*" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="categoryName">Tên Danh Mục:</label>
+                                <input type="text" id="categoryName" placeholder="Ví dụ: Thời Trang Nữ" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="categoryId">ID Danh Mục:</label>
+                                <input type="text" id="categoryId" placeholder="Ví dụ: women-fashion" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Upload Danh Mục</button>
+                        </form>
+                    </div>
+
+                    <div id="batchCategoryMode" class="mode-content">
+                        <form id="batchCategoryForm">
+                            <div class="form-group">
+                                <label for="batchCategoryFile">Upload File CSV:</label>
+                                <input type="file" id="batchCategoryFile" accept=".csv" required>
+                                <small>Định dạng: tên,ảnhUrl hoặc tên,đường_dẫn_ảnh</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="batchImageDir">Thư Mục Ảnh Cục Bộ (tùy chọn):</label>
+                                <input type="text" id="batchImageDir" placeholder="Ví dụ: ./category-images">
+                                <small>Bỏ trống nếu dùng URL trong CSV</small>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Upload Hàng Loạt</button>
+                        </form>
+
+                        <div id="csvPreview" class="csv-preview" style="display:none;">
+                            <h4>Xem Trước CSV:</h4>
+                            <table id="csvTable">
+                                <thead>
+                                    <tr>
+                                        <th>Tên</th>
+                                        <th>Ảnh</th>
+                                        <th>Trạng Thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="categoryLog" class="log-container"></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="manage-data">
+                <div class="section">
+                    <h2>Quản Lý Dữ Liệu</h2>
+                    <div class="manage-tabs">
+                        <button class="manage-tab-btn active" data-manage-tab="products">Sản Phẩm</button>
+                        <button class="manage-tab-btn" data-manage-tab="categories">Danh Mục</button>
+                        <button class="manage-tab-btn" data-manage-tab="storage">File Lưu Trữ</button>
+                    </div>
+
+                    <div class="manage-tab-content active" id="products-manage">
+                        <div class="manage-actions">
+                            <button id="loadProducts" class="btn btn-secondary">Tải Sản Phẩm</button>
+                            <input type="text" id="productSearch" placeholder="Tìm sản phẩm...">
+                        </div>
+                        <div id="productsList" class="items-grid"></div>
+                    </div>
+
+                    <div class="manage-tab-content" id="categories-manage">
+                        <div class="manage-actions">
+                            <button id="loadCategories" class="btn btn-secondary">Tải Danh Mục</button>
+                        </div>
+                        <div id="categoriesList" class="items-grid"></div>
+                    </div>
+
+                    <div class="manage-tab-content" id="storage-manage">
+                        <div class="manage-actions">
+                            <button id="loadStorage" class="btn btn-secondary">Tải File Lưu Trữ</button>
+                            <select id="storageFolder">
+                                <option value="">Tất Cả Thư Mục</option>
+                                <option value="products">Sản Phẩm</option>
+                                <option value="categories">Danh Mục</option>
+                            </select>
+                        </div>
+                        <div id="storageList" class="items-grid"></div>
+                    </div>
+
+                    <div id="manageLog" class="log-container"></div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="manage-orders">
+                <div class="section">
+                    <h2>Quản Lý Đơn Hàng</h2>
+                    <div class="manage-actions">
+                        <button id="loadOrders" class="btn btn-secondary">Tải Đơn Hàng</button>
+                        <select id="orderStatusFilter">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="Đang xử lý">Đang xử lý</option>
+                            <option value="Đã giao">Đã giao</option>
+                            <option value="Đã hủy">Đã hủy</option>
+                        </select>
+                    </div>
+                    <div id="ordersList" class="items-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-label">Sản Phẩm Upload</span>
+                <span class="stat-value" id="productCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Danh Mục</span>
+                <span class="stat-value" id="categoryCount">6</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Dung Lượng Sử Dụng</span>
+                <span class="stat-value" id="storageUsed">--</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeProductModal">&times;</span>
+            <h3>Sửa Sản Phẩm</h3>
+            <form id="editProductForm">
+                <input type="hidden" id="editProductId">
+                <div class="form-group">
+                    <label for="editProductName">Tên Sản Phẩm:</label>
+                    <input type="text" id="editProductName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editProductPrice">Giá (VND):</label>
+                    <input type="number" id="editProductPrice" required>
+                </div>
+                <div class="form-group">
+                    <label for="editProductCategory">Danh Mục:</label>
+                    <select id="editProductCategory" required>
+                        <option value="women-fashion">Thời Trang Nữ</option>
+                        <option value="men-fashion">Thời Trang Nam</option>
+                        <option value="shoes">Giày Dép</option>
+                        <option value="bags">Túi Xách</option>
+                        <option value="accessories">Phụ Kiện</option>
+                        <option value="sports">Đồ Thể Thao</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editProductImage">Chọn Ảnh Mới (tùy chọn):</label>
+                    <input type="file" id="editProductImage" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="editProductImageUrl">Hoặc Nhập URL Ảnh:</label>
+                    <input type="text" id="editProductImageUrl">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Kích cỡ:</label>
+                        <div class="edit-sizes-checkboxes" style="display: flex; gap: 12px; flex-wrap: wrap; background: #fff; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="edit-size-checkbox" value="S"> S</label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="edit-size-checkbox" value="M"> M</label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="edit-size-checkbox" value="L"> L</label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="edit-size-checkbox" value="XL"> XL</label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="edit-size-checkbox" value="XXL"> XXL</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-weight: bold; display: block; margin-bottom: 5px;">Màu sắc:</label>
+                        <div class="edit-colors-checkboxes" style="display: flex; gap: 12px; flex-wrap: wrap; background: #fff; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="edit-color-checkbox" value="Xanh"> Xanh</label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="edit-color-checkbox" value="Đỏ"> Đỏ</label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="edit-color-checkbox" value="Tím"> Tím</label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="edit-color-checkbox" value="Vàng"> Vàng</label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="edit-color-checkbox" value="Trắng"> Trắng</label>
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: normal;"><input type="checkbox" class="edit-color-checkbox" value="Đen"> Đen</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" id="editProductQuantityGroup">
+                    <label for="editProductQuantity">Số lượng:</label>
+                    <input type="number" id="editProductQuantity" min="0" required>
+                </div>
+                <div id="editProductVariantsWrapper" style="display:none; margin-bottom: 15px;">
+                    <label style="font-weight: bold; margin-bottom: 5px; display: block;">Số lượng chi tiết theo Kích cỡ & Màu sắc:</label>
+                    <div id="editProductVariantsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; background: #f8f9fa; padding: 10px; border-radius: 6px; border: 1px solid #dee2e6;"></div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Lưu Thay Đổi</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Category Modal -->
+    <div id="editCategoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeCategoryModal">&times;</span>
+            <h3>Sửa Danh Mục</h3>
+            <form id="editCategoryForm">
+                <input type="hidden" id="editCategoryId">
+                <div class="form-group">
+                    <label for="editCategoryName">Tên Danh Mục:</label>
+                    <input type="text" id="editCategoryName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCategoryImage">Chọn Ảnh Mới (tùy chọn):</label>
+                    <input type="file" id="editCategoryImage" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="editCategoryImageUrl">Hoặc Nhập URL Ảnh:</label>
+                    <input type="text" id="editCategoryImageUrl">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Lưu Thay Đổi</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

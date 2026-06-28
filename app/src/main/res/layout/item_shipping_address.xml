@@ -6,6 +6,17 @@
     android:padding="16dp"
     android:layout_marginBottom="8dp"
     android:background="@android:color/white">
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="14dp"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/trend_card"
+    app:cardCornerRadius="2dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/trend_border"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -51,3 +62,97 @@
         android:layout_marginTop="4dp"
         android:text="Detail" />
 </LinearLayout>
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Top Header Info (Label & Default Badge) -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_location"
+                    app:tint="@color/trend_gold"
+                    android:layout_marginEnd="6dp" />
+
+                <TextView
+                    android:id="@+id/tvAddressLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nhà riêng"
+                    android:textColor="@color/trend_gold"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.15"
+                    android:fontFamily="sans-serif-medium"
+                    android:textAllCaps="true" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvDefaultBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="22dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@color/trend_text"
+                android:gravity="center"
+                android:paddingHorizontal="8dp"
+                android:text="MẶC ĐỊNH"
+                android:textColor="@android:color/white"
+                android:textSize="9sp"
+                android:letterSpacing="0.1"
+                android:fontFamily="sans-serif-medium"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+        <!-- Recipient Name (Serif font) -->
+        <TextView
+            android:id="@+id/tvAddressName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nguyễn Minh Anh"
+            android:textColor="@color/trend_text"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:fontFamily="serif" />
+
+        <!-- Recipient Phone -->
+        <TextView
+            android:id="@+id/tvAddressPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="090 123 4567"
+            android:textColor="@color/trend_muted"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium" />
+
+        <!-- Divider Line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/trend_border"
+            android:layout_marginVertical="12dp" />
+
+        <!-- Address Details -->
+        <TextView
+            android:id="@+id/tvAddressDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="5dp"
+            android:text="Toà nhà Bitexco Financial, 2 Hải Triều\nPhường Bến Nghé, Quận 1\nThành phố Hồ Chí Minh"
+            android:textColor="@color/trend_text"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
