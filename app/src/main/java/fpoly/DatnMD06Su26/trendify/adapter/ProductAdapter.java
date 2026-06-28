@@ -90,12 +90,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 .into(holder.ivProductImage);
 
         boolean isFavorite = favoriteIds.contains(item.getId());
-        holder.ivFavorite.setColorFilter(isFavorite ? Color.RED : Color.BLACK);
-        holder.ivFavorite.setOnClickListener(v -> {
-            if (favoriteListener != null) {
-                favoriteListener.onFavoriteToggle(item, !isFavorite);
-            }
-        });
+        if (holder.ivFavorite != null) {
+            holder.ivFavorite.setColorFilter(isFavorite ? Color.RED : Color.BLACK);
+            holder.ivFavorite.setOnClickListener(v -> {
+                if (favoriteListener != null) {
+                    favoriteListener.onFavoriteToggle(item, !isFavorite);
+                }
+            });
+        }
 
         // Dim the product card if out of stock
         if (item.getQuantity() <= 0) {

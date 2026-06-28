@@ -163,11 +163,13 @@ public class ProductDetailActivity extends AppCompatActivity {
             });
         }
 
+        /*
         LinearLayout layoutSizes = findViewById(R.id.layoutSizes);
         LinearLayout layoutColors = findViewById(R.id.layoutColors);
         
         if (layoutSizes != null) layoutSizes.removeAllViews();
         if (layoutColors != null) layoutColors.removeAllViews();
+        */
 
         if (finalProductId != null) {
             FirebaseFirestore.getInstance().collection("products").document(finalProductId)
@@ -178,10 +180,12 @@ public class ProductDetailActivity extends AppCompatActivity {
                             productDetail = documentSnapshot.toObject(ProductItem.class);
                             if (productDetail != null) {
                                 productDetail.setId(documentSnapshot.getId());
+                                /*
                                 List<String> loadedSizes = productDetail.getSizes();
                                 List<String> loadedColors = productDetail.getColors();
                                 android.util.Log.d("ProductDetailActivity", "Loaded sizes: " + loadedSizes + ", colors: " + loadedColors);
                                 setupSizesAndColors(productDetail, layoutSizes, layoutColors);
+                                */
                             } else {
                                 Toast.makeText(this, "Lỗi: Dữ liệu sản phẩm rỗng!", Toast.LENGTH_LONG).show();
                             }
@@ -261,6 +265,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             });
         });
 
+        /*
         rvReviews = findViewById(R.id.rvReviews);
         if (rvReviews != null) {
             rvReviews.setLayoutManager(new LinearLayoutManager(this));
@@ -270,7 +275,9 @@ public class ProductDetailActivity extends AppCompatActivity {
                 loadReviews(finalProductId);
             }
         }
+        */
 
+        /*
         Button btnWriteReview = findViewById(R.id.btnWriteReview);
         if (btnWriteReview != null) {
             btnWriteReview.setOnClickListener(v -> {
@@ -284,6 +291,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                 }
             });
         }
+        */
     }
 
     private void setupSizesAndColors(ProductItem product, LinearLayout layoutSizes, LinearLayout layoutColors) {
@@ -411,6 +419,7 @@ public class ProductDetailActivity extends AppCompatActivity {
 
                         reviewAdapter.notifyDataSetChanged();
                         
+                        /*
                         // Update summary
                         TextView tvAvgRating = findViewById(R.id.tvAvgRating);
                         TextView tvTotalReviews = findViewById(R.id.tvTotalReviews);
@@ -445,6 +454,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                                 }
                             }
                         }
+                        */
                     }
                 });
     }
