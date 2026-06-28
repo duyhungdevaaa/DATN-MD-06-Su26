@@ -71,6 +71,8 @@ public class ProfileFragment extends Fragment {
         }
 
         tvUserName = view.findViewById(R.id.tvUserName);
+        // Old bindings commented out
+        /*
         tvUserEmail = view.findViewById(R.id.tvUserEmail);
 
         llEditProfile = view.findViewById(R.id.llEditProfile);
@@ -94,6 +96,7 @@ public class ProfileFragment extends Fragment {
         btnTermsOfService.setOnClickListener(v -> handleTermsOfService());
         llSettings.setOnClickListener(v -> handleSettings());
         llLogout.setOnClickListener(v -> showLogoutDialog());
+        */
 
         loadUserProfile();
         return view;
@@ -109,8 +112,8 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onLoaded(UserProfile profile) {
                 currentProfile = profile;
-                tvUserName.setText(profile.getFullName());
-                tvUserEmail.setText(profile.getEmail());
+                if (tvUserName != null) tvUserName.setText(profile.getFullName());
+                // if (tvUserEmail != null) tvUserEmail.setText(profile.getEmail());
             }
 
             @Override
@@ -118,8 +121,8 @@ public class ProfileFragment extends Fragment {
                 String displayName = "Khách hàng";
                 String email = "";
                 currentProfile = new UserProfile(SessionManager.getInstance().getUserId(), displayName, email, "", null);
-                tvUserName.setText(displayName);
-                tvUserEmail.setText(email);
+                if (tvUserName != null) tvUserName.setText(displayName);
+                // if (tvUserEmail != null) tvUserEmail.setText(email);
                 Toast.makeText(getContext(), "Không thể tải hồ sơ: " + error, Toast.LENGTH_SHORT).show();
             }
         });
@@ -227,7 +230,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void showLoggedOutState() {
-        tvUserName.setText("Chưa đăng nhập");
-        tvUserEmail.setText("");
+        if (tvUserName != null) tvUserName.setText("Chưa đăng nhập");
+        // if (tvUserEmail != null) tvUserEmail.setText("");
     }
 }
