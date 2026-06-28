@@ -29,6 +29,16 @@ import androidx.core.view.WindowInsetsCompat;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import android.app.Dialog;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RatingBar;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.Query;
+import fpoly.DatnMD06Su26.trendify.adapter.ReviewAdapter;
+
 public class ProductDetailActivity extends AppCompatActivity {
 
     private String selectedSize = "";
@@ -38,6 +48,10 @@ public class ProductDetailActivity extends AppCompatActivity {
     private ProductItem productDetail = null;
     private boolean isFavorite = false;
     private ImageView ivFavorite;
+    
+    private RecyclerView rvReviews;
+    private ReviewAdapter reviewAdapter;
+    private List<ReviewItem> reviewList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -246,6 +260,30 @@ public class ProductDetailActivity extends AppCompatActivity {
                 }
             });
         });
+
+        rvReviews = findViewById(R.id.rvReviews);
+        if (rvReviews != null) {
+            rvReviews.setLayoutManager(new LinearLayoutManager(this));
+            reviewAdapter = new ReviewAdapter(reviewList);
+            rvReviews.setAdapter(reviewAdapter);
+            if (finalProductId != null) {
+                loadReviews(finalProductId);
+            }
+        }
+
+        Button btnWriteReview = findViewById(R.id.btnWriteReview);
+        if (btnWriteReview != null) {
+            btnWriteReview.setOnClickListener(v -> {
+                if (!SessionManager.getInstance().isLoggedIn()) {
+                    Toast.makeText(this, "Vui lòng đăng nhập để đánh giá", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(this, LoginActivity.class));
+                    return;
+                }
+                if (finalProductId != null) {
+                    showWriteReviewDialog(finalProductId);
+                }
+            });
+        }
     }
 
     private void setupSizesAndColors(ProductItem product, LinearLayout layoutSizes, LinearLayout layoutColors) {
@@ -348,5 +386,154 @@ public class ProductDetailActivity extends AppCompatActivity {
             }
         }
         return gd;
+    }
+
+    private void loadReviews(String productId) {
+        FirebaseFirestore.getInstance().collection("reviews")
+                .whereEqualTo("productId", productId)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        android.util.Log.e("ProductDetailActivity", "Listen failed.", error);
+                        return;
+                    }
+                    if (value != null) {
+                        reviewList.clear();
+                        float totalRating = 0;
+                        for (QueryDocumentSnapshot doc : value) {
+                            ReviewItem item = doc.toObject(ReviewItem.class);
+                            item.setReviewId(doc.getId());
+                            reviewList.add(item);
+                            totalRating += item.getRating();
+                        }
+                        
+                        // Sort locally to avoid composite index requirement
+                        java.util.Collections.sort(reviewList, (r1, r2) -> Long.compare(r2.getCreatedAt(), r1.getCreatedAt()));
+
+                        reviewAdapter.notifyDataSetChanged();
+                        
+                        // Update summary
+                        TextView tvAvgRating = findViewById(R.id.tvAvgRating);
+                        TextView tvTotalReviews = findViewById(R.id.tvTotalReviews);
+                        LinearLayout llStarContainer = findViewById(R.id.llStarContainer);
+
+                        if (reviewList.size() > 0) {
+                            float avgRating = totalRating / reviewList.size();
+                            
+                            if (tvAvgRating != null) {
+                                tvAvgRating.setText(String.format(java.util.Locale.getDefault(), "%.1f", avgRating));
+                            }
+                            if (tvTotalReviews != null) {
+                                tvTotalReviews.setText("Dựa trên " + reviewList.size() + " đánh giá");
+                            }
+                            if (llStarContainer != null) {
+                                int roundedRating = Math.round(avgRating);
+                                for (int i = 0; i < llStarContainer.getChildCount(); i++) {
+                                    android.widget.ImageView star = (android.widget.ImageView) llStarContainer.getChildAt(i);
+                                    if (i < roundedRating) {
+                                        star.setColorFilter(android.graphics.Color.parseColor("#FFC107"));
+                                    } else {
+                                        star.setColorFilter(android.graphics.Color.parseColor("#EEEEEE"));
+                                    }
+                                }
+                            }
+                        } else {
+                            if (tvAvgRating != null) tvAvgRating.setText("0.0");
+                            if (tvTotalReviews != null) tvTotalReviews.setText("Chưa có đánh giá nào");
+                            if (llStarContainer != null) {
+                                for (int i = 0; i < llStarContainer.getChildCount(); i++) {
+                                    ((android.widget.ImageView) llStarContainer.getChildAt(i)).setColorFilter(android.graphics.Color.parseColor("#EEEEEE"));
+                                }
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void showWriteReviewDialog(String productId) {
+        View view = getLayoutInflater().inflate(R.layout.dialog_write_review, null);
+        RatingBar ratingBar = view.findViewById(R.id.dialogRatingBar);
+        EditText etReviewContent = view.findViewById(R.id.etComment);
+
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+                .setTitle("Viết Đánh Giá")
+                .setView(view)
+                .setPositiveButton("Gửi", null) // Set null here to override default dismiss behavior
+                .setNegativeButton("Hủy", (d, w) -> d.dismiss())
+                .create();
+
+        dialog.setOnShowListener(dialogInterface -> {
+            Button button = dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(v -> {
+                float rating = ratingBar.getRating();
+                String content = etReviewContent.getText().toString().trim();
+
+                if (rating == 0) {
+                    Toast.makeText(this, "Vui lòng chọn số sao", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (content.isEmpty()) {
+                    Toast.makeText(this, "Vui lòng nhập nội dung đánh giá", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String userId = SessionManager.getInstance().getUserId();
+                button.setEnabled(false);
+                button.setText("Đang gửi...");
+
+                // Lấy thông tin user từ Realtime Database
+                com.google.firebase.database.FirebaseDatabase.getInstance().getReference("users").child(userId)
+                        .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
+                            @Override
+                            public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+                                String userName = "Người dùng";
+                                String userAvatar = "";
+                                if (snapshot.exists()) {
+                                    if (snapshot.hasChild("fullName")) {
+                                        userName = snapshot.child("fullName").getValue(String.class);
+                                    } else if (snapshot.hasChild("name")) {
+                                        userName = snapshot.child("name").getValue(String.class);
+                                    }
+                                    if (snapshot.hasChild("avatar")) {
+                                        userAvatar = snapshot.child("avatar").getValue(String.class);
+                                    } else if (snapshot.hasChild("avatarUrl")) {
+                                        userAvatar = snapshot.child("avatarUrl").getValue(String.class);
+                                    }
+                                }
+
+                                ReviewItem newReview = new ReviewItem(
+                                        "", // reviewId
+                                        productId,
+                                        userId,
+                                        userName,
+                                        userAvatar,
+                                        rating,
+                                        content,
+                                        System.currentTimeMillis()
+                                );
+
+                                FirebaseFirestore.getInstance().collection("reviews")
+                                        .add(newReview)
+                                        .addOnSuccessListener(documentReference -> {
+                                            Toast.makeText(ProductDetailActivity.this, "Đã gửi đánh giá thành công", Toast.LENGTH_SHORT).show();
+                                            dialog.dismiss();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            button.setEnabled(true);
+                                            button.setText("Gửi");
+                                            Toast.makeText(ProductDetailActivity.this, "Lỗi khi gửi đánh giá: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        });
+                            }
+
+                            @Override
+                            public void onCancelled(com.google.firebase.database.DatabaseError error) {
+                                button.setEnabled(true);
+                                button.setText("Gửi");
+                                Toast.makeText(ProductDetailActivity.this, "Lỗi lấy thông tin user: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            });
+        });
+
+        dialog.show();
     }
 }
