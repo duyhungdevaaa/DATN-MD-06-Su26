@@ -10,6 +10,7 @@
         android:id="@+id/toolbarChat"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary" />
         android:background="?attr/colorPrimary"
         app:title="AI Support"
         app:titleTextColor="@android:color/white" />
@@ -25,6 +26,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="@android:color/white"
+        android:gravity="center_vertical">
         android:background="@android:color/white"
         android:elevation="4dp"
         android:orientation="horizontal"
@@ -35,6 +40,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:hint="Nhập tin nhắn..."
+            android:padding="12dp"
+            android:background="@null" />
             android:background="@android:color/transparent"
             android:hint="Nhập tin nhắn..."
             android:padding="12dp"
@@ -44,6 +52,8 @@
             android:id="@+id/btnSend"
             android:layout_width="48dp"
             android:layout_height="48dp"
+            android:src="@android:drawable/ic_menu_send"
+            android:background="?attr/selectableItemBackgroundBorderless" />
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_send" />
     </LinearLayout>
