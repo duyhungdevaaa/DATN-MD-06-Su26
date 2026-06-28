@@ -1,0 +1,6 @@
+{
+  "name": "Trendify Luxury Admin",
+  "description": "A high-end editorial luxury boutique administration portal for managing custom products, category curation, client profiles, and exquisite orders.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,7 +1,14 @@
 package fpoly.DatnMD06Su26.trendify.helper;
 
 import fpoly.DatnMD06Su26.trendify.SessionManager;
+
+import fpoly.DatnMD06Su26.trendify.R;
+
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
 import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
 
 import androidx.annotation.NonNull;
 
@@ -354,4 +361,74 @@ public class FirestoreHelper {
                 .addOnSuccessListener(v -> callback.onSuccess())
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
+
+    public static void checkAndSeedDatabase() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        seedDatabase(db);
+    }
+
+    private static void seedDatabase(FirebaseFirestore db) {
+        // 1. Seed Categories
+        Map<String, Object> catVay = new HashMap<>();
+        catVay.put("name", "Váy");
+        catVay.put("imageUrl", "https://lh3.googleusercontent.com/aida-public/AB6AXuCPD8ECPvM7uBmWFS9huFc5YBTfOew9OaY8wG8hQKBuByZGDsQ55V1-TFZIinLnO-VxzIb-7HINZMgd5wjXcrmA15d9Q5LMpOKiYFyKt0BLEaGAFG9UcAgnRRW8LQyWAMOlOIS4JGhQMQMGRcHKrW7S7m0qQFJlax4FMq1Gzc-d6KeC5pDpitvRbOEf6VQgjXOMzPEStcpIaEzjtlZEh70HQdTQdf3pG9v8XCTu3qaRN5D8Wbvnw-siB4OQFNZml7umCpPVvmBSZtI");
+
+        Map<String, Object> catAo = new HashMap<>();
+        catAo.put("name", "Áo");
+        catAo.put("imageUrl", "https://lh3.googleusercontent.com/aida-public/AB6AXuA2hmAL2kOVV2k7aeS1NWSp-k7hPIDNzWHShjPDrZcFLG6xthFolTG282DhcE_lbFAeIi-lwCnOs2Sd97nhc77S-c9UqQn36v9d0dTDrIxawLL3BJVNZMIGSCJs64oP-W8AUinv9S43gq7ubtKiuBow-toIy0vFxoMk3lizlu2wtPyUaexM15BbuRXvQNECqw2V3goSHewdJQMSFUEYBJBCcDrYN-8yLnu0fVelunPNMP_iQsFR8KWeImzO8v6KzwvzxGRI0_lH1yw");
+
+        Map<String, Object> catPhukien = new HashMap<>();
+        catPhukien.put("name", "Phụ kiện");
+        catPhukien.put("imageUrl", "https://lh3.googleusercontent.com/aida-public/AB6AXuCAxhHQooyU8SiIwiH0Pbzuw1-uZdod_ngqcegoqttRqmzHPL_nqur3okOg4NBrK-yzBHV5e93Q3F9aKdDsai8MXvmlmuHPwCZazU_f6Bv2IHQ-KjmCI8oO-ac873DWgJdX2XZKKTRIR_hsK9p63PbP0tCXX2tS_-L3FbFQnlmCx8rxU9RVo8BRfF_DBp7RBJjbOy_h4N7H-N5AoQgvbi3LD2GWZnZGRsJD2UGfUDUpAksAejImy6j_B1zkcJmBAO6MDG7BDEb1kTw");
+
+        db.collection(COLLECTION_CATEGORIES).document("cat_vay").set(catVay);
+        db.collection(COLLECTION_CATEGORIES).document("cat_ao").set(catAo);
+        db.collection(COLLECTION_CATEGORIES).document("cat_phukien").set(catPhukien);
+
+        // 2. Seed Products
+        // Váy Linen Lụa (prod_midi_couture) - Image from p1
+        seedProduct(db, "prod_midi_couture", "cat_vay", "Váy Linen Lụa", "1250000",
+                "https://lh3.googleusercontent.com/aida-public/AB6AXuA0XhO6swqfonIeHfT1-gkfLq_6uRyRdTDltZAbxvpxtdYzbo1UlbiRoMDNKVJrfehMAbHJmwEfP8TQCj-hc0z_4BkkqUaFWpkj9PZ6wXbrzSDi0jRAZGHjnNGgx6aPk0AiCpkpBdZVAlt1piPFfiXihW8RQUd77WAkqrzkY-DAllBih-pxOXlpiZ72bzLkRslNhEWeqTMJgm-pNLJCmBYS4O0aqQRGICbjAuP49ZB2qXprdBJV_dfNLLnj0Q7i3Bla2lxPXPSzsAY");
+
+        // Đầm Lụa Midi Haute Couture (prod_vay_xep_ly) - Image from Hero
+        seedProduct(db, "prod_vay_xep_ly", "cat_vay", "Đầm Lụa Midi Haute Couture", "2450000",
+                "https://lh3.googleusercontent.com/aida-public/AB6AXuCdMsc48mhR6FbFhVwf2WdVDCG3ETwd3L4ScSptSVOWhfBa5kC-jyrBzd-l5OIffblyBmtB_1CFC2TLR8WIgRjuYIHr7-wQF3R1gogD8R5vyn6fYEqV66sSFIFEf8uhqZtBwrwO2xICtxWX-8llozsrh0OhsDcO8uVP0CQBRbGuMD59wNtlUXON-ru1REYEgEr0mN_5SmekY0n1Tw9vo5BDOunX_gq8CH1dQnD-NYlwccoW655tFgTCr8wYr6mqYaXsM06DDc8zNso");
+
+        // Áo Sơ Mi Minimal (prod_blazer_linen) - Image from p2
+        seedProduct(db, "prod_blazer_linen", "cat_ao", "Áo Sơ Mi Minimal", "890000",
+                "https://lh3.googleusercontent.com/aida-public/AB6AXuCX-c7Voho0kXx71qum7yoccZQk377MJkJurXMBNiXRX7x0qi4_Xnuqman7_9UoNnzx_9otz747JBirISzUeLmLaFTms3dPtNI8Hss6YpRTf2C8E6yD4hSutxsAC9wf6B7OBlTYk4MxVh2iHWlZGsz8TqakOlh_1wn9lSNAVpD5ofUgdxTeMU_1kelTcydpoSTUpnE9Q0xxC6TRAHsekb5o0IJkNHDqa-PZ7eQSxW1COK20bNDRjfXFS5bbQFNYAM4CDYtEOZGa4sA");
+
+        // Quần Tây Ống Suông (prod_somi_lua) - Image from p3
+        seedProduct(db, "prod_somi_lua", "cat_ao", "Quần Tây Ống Suông", "1450000",
+                "https://lh3.googleusercontent.com/aida-public/AB6AXuCqfWnX95dm_q5--28U_aAdE-xtYKaAuuG6ncs3o5QIttPcDyxFOXdRMTyIUUlWizvOcB2ww6XIlAapFgQts11LAXEilznwVKcLh7qdRoweQkLgYfQO3jqQXZjFibd2Bkfbls3RLIJDtwwFXFIrj0rSZXsAxgk1gyZ4HYO0LDV3ouU0rUHMGgU1pLE5_brjTx4QUQyMxC-ZZLHvA7b2jqrFgfu61cLSNSqAUK6g80SObZO2GW6IZh08ytoeSeH5JWfS-yXL4_QMe-Q");
+
+        // Túi Da Cầm Tay (prod_tui_da) - Image from p4
+        seedProduct(db, "prod_tui_da", "cat_phukien", "Túi Da Cầm Tay", "2100000",
+                "https://lh3.googleusercontent.com/aida-public/AB6AXuDO2v3HaWq8W_fszJmrkMWwPIXhIIOdFRjIq9LZI7R6x8TD6erxPgcBqqsaBCm8GANse1Ro87WGzHIn48ZQtq5amIzwK0Cm1MZgoly4u2L-0-dVD2WF_KEeVyWxVvLaoBn9ZCANzhsTGDRRK3I_QRgVd9SbayrkRg0unSkMwfif0nMWlbSJjm76d6gdbQGYQwgchyw9icx_iTKs89fHdEZTU5uNtz5EoBsHLuCzfyANpNjJZnJudS27yf3PAgfqKksw4w9rOgItU_c");
+
+        // Kính Mát Oversized Cổ Điển (prod_kinh_oversized) - Image from Phụ kiện Category
+        seedProduct(db, "prod_kinh_oversized", "cat_phukien", "Kính Mát Oversized Cổ Điển", "950000",
+                "https://lh3.googleusercontent.com/aida-public/AB6AXuCAxhHQooyU8SiIwiH0Pbzuw1-uZdod_ngqcegoqttRqmzHPL_nqur3okOg4NBrK-yzBHV5e93Q3F9aKdDsai8MXvmlmuHPwCZazU_f6Bv2IHQ-KjmCI8oO-ac873DWgJdX2XZKKTRIR_hsK9p63PbP0tCXX2tS_-L3FbFQnlmCx8rxU9RVo8BRfF_DBp7RBJjbOy_h4N7H-N5AoQgvbi3LD2GWZnZGRsJD2UGfUDUpAksAejImy6j_B1zkcJmBAO6MDG7BDEb1kTw");
+    }
+
+    private static void seedProduct(FirebaseFirestore db, String id, String catId, String name, String price, String imageUrl) {
+        Map<String, Object> prod = new HashMap<>();
+        prod.put("categoryId", catId);
+        prod.put("name", name);
+        prod.put("price", price);
+        prod.put("imageUrl", imageUrl);
+        prod.put("quantity", 20);
+        List<String> sizes = new ArrayList<>();
+        sizes.add("S");
+        sizes.add("M");
+        sizes.add("L");
+        prod.put("sizes", sizes);
+        List<String> colors = new ArrayList<>();
+        colors.add("Black");
+        colors.add("White");
+        colors.add("Beige");
+        prod.put("colors", colors);
+        db.collection(COLLECTION_PRODUCTS).document(id).set(prod);
+    }
 }
+

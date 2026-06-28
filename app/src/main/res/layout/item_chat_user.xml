@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="64dp"
         android:background="#1976D2"
+        android:background="@drawable/bg_chat_user"
         android:padding="12dp"
         android:text="User message"
         android:textColor="@android:color/white"
