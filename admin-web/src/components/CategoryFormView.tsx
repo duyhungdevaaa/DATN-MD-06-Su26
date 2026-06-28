@@ -155,36 +155,36 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto animate-fade-in text-left">
+    <div className="space-y-6 max-w-4xl mx-auto animate-fade-in text-left font-sans">
       
       {/* Return header banner */}
       <div className="flex items-center justify-between">
         <button
           onClick={onCancel}
-          className="flex items-center gap-2 text-xs font-semibold text-neutral-600 hover:text-[#1b1c1c] uppercase tracking-wider font-sans transition-all"
+          className="flex items-center gap-2 text-xs font-bold text-zinc-500 hover:text-zinc-900 uppercase tracking-wider font-sans transition-all"
         >
           <ArrowLeft className="h-4 w-4" />
           Quay lại bản danh mục
         </button>
-        <span className="font-mono text-[10px] text-neutral-400 uppercase">
+        <span className="font-mono text-[9px] text-zinc-400 uppercase font-bold">
           {editingCategory ? "Biên tả: ID " + editingCategory.id : "Khai phá Danh mục mới"}
         </span>
       </div>
 
-      <div className="bg-white rounded-xl border border-[#cfc4c5]/40 custom-shadow overflow-hidden">
+      <div className="bg-white rounded-2xl border border-zinc-200/50 shadow-sm overflow-hidden">
         
         {/* Editorial Title Header */}
-        <div className="p-8 border-b border-[#cfc4c5]/30 bg-[#fbf9f9]">
+        <div className="p-8 border-b border-zinc-100 bg-zinc-50/50">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-[#6c5e06]" />
-            <span className="font-mono text-[9px] tracking-[0.2em] text-[#6c5e06] uppercase font-bold">
+            <Sparkles className="h-4 w-4 text-[#8c7623]" />
+            <span className="font-mono text-[9px] tracking-[0.2em] text-[#8c7623] uppercase font-bold">
               Collections index
             </span>
           </div>
-          <h3 className="font-serif text-2xl tracking-normal text-[#1b1c1c] font-medium mt-2">
+          <h3 className="font-serif text-2xl tracking-normal text-zinc-950 font-bold mt-2">
             {editingCategory ? "Cải tạo Thông tin Danh mục" : "Đón đầu Phân nhóm thời trang"}
           </h3>
-          <p className="font-sans text-xs text-neutral-400 mt-1">
+          <p className="font-sans text-xs text-zinc-450 mt-1 leading-relaxed">
             Gửi gắm miêu tả gợi cảm hứng, tinh chỉnh đường dẫn slug bám theo chuẩn SEO, quyết định trưng bày live.
           </p>
         </div>
@@ -192,14 +192,14 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
         <form onSubmit={handleSubmit} className="p-8 space-y-8">
           
           {errorMsg && (
-            <div className="p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs font-medium font-sans flex items-center gap-2.5">
+            <div className="p-4 bg-rose-50 border border-rose-100 rounded-xl text-rose-700 text-xs font-semibold flex items-center gap-2.5">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {successMsg && (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-xs font-medium font-sans flex items-center gap-2.5">
+            <div className="p-4 bg-emerald-50 border border-emerald-105 rounded-xl text-emerald-700 text-xs font-semibold flex items-center gap-2.5">
               <CheckCircle2 className="h-4 w-4 shrink-0" />
               <span>{successMsg}</span>
             </div>
@@ -213,7 +213,7 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
               
               {/* Category Name input */}
               <div>
-                <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-widest font-sans mb-1.5">
+                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
                   Tên danh mục mới *
                 </label>
                 <input
@@ -221,17 +221,17 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
                   value={name}
                   onChange={(e) => handleNameChange(e.target.value)}
                   placeholder="Ví dụ: Đầm tối muộn, Trang sức..."
-                  className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-3 text-xs font-sans focus:outline-none focus:border-[#6c5e06] focus:bg-white text-neutral-800 font-medium"
+                  className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3.5 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-850 font-bold"
                 />
               </div>
 
               {/* URL Custom Slug Entry */}
               <div>
-                <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-widest font-sans mb-1.5">
+                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
                   Đường dẫn SEO (Slug URL) *
                 </label>
-                <div className="flex rounded-lg overflow-hidden border border-neutral-200">
-                  <span className="bg-neutral-100 text-neutral-400 px-3 py-2.5 text-xs font-mono border-r border-neutral-200">
+                <div className="flex rounded-xl overflow-hidden border border-zinc-200/80">
+                  <span className="bg-zinc-100 text-zinc-400 px-3 py-3 text-xs font-mono border-r border-zinc-200/80 font-bold flex items-center">
                     /category/
                   </span>
                   <input
@@ -239,24 +239,24 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
                     value={slug}
                     onChange={(e) => setSlug(e.target.value)}
                     placeholder="dung-dan-seo-tu-dong"
-                    className="flex-1 bg-[#fbf9f9] p-2.5 text-xs font-mono tracking-wider focus:outline-none focus:bg-white text-neutral-800"
+                    className="flex-1 bg-zinc-50 p-3 text-xs font-mono tracking-wider focus:outline-none focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-800 font-bold"
                   />
                 </div>
               </div>
 
               {/* Live Availability Toggle Button Option */}
               <div>
-                <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-widest font-sans mb-1.5">
+                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
                   Đưa lên thị trường trực tuyến (Live Status)
                 </label>
-                <div className="flex gap-4 items-center">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     type="button"
                     onClick={() => setIsLive(true)}
-                    className={`font-sans text-[10px] font-bold uppercase tracking-wider py-2.5 px-6 rounded-lg border text-center transition-all ${
+                    className={`font-sans text-[10px] font-bold uppercase tracking-wider py-3 px-4 rounded-xl border text-center transition-all flex-1 ${
                       isLive
-                        ? "bg-[#1b1c1c] text-white border-transparent"
-                        : "bg-[#fbf9f9] text-neutral-500 border-neutral-200"
+                        ? "bg-zinc-900 text-white border-transparent shadow-sm"
+                        : "bg-zinc-55 border-zinc-200 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-850"
                     }`}
                   >
                     BẬT CHẾ ĐỘ HIỂN THỊ (LIVE)
@@ -264,10 +264,10 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsLive(false)}
-                    className={`font-sans text-[10px] font-bold uppercase tracking-wider py-2.5 px-6 rounded-lg border text-center transition-all ${
+                    className={`font-sans text-[10px] font-bold uppercase tracking-wider py-3 px-4 rounded-xl border text-center transition-all flex-1 ${
                       !isLive
-                        ? "bg-rose-600 text-white border-transparent"
-                        : "bg-[#fbf9f9] text-neutral-500 border-neutral-200"
+                        ? "bg-rose-600 text-white border-transparent shadow-sm"
+                        : "bg-zinc-55 border-zinc-200 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-850"
                     }`}
                   >
                     TẠM ẨN TRONG KHO (DRAFT)
@@ -277,7 +277,7 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
 
               {/* Description of subcurations */}
               <div>
-                <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-widest font-sans mb-1.5">
+                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
                   Mô tả định hướng thời trang cha
                 </label>
                 <textarea
@@ -285,7 +285,7 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Gợi mở: Đồ lót cao cấp, Khăn lụa tơ tằm nguyên chất hoặc giày gót nhọn thủ công..."
                   rows={4}
-                  className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-3 text-xs font-sans focus:outline-none focus:border-[#6c5e06] focus:bg-white text-neutral-700 leading-relaxed"
+                  className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3.5 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-700 leading-relaxed font-medium"
                 />
               </div>
 
@@ -295,7 +295,7 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
             <div className="space-y-6 flex flex-col justify-between">
               
               <div className="space-y-4">
-                <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-widest font-sans">
+                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans">
                   Ảnh bìa danh mục trưng bày *
                 </label>
 
@@ -305,10 +305,10 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
                   onDragOver={handleDrag}
                   onDragLeave={handleDrag}
                   onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 relative ${
+                  className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 relative ${
                     dragActive 
-                      ? "border-[#6c5e06] bg-[#6c5e06]/5" 
-                      : "border-neutral-200 bg-[#fbf9f9] hover:bg-neutral-50/50"
+                      ? "border-[#8c7623] bg-[#8c7623]/5" 
+                      : "border-zinc-200 bg-zinc-50/50 hover:bg-zinc-100/50"
                   }`}
                 >
                   <input
@@ -322,7 +322,7 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
                   
                   {imageUrl ? (
                     <div className="space-y-4">
-                      <div className="aspect-[4/3] max-w-[240px] mx-auto rounded-lg overflow-hidden border border-neutral-200 shadow-inner bg-white">
+                      <div className="aspect-[4/3] max-w-[240px] mx-auto rounded-xl overflow-hidden border border-zinc-200/60 shadow-md bg-white">
                         <img 
                           src={imageUrl} 
                           alt="Cover category draft preview" 
@@ -330,7 +330,7 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
                           referrerPolicy="no-referrer"
                         />
                       </div>
-                      <p className="font-sans text-[10px] text-neutral-400">
+                      <p className="font-sans text-[10px] text-zinc-450 font-medium">
                         Ảnh chất tải thành công. Kéo thả file khác để thay đổi.
                       </p>
                       <button
@@ -343,17 +343,17 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
                     </div>
                   ) : (
                     <label htmlFor="category-file-upload" className="cursor-pointer space-y-3 block">
-                      <div className="mx-auto w-12 h-12 rounded-full bg-white border border-neutral-200 flex items-center justify-center text-[#6c5e06] shadow-sm">
+                      <div className="mx-auto w-12 h-12 rounded-full bg-white border border-zinc-150 flex items-center justify-center text-[#8c7623] shadow-sm">
                         <UploadCloud className="h-6 w-6" />
                       </div>
                       <div className="space-y-1">
-                        <span className="font-sans text-[11px] font-bold text-neutral-700 block">
+                        <span className="font-sans text-xs font-bold text-zinc-700 block">
                           Tải ảnh bìa danh mục đại diện
                         </span>
-                        <span className="font-sans text-[10px] text-neutral-400 block pb-1">
+                        <span className="font-sans text-[10px] text-zinc-400 block pb-1">
                           Kéo thả tệp tin ảnh vào vùng này
                         </span>
-                        <span className="inline-block bg-white border border-neutral-200 text-[9px] font-bold uppercase tracking-wider font-sans px-3 py-1.5 rounded-lg shadow-sm hover:border-[#6c5e06]">
+                        <span className="inline-block bg-white border border-zinc-200 text-[9px] font-bold uppercase tracking-wider font-sans px-4 py-2 rounded-xl shadow-sm hover:border-[#8c7623] transition-colors">
                           Chọn File
                         </span>
                       </div>
@@ -362,13 +362,13 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
                 </div>
 
                 <div className="relative flex items-center justify-center my-4">
-                  <div className="absolute inset-y-1/2 left-0 right-0 h-[1px] bg-neutral-100" />
-                  <span className="relative bg-white px-3 font-mono text-[9px] text-neutral-300 uppercase">Hoặc liên kết ảnh trực tiếp</span>
+                  <div className="absolute inset-y-1/2 left-0 right-0 h-[1px] bg-zinc-100" />
+                  <span className="relative bg-white px-3 font-mono text-[9px] text-zinc-300 uppercase font-bold tracking-wider">Hoặc liên kết ảnh trực tiếp</span>
                 </div>
 
                 {/* Direct image input URL box */}
                 <div className="flex gap-2">
-                  <span className="inline-flex items-center px-3 bg-neutral-100 rounded-lg text-neutral-400 border border-neutral-200">
+                  <span className="inline-flex items-center px-3 bg-zinc-100 rounded-xl text-zinc-400 border border-zinc-200">
                     <LinkIcon className="h-4 w-4" />
                   </span>
                   <input
@@ -376,23 +376,23 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
                     value={imageUrl.startsWith("data:") ? "" : imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                     placeholder="Chèn link ảnh trực tuyến..."
-                    className="flex-1 bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-sans focus:outline-none focus:border-[#6c5e06] focus:bg-white text-neutral-800"
+                    className="flex-1 bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-800 font-medium"
                   />
                 </div>
               </div>
 
               {/* Action layout controls */}
-              <div className="flex items-center gap-4 pt-6 mt-auto border-t border-neutral-100 lg:justify-end">
+              <div className="flex items-center gap-4 pt-6 mt-auto border-t border-zinc-150 lg:justify-end">
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="px-6 py-3 border border-neutral-300 rounded-lg text-neutral-700 hover:bg-neutral-50 font-sans text-xs font-semibold tracking-wider uppercase transition-colors"
+                  className="px-6 py-3 border border-zinc-300 rounded-xl text-zinc-700 hover:bg-zinc-50 font-sans text-xs font-bold tracking-wider uppercase transition-colors"
                 >
                   Hủy bỏ
                 </button>
                 <button
                   type="submit"
-                  className="flex items-center gap-2 bg-[#6c5e06] hover:bg-[#1b1c1c] text-white px-7 py-3 rounded-lg text-xs font-semibold tracking-wider uppercase font-sans transition-all duration-300 shadow-md"
+                  className="flex items-center gap-2 bg-zinc-900 hover:bg-[#8c7623] text-white px-7 py-3 rounded-xl text-xs font-bold tracking-wider uppercase font-sans transition-all duration-300 shadow-md shadow-zinc-900/5"
                 >
                   <Save className="h-4 w-4" />
                   {editingCategory ? "Lưu thông tin phân loại" : "Khai mở danh mục"}
