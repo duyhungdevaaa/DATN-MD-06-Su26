@@ -16,7 +16,7 @@ import { UserListView } from "./components/UserListView";
 import { OrderListView } from "./components/OrderListView";
 import { OrderDetailView } from "./components/OrderDetailView";
 
-import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { db, storage, auth } from "./firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
@@ -302,11 +302,41 @@ export default function App() {
   // --- Order Operations ---
   const handleUpdateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     try {
-      let fbStatus = "Đang xử lý";
-      if (newStatus === OrderStatus.DELIVERED) fbStatus = "Đã giao";
-      else if (newStatus === OrderStatus.CANCELLED) fbStatus = "Đã hủy";
+      // Find the order to retrieve its items
+      const targetOrder = orders.find(o => o.id === orderId);
+      
+      // Auto-restore stock if cancelling an order that wasn't already cancelled
+      if (newStatus === OrderStatus.CANCELLED && targetOrder && targetOrder.status !== OrderStatus.CANCELLED) {
+        for (const item of targetOrder.items) {
+          if (item.id) {
+            const productRef = doc(db, "products", item.id);
+            const productSnap = await getDoc(productRef);
+            if (productSnap.exists()) {
+              const currentQty = productSnap.data().quantity || 0;
+              const currentVariants = productSnap.data().variants || [];
+              
+              // Restore overall stock quantity
+              const newQty = currentQty + item.quantity;
+              const updates: any = { quantity: newQty };
+              
+              // If product has size & color variants, restore variant-specific quantity as well!
+              if (item.size && item.color && currentVariants.length > 0) {
+                const updatedVariants = currentVariants.map((v: any) => {
+                  if (v.size === item.size && v.color === item.color) {
+                    return { ...v, quantity: (v.quantity || 0) + item.quantity };
+                  }
+                  return v;
+                });
+                updates.variants = updatedVariants;
+              }
+              
+              await updateDoc(productRef, updates);
+            }
+          }
+        }
+      }
 
-      await updateDoc(doc(db, "orders", orderId), { status: fbStatus });
+      await updateDoc(doc(db, "orders", orderId), { status: newStatus });
       
       // Update selected order view dynamically
       if (selectedOrder && selectedOrder.id === orderId) {
