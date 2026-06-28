@@ -3,6 +3,7 @@ package fpoly.DatnMD06Su26.trendify.model;
 public class ChatMessage {
     public static final int TYPE_USER = 1;
     public static final int TYPE_BOT = 2;
+    public static final int TYPE_BOT_TYPING = 3;
 
     private String text;
     private int type;

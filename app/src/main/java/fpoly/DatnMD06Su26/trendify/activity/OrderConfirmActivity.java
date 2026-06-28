@@ -46,13 +46,16 @@ import android.util.Log;
 
 public class OrderConfirmActivity extends AppCompatActivity {
 
-    private static final long SHIPPING_FEE = 30000;
+    private long shippingFee = 30000; // Mặc định nếu không tính được phí
+    private int selectedDistrictId = -1;
+    private String selectedWardCode = "";
     private static final String PAYOS_BACKEND_URL = "https://backendpayos.onrender.com/api/payment/create";
 
     private ProgressBar progressBar;
     private CartManager cartManager;
     private TextView tvShippingAddress;
     private TextView tvSubtotal;
+    private TextView tvShippingFee;
     private TextView tvDiscount;
     private TextView tvTotal;
     private TextView tvPaymentMethod;
@@ -78,6 +81,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         tvShippingAddress = findViewById(R.id.tvShippingAddress);
         tvSubtotal = findViewById(R.id.tvSubtotal);
+        tvShippingFee = findViewById(R.id.tvShippingFee);
         tvDiscount = findViewById(R.id.tvDiscount);
         tvTotal = findViewById(R.id.tvTotal);
         tvPaymentMethod = findViewById(R.id.tvPaymentMethod);
@@ -87,13 +91,26 @@ public class OrderConfirmActivity extends AppCompatActivity {
 
         btnApplyVoucher.setOnClickListener(v -> applyVoucherCode());
 
-        String shippingAddress = getIntent().getStringExtra("shipping_address");
+        String shippingAddressExtra = getIntent().getStringExtra("shipping_address");
         String selectedPaymentMethod = getIntent().getStringExtra("payment_method");
         if (selectedPaymentMethod != null && !selectedPaymentMethod.isEmpty()) {
             paymentMethod = selectedPaymentMethod;
         }
-        if (shippingAddress != null && !shippingAddress.isEmpty()) {
-            tvShippingAddress.setText(shippingAddress);
+
+        String displayAddress = shippingAddressExtra;
+        if (shippingAddressExtra != null && shippingAddressExtra.contains("|||")) {
+            String[] parts = shippingAddressExtra.split("\\|\\|\\|");
+            if (parts.length >= 4) {
+                try {
+                    selectedDistrictId = Integer.parseInt(parts[1]);
+                } catch (Exception e) {}
+                selectedWardCode = parts[2];
+                displayAddress = parts[3];
+            }
+        }
+
+        if (displayAddress != null && !displayAddress.isEmpty()) {
+            tvShippingAddress.setText(displayAddress);
         }
         if (tvPaymentMethod != null) {
             tvPaymentMethod.setText(paymentMethod);
@@ -108,17 +125,87 @@ public class OrderConfirmActivity extends AppCompatActivity {
     }
 
     private void loadOrderSummary() {
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
         cartManager.loadCart(new CartManager.CartLoadCallback() {
             @Override
             public void onLoaded(List<CartItem> items) {
-                updateSummary(items);
+                calculateShippingFee(items, new Runnable() {
+                    @Override
+                    public void run() {
+                        updateSummary(items);
+                        if (progressBar != null) progressBar.setVisibility(View.GONE);
+                    }
+                });
             }
 
             @Override
             public void onFailure(String error) {
-                // Không cần hiển thị lỗi cho bản tóm tắt đơn hàng
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
             }
         });
+    }
+
+    private void calculateShippingFee(List<CartItem> items, Runnable onComplete) {
+        if (selectedDistrictId == -1 || selectedWardCode == null || selectedWardCode.isEmpty() || items.isEmpty()) {
+            shippingFee = 30000; // Phí mặc định
+            onComplete.run();
+            return;
+        }
+
+        long totalWeight = 0;
+        for (CartItem item : items) {
+            totalWeight += 200 * item.getQuantity(); // Giả sử mỗi sản phẩm 200g
+        }
+        if (totalWeight < 10) totalWeight = 200;
+
+        final long finalTotalWeight = totalWeight;
+
+        new Thread(() -> {
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put("service_type_id", 2);
+                payload.put("from_district_id", 1442); // Giả sử cửa hàng ở Bắc Từ Liêm
+                payload.put("to_district_id", selectedDistrictId);
+                payload.put("to_ward_code", selectedWardCode);
+                payload.put("height", 10);
+                payload.put("length", 10);
+                payload.put("weight", finalTotalWeight);
+                payload.put("width", 10);
+                payload.put("insurance_value", 0);
+
+                URL url = new URL("https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                conn.setRequestProperty("Token", "ecefb2fb-7203-11f1-a973-aee5264794df");
+                conn.setRequestProperty("ShopId", "200902");
+                conn.setDoOutput(true);
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(15000);
+
+                try (OutputStream os = conn.getOutputStream()) {
+                    os.write(payload.toString().getBytes("UTF-8"));
+                }
+
+                if (conn.getResponseCode() == 200) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) sb.append(line);
+                    
+                    JSONObject responseJson = new JSONObject(sb.toString());
+                    if (responseJson.has("data")) {
+                        JSONObject data = responseJson.getJSONObject("data");
+                        shippingFee = data.getLong("total");
+                    }
+                }
+            } catch (Exception e) {
+                Log.e("GHN", "Lỗi tính phí ship", e);
+                shippingFee = 30000;
+            } finally {
+                runOnUiThread(onComplete);
+            }
+        }).start();
     }
 
     private void applyVoucherCode() {
@@ -144,10 +231,12 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 cartManager.loadCart(new CartManager.CartLoadCallback() {
                     @Override
                     public void onLoaded(List<CartItem> items) {
-                        updateSummary(items);
-                        if (tvVoucherMessage != null) {
-                            tvVoucherMessage.setText("Đã áp dụng voucher: " + voucher.getCode());
-                        }
+                        calculateShippingFee(items, () -> {
+                            updateSummary(items);
+                            if (tvVoucherMessage != null) {
+                                tvVoucherMessage.setText("Đã áp dụng voucher: " + voucher.getCode());
+                            }
+                        });
                     }
 
                     @Override
@@ -173,7 +262,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 cartManager.loadCart(new CartManager.CartLoadCallback() {
                     @Override
                     public void onLoaded(List<CartItem> items) {
-                        updateSummary(items);
+                        calculateShippingFee(items, () -> updateSummary(items));
                     }
                     @Override
                     public void onFailure(String innerError) {
@@ -191,12 +280,15 @@ public class OrderConfirmActivity extends AppCompatActivity {
             subtotal += item.getPriceAsLong() * item.getQuantity();
         }
         appliedDiscount = appliedVoucher != null ? appliedVoucher.calculateDiscount(subtotal) : 0;
-        long total = subtotal + SHIPPING_FEE - appliedDiscount;
+        long total = subtotal + shippingFee - appliedDiscount;
         if (total < 0) {
             total = 0;
         }
         if (tvSubtotal != null) {
             tvSubtotal.setText(formatCurrency(subtotal));
+        }
+        if (tvShippingFee != null) {
+            tvShippingFee.setText(formatCurrency(shippingFee));
         }
         if (tvDiscount != null) {
             tvDiscount.setText("-" + formatCurrency(appliedDiscount));
@@ -252,8 +344,8 @@ public class OrderConfirmActivity extends AppCompatActivity {
             subtotal += item.getPriceAsLong() * item.getQuantity();
         }
         appliedDiscount = appliedVoucher != null ? appliedVoucher.calculateDiscount(subtotal) : 0;
-        long total = subtotal + SHIPPING_FEE - appliedDiscount;
-        long originalTotal = subtotal + SHIPPING_FEE;
+        long total = subtotal + shippingFee - appliedDiscount;
+        long originalTotal = subtotal + shippingFee;
         if (total < 0) {
             total = 0;
         }
@@ -265,7 +357,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
         order.put("createdAt", Timestamp.now());
         order.put("status", "Đang xử lý");
         order.put("subtotal", subtotal);
-        order.put("shippingFee", SHIPPING_FEE);
+        order.put("shippingFee", shippingFee);
         order.put("discountAmount", appliedDiscount);
         order.put("originalTotal", originalTotal);
         order.put("total", total);
@@ -322,8 +414,8 @@ public class OrderConfirmActivity extends AppCompatActivity {
             subtotal += item.getPriceAsLong() * item.getQuantity();
         }
         appliedDiscount = appliedVoucher != null ? appliedVoucher.calculateDiscount(subtotal) : 0;
-        long total = subtotal + SHIPPING_FEE - appliedDiscount;
-        long originalTotal = subtotal + SHIPPING_FEE;
+        long total = subtotal + shippingFee - appliedDiscount;
+        long originalTotal = subtotal + shippingFee;
         if (total < 0) {
             total = 0;
         }
@@ -337,7 +429,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
         order.put("createdAt", Timestamp.now());
         order.put("status", "Chờ thanh toán");
         order.put("subtotal", subtotal);
-        order.put("shippingFee", SHIPPING_FEE);
+        order.put("shippingFee", shippingFee);
         order.put("discountAmount", appliedDiscount);
         order.put("originalTotal", originalTotal);
         order.put("total", total);
@@ -391,7 +483,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
             subtotal += item.getPriceAsLong() * item.getQuantity();
         }
         appliedDiscount = appliedVoucher != null ? appliedVoucher.calculateDiscount(subtotal) : 0;
-        long total = subtotal + SHIPPING_FEE - appliedDiscount;
+        long total = subtotal + shippingFee - appliedDiscount;
         if (total < 0) {
             total = 0;
         }

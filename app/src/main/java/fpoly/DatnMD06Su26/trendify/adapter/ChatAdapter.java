@@ -44,6 +44,33 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (holder instanceof UserMessageViewHolder) {
             ((UserMessageViewHolder) holder).tvUserMessage.setText(message.getText());
         } else if (holder instanceof BotMessageViewHolder) {
+            BotMessageViewHolder botHolder = (BotMessageViewHolder) holder;
+            if (message.getType() == ChatMessage.TYPE_BOT_TYPING) {
+                botHolder.tvBotMessage.setVisibility(View.GONE);
+                botHolder.ivBotAvatar.setAnimation(R.raw.avata_khinhantin);
+                botHolder.ivBotAvatar.playAnimation();
+            } else {
+                botHolder.tvBotMessage.setVisibility(View.VISIBLE);
+                botHolder.tvBotMessage.setText(message.getText());
+                botHolder.ivBotAvatar.setAnimation(R.raw.chatbot);
+                botHolder.ivBotAvatar.playAnimation();
+            }
+            if (botHolder.ivBotAvatar != null) {
+                if (isUserTyping) {
+                    botHolder.ivBotAvatar.setSpeed(2.5f);
+                } else {
+                    botHolder.ivBotAvatar.setSpeed(1.0f);
+                }
+            }
+        }
+    }
+
+    private boolean isUserTyping = false;
+
+    public void setUserTyping(boolean isUserTyping) {
+        if (this.isUserTyping != isUserTyping) {
+            this.isUserTyping = isUserTyping;
+            notifyDataSetChanged();
             ((BotMessageViewHolder) holder).tvBotMessage.setText(message.getText());
         }
     }
@@ -64,10 +91,12 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     static class BotMessageViewHolder extends RecyclerView.ViewHolder {
         TextView tvBotMessage;
+        com.airbnb.lottie.LottieAnimationView ivBotAvatar;
 
         BotMessageViewHolder(@NonNull View itemView) {
             super(itemView);
             tvBotMessage = itemView.findViewById(R.id.tvBotMessage);
+            ivBotAvatar = itemView.findViewById(R.id.ivBotAvatar);
         }
     }
 }

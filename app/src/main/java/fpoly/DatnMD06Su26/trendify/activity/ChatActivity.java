@@ -78,6 +78,20 @@ public class ChatActivity extends AppCompatActivity {
 
         loadProductsForContext();
 
+        etMessage.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                boolean isTyping = s.toString().trim().length() > 0;
+                chatAdapter.setUserTyping(isTyping);
+            }
+        });
+
         btnSend.setOnClickListener(v -> sendMessage());
     }
 
@@ -112,6 +126,8 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
+    private ChatMessage typingMessage;
+
     private void sendMessage() {
         String text = etMessage.getText().toString().trim();
         if (!TextUtils.isEmpty(text)) {
@@ -121,12 +137,25 @@ public class ChatActivity extends AppCompatActivity {
             rvChat.scrollToPosition(messageList.size() - 1);
             etMessage.setText("");
 
+            typingMessage = new ChatMessage("", ChatMessage.TYPE_BOT_TYPING);
+            messageList.add(typingMessage);
+            chatAdapter.notifyItemInserted(messageList.size() - 1);
+            rvChat.scrollToPosition(messageList.size() - 1);
+
             callGeminiAPI(text);
         }
     }
 
     private void addBotMessage(String text) {
         mainHandler.post(() -> {
+            if (typingMessage != null) {
+                int index = messageList.indexOf(typingMessage);
+                if (index != -1) {
+                    messageList.remove(index);
+                    chatAdapter.notifyItemRemoved(index);
+                }
+                typingMessage = null;
+            }
             messageList.add(new ChatMessage(text, ChatMessage.TYPE_BOT));
             chatAdapter.notifyItemInserted(messageList.size() - 1);
             rvChat.scrollToPosition(messageList.size() - 1);
