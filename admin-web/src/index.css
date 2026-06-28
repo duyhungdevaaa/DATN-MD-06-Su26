@@ -2,11 +2,11 @@
 
 @theme {
   --font-serif: "Playfair Display", Georgia, serif;
-  --font-sans: "Montserrat", system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
   
-  --color-luxury-surface: #fbf9f9;
-  --color-luxury-gold: #6c5e06;
-  --color-luxury-border: #cfc4c5;
+  --color-luxury-surface: #ffffff;
+  --color-luxury-gold: #8c7623;
+  --color-luxury-border: #e4e4e7;
 }
 
 /* Custom general utility selections */
