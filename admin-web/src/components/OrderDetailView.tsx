@@ -59,6 +59,100 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
     }, 1800);
   };
 
+  // Render contextual transition actions based on the current state according to business rules
+  const renderWorkflowActions = () => {
+    switch (order.status) {
+      case OrderStatus.AWAITING_PAYMENT:
+        return (
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => onUpdateOrderStatus(order.id, OrderStatus.PROCESSING)}
+              className="font-sans text-xs font-bold uppercase tracking-wider py-3 px-6 rounded-xl bg-[#8c7623] hover:bg-[#72601c] text-white transition-all cursor-pointer shadow-sm border border-transparent"
+            >
+              Xác nhận đơn hàng
+            </button>
+            <button
+              onClick={() => onUpdateOrderStatus(order.id, OrderStatus.CANCELLED)}
+              className="font-sans text-xs font-bold uppercase tracking-wider py-3 px-6 rounded-xl border border-rose-200 text-rose-600 bg-rose-50/50 hover:bg-rose-50 transition-all cursor-pointer"
+            >
+              Hủy đơn hàng
+            </button>
+          </div>
+        );
+
+      case OrderStatus.PROCESSING:
+        return (
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => onUpdateOrderStatus(order.id, OrderStatus.SHIPPING)}
+              className="font-sans text-xs font-bold uppercase tracking-wider py-3 px-6 rounded-xl bg-[#8c7623] hover:bg-[#72601c] text-white transition-all cursor-pointer shadow-sm border border-transparent"
+            >
+              Sẵn sàng giao hàng (Bàn giao vận chuyển)
+            </button>
+            <button
+              onClick={() => onUpdateOrderStatus(order.id, OrderStatus.CANCELLED)}
+              className="font-sans text-xs font-bold uppercase tracking-wider py-3 px-6 rounded-xl border border-rose-200 text-rose-600 bg-rose-50/50 hover:bg-rose-50 transition-all cursor-pointer"
+            >
+              Hủy đơn hàng
+            </button>
+          </div>
+        );
+
+      case OrderStatus.SHIPPING:
+        return (
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => onUpdateOrderStatus(order.id, OrderStatus.DELIVERED)}
+              className="font-sans text-xs font-bold uppercase tracking-wider py-3 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-all cursor-pointer shadow-sm border border-transparent"
+            >
+              Xác nhận phát thành công (Hoàn thành)
+            </button>
+            <button
+              onClick={() => onUpdateOrderStatus(order.id, OrderStatus.REFUNDED)}
+              className="font-sans text-xs font-bold uppercase tracking-wider py-3 px-6 rounded-xl border border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100/50 transition-all cursor-pointer"
+            >
+              Trả hàng / Hoàn đơn (Sự cố giao hàng)
+            </button>
+          </div>
+        );
+
+      case OrderStatus.DELIVERED:
+        return (
+          <div className="space-y-4">
+            <div className="text-xs text-emerald-600 font-semibold bg-emerald-50 border border-emerald-100 p-3.5 rounded-xl flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Đơn hàng đã hoàn thành và hạch toán doanh thu thành công.</span>
+            </div>
+            <button
+              onClick={() => onUpdateOrderStatus(order.id, OrderStatus.REFUNDED)}
+              className="font-sans text-xs font-bold uppercase tracking-wider py-3 px-6 rounded-xl border border-rose-200 text-rose-600 bg-rose-50/50 hover:bg-rose-50 transition-all cursor-pointer"
+            >
+              Yêu cầu trả hàng / Hoàn tiền
+            </button>
+          </div>
+        );
+
+      case OrderStatus.CANCELLED:
+        return (
+          <div className="text-xs text-rose-600 font-semibold bg-rose-50 border border-rose-100 p-3.5 rounded-xl flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+            <span>Đơn hàng này đã bị hủy. Hệ thống đã tự động hoàn trả số lượng tồn kho.</span>
+          </div>
+        );
+
+      case OrderStatus.REFUNDED:
+        return (
+          <div className="text-xs text-zinc-650 font-semibold bg-zinc-50 border border-zinc-150 p-3.5 rounded-xl flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+            <span>Đơn hàng đã được trả lại và hoàn tiền thành công.</span>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto animate-fade-in text-left pb-12">
       
@@ -222,26 +316,11 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
               Chuyển tiếp giai đoạn xử lý Đơn hàng
             </h4>
             <p className="font-sans text-xs text-neutral-400">
-              Quyết định trạng thái của vận đơn này. Hệ thống sẽ ngay lập tức đồng bộ hóa thông báo đến khách hàng và cấp nhật lộ trình giao hàng trực tuyến.
+              Quyết định trạng thái của vận đơn này. Hệ thống sẽ ngay lập tức đồng bộ hóa thông báo đến khách hàng và cập nhật lộ trình giao hàng trực tuyến.
             </p>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-              {Object.values(OrderStatus).map((statusOpt) => {
-                const isCurrentStatus = order.status === statusOpt;
-                return (
-                  <button
-                    key={statusOpt}
-                    onClick={() => onUpdateOrderStatus(order.id, statusOpt)}
-                    className={`font-sans text-[10px] font-bold uppercase tracking-wider py-2.5 px-2 rounded-lg border text-center transition-all ${
-                      isCurrentStatus
-                        ? "bg-[#6c5e06] text-white border-transparent shadow"
-                        : "bg-[#fbf9f9] text-neutral-500 border-neutral-200 hover:bg-neutral-50"
-                    }`}
-                  >
-                    {statusOpt}
-                  </button>
-                );
-              })}
+            <div className="pt-2">
+              {renderWorkflowActions()}
             </div>
           </div>
 
