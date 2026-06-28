@@ -50,6 +50,7 @@ public class CategoryFragment extends Fragment {
             });
         }
 
+        /*
         RecyclerView rvCategories = view.findViewById(R.id.rvCategories);
         
         CategoryAdapter adapter = new CategoryAdapter(new ArrayList<>());
@@ -66,6 +67,7 @@ public class CategoryFragment extends Fragment {
                 Toast.makeText(requireContext(), "Không thể tải danh mục: " + error, Toast.LENGTH_LONG).show();
             }
         });
+        */
         
         return view;
     }
