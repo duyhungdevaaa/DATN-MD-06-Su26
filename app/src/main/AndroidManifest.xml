@@ -93,10 +93,6 @@
         <activity
             android:name=".activity.ProductListActivity"
             android:exported="false" />
-
-        <activity
-            android:name=".activity.ReturnRequestActivity"
-            android:exported="false" />
     </application>
 
 </manifest>
