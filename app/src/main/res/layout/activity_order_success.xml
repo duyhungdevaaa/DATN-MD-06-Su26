@@ -7,6 +7,10 @@
     android:fillViewport="true"
     android:background="#FAF6F1"
     tools:context="fpoly.DatnMD06Su26.trendify.activity.OrderSuccessActivity">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#FAF6F1">
 
     <LinearLayout
         android:layout_width="match_parent"
