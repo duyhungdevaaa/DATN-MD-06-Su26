@@ -58,7 +58,11 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
             holder.tvOrderStatus.setTextColor(0xFF757575);
         }
 
-        // btnViewDetails click listener removed - no action for now
+        holder.btnViewDetails.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(v.getContext(), OrderDetailActivity.class);
+            intent.putExtra("orderId", order.getOrderId());
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override
