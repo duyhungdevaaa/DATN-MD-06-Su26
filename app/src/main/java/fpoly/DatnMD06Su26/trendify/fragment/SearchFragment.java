@@ -84,20 +84,9 @@ public class SearchFragment extends Fragment {
         llRecentSearches = view.findViewById(R.id.llRecentSearches);
         cgTrending = view.findViewById(R.id.cgTrending);
 
-        ImageView ivSearch = view.findViewById(R.id.ivSearch);
-        ImageView ivNotification = view.findViewById(R.id.ivNotification);
-        ImageView ivMenu = view.findViewById(R.id.ivMenu);
-
-        if (ivMenu != null) {
-            ivMenu.setOnClickListener(v -> Toast.makeText(requireContext(), "Menu chính", Toast.LENGTH_SHORT).show());
-        }
-        if (ivSearch != null) {
-            ivSearch.setOnClickListener(v -> {
-                etSearch.requestFocus();
-            });
-        }
-        if (ivNotification != null) {
-            ivNotification.setOnClickListener(v -> {
+        ImageView ivCart = view.findViewById(R.id.ivCart);
+        if (ivCart != null) {
+            ivCart.setOnClickListener(v -> {
                 startActivity(new Intent(requireContext(), CartActivity.class));
             });
         }
