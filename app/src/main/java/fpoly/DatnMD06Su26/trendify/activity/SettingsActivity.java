@@ -1,5 +1,7 @@
 package fpoly.DatnMD06Su26.trendify.activity;
 
+import fpoly.DatnMD06Su26.trendify.SessionManager;
+
 import fpoly.DatnMD06Su26.trendify.R;
 
 import fpoly.DatnMD06Su26.trendify.activity.*;
@@ -31,5 +33,17 @@ public class SettingsActivity extends AppCompatActivity {
 
         ImageView ivBack = findViewById(R.id.ivBack);
         ivBack.setOnClickListener(v -> finish());
+
+        View btnLogout = findViewById(R.id.btnLogout);
+        if (btnLogout != null) {
+            btnLogout.setOnClickListener(v -> {
+                SessionManager.getInstance().logout();
+                com.google.firebase.auth.FirebaseAuth.getInstance().signOut();
+                android.content.Intent intent = new android.content.Intent(this, LoginActivity.class);
+                intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            });
+        }
     }
 }

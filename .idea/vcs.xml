@@ -2,5 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/DATN-MD-06-Su26" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ghn-backend" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/temp-ghn" vcs="Git" />
   </component>
 </project>

@@ -265,6 +265,19 @@ public class ProductDetailActivity extends AppCompatActivity {
             });
         });
 
+        View btnBuyNow = findViewById(R.id.btnBuyNow);
+        if (btnBuyNow != null) {
+            btnBuyNow.setOnClickListener(v -> {
+                findViewById(R.id.btnAddToCart).performClick();
+                startActivity(new Intent(this, CartActivity.class));
+            });
+        }
+
+        ImageView ivCartTop = findViewById(R.id.ivCartTop);
+        if (ivCartTop != null) {
+            ivCartTop.setOnClickListener(v -> startActivity(new Intent(this, CartActivity.class)));
+        }
+
         /*
         rvReviews = findViewById(R.id.rvReviews);
         if (rvReviews != null) {

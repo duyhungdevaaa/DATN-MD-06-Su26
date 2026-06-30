@@ -1,0 +1,1 @@
+Gỡ bỏ màn hình giới thiệu rườm rà ban đầu, giúp người dùng vào thẳng màn hình chính cho nhanh gọn.

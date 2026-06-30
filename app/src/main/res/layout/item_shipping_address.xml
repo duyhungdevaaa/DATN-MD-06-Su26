@@ -1,108 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="14dp"
-    android:foreground="?attr/selectableItemBackground"
-    app:cardBackgroundColor="@color/trend_card"
-    app:cardCornerRadius="2dp"
-    app:cardElevation="0dp"
-    app:strokeColor="@color/trend_border"
-    app:strokeWidth="1dp">
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:layout_marginBottom="1dp"> <!-- 1dp bottom margin acts as divider since background of parent is gray -->
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:orientation="horizontal"
+        android:padding="12dp">
 
-        <!-- Top Header Info (Label & Default Badge) -->
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp">
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
                 
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@android:drawable/ic_menu_mylocation"
-                    app:tint="@color/trend_text"
-                    android:layout_marginEnd="6dp" />
-
                 <TextView
-                    android:id="@+id/tvAddressLabel"
+                    android:id="@+id/tvName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="HOME"
-                    android:textColor="@color/trend_text"
-                    android:textSize="11sp"
-                    android:letterSpacing="0.05"
-                    android:textStyle="bold"
-                    android:fontFamily="sans-serif-medium" />
+                    android:text="Nguyễn Văn A"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="12dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:background="#BDBDBD" />
+
+                <TextView
+                    android:id="@+id/tvPhone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(+84) 912345678"
+                    android:textColor="#757575"
+                    android:textSize="14sp" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="123 Đường Nguyễn Huệ\nQuận 1, TP. Hồ Chí Minh"
+                android:textColor="#757575"
+                android:textSize="13sp"
+                android:lineSpacingExtra="2dp" />
 
             <TextView
                 android:id="@+id/tvDefaultBadge"
                 android:layout_width="wrap_content"
-                android:layout_height="22dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="@color/trend_text"
-                android:gravity="center"
-                android:paddingHorizontal="8dp"
-                android:text="MẶC ĐỊNH"
-                android:textColor="@android:color/white"
-                android:textSize="9sp"
-                android:letterSpacing="0.1"
-                android:fontFamily="sans-serif-medium"
-                android:visibility="gone" />
-        </RelativeLayout>
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_button_outline"
+                android:backgroundTint="#00000000"
+                android:paddingHorizontal="4dp"
+                android:paddingVertical="2dp"
+                android:text="Mặc định"
+                android:textColor="#EE4D2D"
+                android:textSize="10sp"
+                android:visibility="visible" />
+                
+        </LinearLayout>
 
-        <!-- Recipient Name (Serif font) -->
         <TextView
-            android:id="@+id/tvAddressName"
-            android:layout_width="match_parent"
+            android:id="@+id/tvEdit"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nguyễn Minh Anh"
-            android:textColor="@color/trend_text"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:fontFamily="serif" />
-
-        <!-- Recipient Phone -->
-        <TextView
-            android:id="@+id/tvAddressPhone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="090 123 4567"
-            android:textColor="@color/trend_muted"
-            android:textSize="14sp"
-            android:fontFamily="sans-serif-medium" />
-
-        <!-- Divider Line -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/trend_border"
-            android:layout_marginVertical="12dp" />
-
-        <!-- Address Details -->
-        <TextView
-            android:id="@+id/tvAddressDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:lineSpacingExtra="5dp"
-            android:text="Toà nhà Bitexco Financial, 2 Hải Triều\nPhường Bến Nghé, Quận 1\nThành phố Hồ Chí Minh"
-            android:textColor="@color/trend_text"
+            android:layout_marginStart="12dp"
+            android:text="Sửa"
+            android:textColor="#EE4D2D"
             android:textSize="14sp" />
 
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

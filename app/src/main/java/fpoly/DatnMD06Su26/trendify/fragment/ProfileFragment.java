@@ -50,53 +50,31 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        ImageView ivSearch = view.findViewById(R.id.ivSearch);
-        ImageView ivNotification = view.findViewById(R.id.ivNotification);
-        ImageView ivMenu = view.findViewById(R.id.ivMenu);
+        ImageView ivSettings = view.findViewById(R.id.ivSettings);
+        ImageView ivCart = view.findViewById(R.id.ivCart);
+        ImageView ivChat = view.findViewById(R.id.ivChat);
 
-        if (ivMenu != null) {
-            ivMenu.setOnClickListener(v -> Toast.makeText(requireContext(), "Menu chính", Toast.LENGTH_SHORT).show());
+        if (ivSettings != null) {
+            ivSettings.setOnClickListener(v -> handleSettings());
         }
-        if (ivSearch != null) {
-            ivSearch.setOnClickListener(v -> {
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).setCurrentPage(1);
-                }
-            });
-        }
-        if (ivNotification != null) {
-            ivNotification.setOnClickListener(v -> {
+        if (ivCart != null) {
+            ivCart.setOnClickListener(v -> {
                 startActivity(new Intent(requireContext(), CartActivity.class));
             });
         }
+        if (ivChat != null) {
+            ivChat.setOnClickListener(v -> handleNotifications());
+        }
 
         tvUserName = view.findViewById(R.id.tvUserName);
-        // Old bindings commented out
-        /*
-        tvUserEmail = view.findViewById(R.id.tvUserEmail);
+        if (tvUserName != null) {
+            tvUserName.setOnClickListener(v -> handleEditProfile());
+        }
 
-        llEditProfile = view.findViewById(R.id.llEditProfile);
         llMyOrders = view.findViewById(R.id.llMyOrders);
-        llDeliveryAddress = view.findViewById(R.id.llDeliveryAddress);
-        llPaymentMethods = view.findViewById(R.id.llPaymentMethods);
-        llNotifications = view.findViewById(R.id.llNotifications);
-        btnHelpCenter = view.findViewById(R.id.btnHelpCenter);
-        btnPrivacyPolicy = view.findViewById(R.id.btnPrivacyPolicy);
-        btnTermsOfService = view.findViewById(R.id.btnTermsOfService);
-        llSettings = view.findViewById(R.id.llSettings);
-        llLogout = view.findViewById(R.id.llLogout);
-
-        llEditProfile.setOnClickListener(v -> handleEditProfile());
-        llMyOrders.setOnClickListener(v -> handleMyOrders());
-        llDeliveryAddress.setOnClickListener(v -> handleDeliveryAddress());
-        llPaymentMethods.setOnClickListener(v -> handlePaymentMethods());
-        llNotifications.setOnClickListener(v -> handleNotifications());
-        btnHelpCenter.setOnClickListener(v -> handleHelpCenter());
-        btnPrivacyPolicy.setOnClickListener(v -> handlePrivacyPolicy());
-        btnTermsOfService.setOnClickListener(v -> handleTermsOfService());
-        llSettings.setOnClickListener(v -> handleSettings());
-        llLogout.setOnClickListener(v -> showLogoutDialog());
-        */
+        if (llMyOrders != null) {
+            llMyOrders.setOnClickListener(v -> handleMyOrders());
+        }
 
         loadUserProfile();
         return view;

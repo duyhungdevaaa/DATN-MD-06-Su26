@@ -88,6 +88,7 @@
 
             <!-- Banner Area (Hardcoded View instead of ViewPager for now) -->
             <ImageView
+                android:id="@+id/ivBanner"
                 android:layout_width="match_parent"
                 android:layout_height="140dp"
                 android:background="#FF9800"

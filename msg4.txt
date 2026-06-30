@@ -1,0 +1,1 @@
+Thiết kế lại toàn bộ màn hình Danh mục với bố cục 2 cột (Menu cha bên trái, Menu con bên phải).

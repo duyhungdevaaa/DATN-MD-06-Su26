@@ -1,0 +1,1 @@
+Cập nhật nhỏ cho giao diện Chatbot, Adapter của Banner và màn hình Splash.
