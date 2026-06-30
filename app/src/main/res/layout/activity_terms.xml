@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/trend_bg"
+    tools:context="fpoly.DatnMD06Su26.trendify.activity.TermsActivity">
+
+    <!-- Top AppBar/Toolbar (Identity & Navigation) -->
+    <RelativeLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/trend_bg"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/ivBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Quay lại"
+            android:padding="8dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/trend_text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Điều khoản dịch vụ"
+            android:textColor="@color/trend_text"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.05" />
+
+        <!-- Thin bottom border line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#10000000"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+    <!-- Scrollable Content Canvas -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/documentScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:paddingHorizontal="24dp"
+        app:layout_constraintBottom_toTopOf="@id/tvUpdatedDate"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="28dp"
+            android:paddingBottom="40dp">
+
+            <!-- Editorial Brand Block -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:paddingVertical="16dp"
+                android:layout_marginBottom="28dp">
+
+                <View
+                    android:layout_width="32dp"
+                    android:layout_height="1dp"
+                    android:background="@color/trend_text"
+                    android:layout_marginBottom="16dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Trendify"
+                    android:textColor="@color/trend_text"
+                    android:textSize="32sp"
+                    android:textStyle="italic|bold"
+                    android:fontFamily="serif" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:lineSpacingExtra="5dp"
+                    android:text="Các điều khoản dưới đây giúp trải nghiệm mua sắm thời trang tại Trendify minh bạch, an toàn và nhất quán cho mọi khách hàng."
+                    android:textColor="@color/trend_muted"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Section 1 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1. Giới thiệu"
+                android:textColor="@color/trend_text"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="serif" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="6dp"
+                android:text="Chào mừng bạn đến với Trendify. Khi truy cập hoặc sử dụng ứng dụng, bạn đồng ý tuân thủ các điều khoản dịch vụ này. Nội dung được xây dựng nhằm bảo vệ quyền lợi khách hàng và duy trì môi trường mua sắm văn minh."
+                android:textColor="@color/trend_muted"
+                android:textSize="14sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="20dp"
+                android:background="@color/trend_border" />
+
+            <!-- Section 2 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="2. Quy định sử dụng ứng dụng"
+                android:textColor="@color/trend_text"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="serif" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="6dp"
+                android:text="Người dùng cần cung cấp thông tin chính xác, không sử dụng ứng dụng cho mục đích gian lận, gây rối hoặc xâm phạm quyền lợi của người khác. Trendify có quyền tạm khóa tài khoản khi phát hiện hoạt động bất thường."
+                android:textColor="@color/trend_muted"
+                android:textSize="14sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="20dp"
+                android:background="@color/trend_border" />
+
+            <!-- Section 3 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="3. Quy định mua hàng"
+                android:textColor="@color/trend_text"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="serif" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="6dp"
+                android:text="Mỗi đơn hàng được xác nhận dựa trên tình trạng sản phẩm, địa chỉ giao hàng và phương thức thanh toán. Giá bán, khuyến mãi và số lượng sản phẩm có thể thay đổi theo từng thời điểm hiển thị trên ứng dụng."
+                android:textColor="@color/trend_muted"
+                android:textSize="14sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="20dp"
+                android:background="@color/trend_border" />
+
+            <!-- Section 4 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="4. Chính sách thanh toán"
+                android:textColor="@color/trend_text"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="serif" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="6dp"
+                android:text="Trendify hỗ trợ các hình thức thanh toán được hiển thị tại bước đặt hàng. Khách hàng cần kiểm tra thông tin trước khi xác nhận. Các giao dịch thành công sẽ được ghi nhận vào trạng thái đơn hàng."
+                android:textColor="@color/trend_muted"
+                android:textSize="14sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="20dp"
+                android:background="@color/trend_border" />
+
+            <!-- Section 5 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="5. Trách nhiệm khách hàng"
+                android:textColor="@color/trend_text"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="serif" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="6dp"
+                android:text="Khách hàng có trách nhiệm bảo mật tài khoản, kiểm tra kỹ size, màu sắc, số lượng sản phẩm và địa chỉ nhận hàng. Mọi yêu cầu hỗ trợ cần được gửi với thông tin rõ ràng để Trendify xử lý nhanh chóng."
+                android:textColor="@color/trend_muted"
+                android:textSize="14sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="20dp"
+                android:background="@color/trend_border" />
+
+            <!-- Section 6 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="6. Trách nhiệm của Trendify"
+                android:textColor="@color/trend_text"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="serif" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="6dp"
+                android:text="Trendify cam kết cung cấp thông tin sản phẩm minh bạch, hỗ trợ khách hàng trong quá trình mua sắm và bảo vệ dữ liệu cá nhân theo chính sách bảo mật. Chúng tôi nỗ lực duy trì chất lượng dịch vụ ổn định."
+                android:textColor="@color/trend_muted"
+                android:textSize="14sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="20dp"
+                android:background="@color/trend_border" />
+
+            <!-- Section 7 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="7. Điều khoản chung"
+                android:textColor="@color/trend_text"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="serif" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="6dp"
+                android:text="Các điều khoản có thể được cập nhật để phù hợp với quy định pháp luật và định hướng dịch vụ. Phiên bản mới nhất sẽ được hiển thị trong ứng dụng và có hiệu lực kể từ thời điểm công bố."
+                android:textColor="@color/trend_muted"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Footer Updated Date -->
+    <TextView
+        android:id="@+id/tvUpdatedDate"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:background="@color/trend_bg"
+        android:gravity="center"
+        android:textColor="@color/trend_muted"
+        android:textSize="12sp"
+        android:fontFamily="sans-serif-medium"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="Cập nhật lần cuối: 05/06/2026" />
+
+    <!-- Thin separator line above footer -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#10000000"
+        app:layout_constraintBottom_toTopOf="@id/tvUpdatedDate" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
