@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".MyApplication"
@@ -42,6 +43,7 @@
         <activity android:name=".activity.OrderSuccessActivity" android:exported="false" />
         <activity android:name=".activity.TrackOrderActivity" android:exported="false" />
         <activity android:name=".activity.OrderHistoryActivity" android:exported="false" />
+        <activity android:name=".activity.OrderDetailActivity" android:exported="false" />
 
         <activity android:name=".activity.AddressManagementActivity" android:exported="false" />
         <activity android:name=".activity.ReturnRequestActivity" android:exported="false" />

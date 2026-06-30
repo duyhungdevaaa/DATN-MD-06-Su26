@@ -13,8 +13,12 @@ import fpoly.DatnMD06Su26.trendify.model.*;
 import fpoly.DatnMD06Su26.trendify.helper.*;
 
 import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -72,6 +76,10 @@ public class RegisterActivity extends AppCompatActivity {
         }
         if (password.length() < 6) {
             etPassword.setError("Mật khẩu tối thiểu 6 ký tự");
+            return;
+        }
+        if (!isNetworkAvailable()) {
+            Toast.makeText(this, "Thiết bị chưa có kết nối Internet", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -142,6 +150,19 @@ public class RegisterActivity extends AppCompatActivity {
                         Toast.makeText(RegisterActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        Network network = cm.getActiveNetwork();
+        if (network == null) return false;
+        NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
+        return capabilities != null && (
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                        || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+                        || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+        );
     }
 
     private void setLoading(boolean loading) {
