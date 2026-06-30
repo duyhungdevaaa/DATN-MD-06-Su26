@@ -3,10 +3,8 @@ package fpoly.DatnMD06Su26.trendify.helper;
 import androidx.annotation.NonNull;
 import fpoly.DatnMD06Su26.trendify.SessionManager;
 import fpoly.DatnMD06Su26.trendify.model.UserProfile;
-import fpoly.DatnMD06Su26.trendify.model.Voucher;
 import fpoly.DatnMD06Su26.trendify.model.UserAddress;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.DocumentReference;
@@ -23,8 +21,6 @@ public class FirestoreHelper {
         void onFailure(String error);
     }
 
-    public interface VoucherCallback {
-        void onLoaded(Voucher voucher);
     public interface AddressesCallback {
         void onLoaded(List<UserAddress> addresses);
         void onFailure(String error);
@@ -56,26 +52,6 @@ public class FirestoreHelper {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
-    public static void validateVoucher(@NonNull String code, @NonNull VoucherCallback callback) {
-        getDb().collection("vouchers")
-                .whereEqualTo("code", code)
-                .limit(1)
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    if (snapshot.isEmpty()) {
-                        callback.onFailure("Voucher không tồn tại");
-                        return;
-                    }
-                    DocumentSnapshot document = snapshot.getDocuments().get(0);
-                    Voucher voucher = Voucher.fromDocument(document);
-                    if (voucher.isExpired()) {
-                        callback.onFailure("Voucher đã hết hạn");
-                        return;
-                    }
-                    callback.onLoaded(voucher);
-                })
-                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
-    }
     public static void loadAddresses(@NonNull AddressesCallback callback) {
         getAddressesCollection()
                 .get()
