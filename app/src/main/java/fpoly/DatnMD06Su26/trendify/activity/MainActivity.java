@@ -23,6 +23,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
+            animateBottomNavIcon(id);
             if (id == R.id.nav_home) {
                 viewPager.setCurrentItem(0, false);
                 return true;
@@ -105,6 +109,33 @@ public class MainActivity extends AppCompatActivity {
     public void setCurrentPage(int page) {
         if (viewPager != null) {
             viewPager.setCurrentItem(page, false);
+        }
+    }
+    private void animateBottomNavIcon(int itemId) {
+        try {
+            BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigationView.getChildAt(0);
+            for (int i = 0; i < menuView.getChildCount(); i++) {
+                BottomNavigationItemView itemView = (BottomNavigationItemView) menuView.getChildAt(i);
+                if (itemView.getId() == itemId) {
+                    View icon = itemView.findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view);
+                    if (icon != null) {
+                        icon.setScaleX(0.7f);
+                        icon.setScaleY(0.7f);
+                        icon.animate()
+                            .scaleX(1.2f).scaleY(1.2f)
+                            .setDuration(150)
+                            .withEndAction(() -> {
+                                icon.animate()
+                                    .scaleX(1.0f).scaleY(1.0f)
+                                    .setDuration(150)
+                                    .start();
+                            }).start();
+                    }
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

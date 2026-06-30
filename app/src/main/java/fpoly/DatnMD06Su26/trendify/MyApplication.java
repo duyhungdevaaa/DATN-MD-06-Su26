@@ -7,5 +7,6 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         SessionManager.init(this);
+        app.rive.runtime.kotlin.core.Rive.INSTANCE.init(this, app.rive.runtime.kotlin.core.RendererType.Rive);
     }
 }
