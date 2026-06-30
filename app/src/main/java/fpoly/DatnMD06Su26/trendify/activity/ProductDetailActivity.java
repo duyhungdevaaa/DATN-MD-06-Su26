@@ -20,6 +20,7 @@ import androidx.activity.EdgeToEdge;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.FirebaseFirestore;
+import org.json.JSONObject;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -163,13 +164,11 @@ public class ProductDetailActivity extends AppCompatActivity {
             });
         }
 
-        /*
         LinearLayout layoutSizes = findViewById(R.id.layoutSizes);
         LinearLayout layoutColors = findViewById(R.id.layoutColors);
         
         if (layoutSizes != null) layoutSizes.removeAllViews();
         if (layoutColors != null) layoutColors.removeAllViews();
-        */
 
         if (finalProductId != null) {
             FirebaseFirestore.getInstance().collection("products").document(finalProductId)
@@ -180,12 +179,10 @@ public class ProductDetailActivity extends AppCompatActivity {
                             productDetail = documentSnapshot.toObject(ProductItem.class);
                             if (productDetail != null) {
                                 productDetail.setId(documentSnapshot.getId());
-                                /*
                                 List<String> loadedSizes = productDetail.getSizes();
                                 List<String> loadedColors = productDetail.getColors();
                                 android.util.Log.d("ProductDetailActivity", "Loaded sizes: " + loadedSizes + ", colors: " + loadedColors);
                                 setupSizesAndColors(productDetail, layoutSizes, layoutColors);
-                                */
                             } else {
                                 Toast.makeText(this, "Lỗi: Dữ liệu sản phẩm rỗng!", Toast.LENGTH_LONG).show();
                             }
@@ -201,6 +198,15 @@ public class ProductDetailActivity extends AppCompatActivity {
         }
 
         findViewById(R.id.btnAddToCart).setOnClickListener(v -> {
+            // Hiệu ứng nhún nhảy (Bounce) thuần Android
+            android.animation.ObjectAnimator scaleX = android.animation.ObjectAnimator.ofFloat(v, "scaleX", 1f, 0.9f, 1f);
+            android.animation.ObjectAnimator scaleY = android.animation.ObjectAnimator.ofFloat(v, "scaleY", 1f, 0.9f, 1f);
+            scaleX.setDuration(200);
+            scaleY.setDuration(200);
+            android.animation.AnimatorSet scaleDown = new android.animation.AnimatorSet();
+            scaleDown.play(scaleX).with(scaleY);
+            scaleDown.start();
+
             if (finalProductId == null) {
                 Toast.makeText(this, "Lỗi sản phẩm", Toast.LENGTH_SHORT).show();
                 return;
@@ -257,6 +263,25 @@ public class ProductDetailActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess() {
                     Toast.makeText(ProductDetailActivity.this, "Đã thêm vào giỏ hàng ✓", Toast.LENGTH_SHORT).show();
+                    
+                    // Hiển thị badge tick xanh
+                    ImageView ivBadgeSuccess = findViewById(R.id.ivCartBadgeSuccess);
+                    TextView tvBadgeCount = findViewById(R.id.tvCartBadgeCount);
+                    if (ivBadgeSuccess != null && tvBadgeCount != null) {
+                        ivBadgeSuccess.setVisibility(View.VISIBLE);
+                        tvBadgeCount.setVisibility(View.GONE);
+                        
+                        // Hiệu ứng pop-up cho tick xanh
+                        ivBadgeSuccess.setScaleX(0f);
+                        ivBadgeSuccess.setScaleY(0f);
+                        ivBadgeSuccess.animate().scaleX(1f).scaleY(1f).setDuration(300).setInterpolator(new android.view.animation.OvershootInterpolator()).start();
+                        
+                        // Sau 1.5s, ẩn tick xanh và hiện số lượng THỰC TẾ
+                        ivBadgeSuccess.postDelayed(() -> {
+                            ivBadgeSuccess.setVisibility(View.GONE);
+                            updateCartBadge();
+                        }, 1500);
+                    }
                 }
                 @Override
                 public void onFailure(String error) {
@@ -264,6 +289,9 @@ public class ProductDetailActivity extends AppCompatActivity {
                 }
             });
         });
+        
+        // Gọi lần đầu để load số lượng giỏ hàng hiện tại khi mở màn hình
+        updateCartBadge();
 
         View btnBuyNow = findViewById(R.id.btnBuyNow);
         if (btnBuyNow != null) {
@@ -278,7 +306,6 @@ public class ProductDetailActivity extends AppCompatActivity {
             ivCartTop.setOnClickListener(v -> startActivity(new Intent(this, CartActivity.class)));
         }
 
-        /*
         rvReviews = findViewById(R.id.rvReviews);
         if (rvReviews != null) {
             rvReviews.setLayoutManager(new LinearLayoutManager(this));
@@ -288,10 +315,8 @@ public class ProductDetailActivity extends AppCompatActivity {
                 loadReviews(finalProductId);
             }
         }
-        */
 
-        /*
-        Button btnWriteReview = findViewById(R.id.btnWriteReview);
+        View btnWriteReview = findViewById(R.id.btnWriteReview);
         if (btnWriteReview != null) {
             btnWriteReview.setOnClickListener(v -> {
                 if (!SessionManager.getInstance().isLoggedIn()) {
@@ -304,7 +329,8 @@ public class ProductDetailActivity extends AppCompatActivity {
                 }
             });
         }
-        */
+        
+        loadDefaultShippingFee();
     }
 
     private void setupSizesAndColors(ProductItem product, LinearLayout layoutSizes, LinearLayout layoutColors) {
@@ -409,6 +435,95 @@ public class ProductDetailActivity extends AppCompatActivity {
         return gd;
     }
 
+    private void calculateShippingFeeForProduct(int districtId, String wardCode) {
+        TextView tvShippingFee = findViewById(R.id.tvShippingFee);
+        if (tvShippingFee == null) return;
+        
+        new Thread(() -> {
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put("service_type_id", 2);
+                payload.put("from_district_id", 1442);
+                payload.put("to_district_id", districtId);
+                payload.put("to_ward_code", wardCode);
+                payload.put("height", 10);
+                payload.put("length", 10);
+                payload.put("weight", 200);
+                payload.put("width", 10);
+                payload.put("insurance_value", 0);
+
+                java.net.URL url = new java.net.URL("https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee");
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                conn.setRequestProperty("Token", "ecefb2fb-7203-11f1-a973-aee5264794df");
+                conn.setRequestProperty("ShopId", "200902");
+                conn.setDoOutput(true);
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(15000);
+
+                try (java.io.OutputStream os = conn.getOutputStream()) {
+                    os.write(payload.toString().getBytes("UTF-8"));
+                }
+
+                if (conn.getResponseCode() == 200) {
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream(), "UTF-8"));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) sb.append(line);
+                    
+                    JSONObject responseJson = new JSONObject(sb.toString());
+                    if (responseJson.has("data")) {
+                        long fee = responseJson.getJSONObject("data").getLong("total");
+                        runOnUiThread(() -> {
+                            tvShippingFee.setText(String.format("%,dđ", fee).replace(",", "."));
+                        });
+                    }
+                } else {
+                    runOnUiThread(() -> tvShippingFee.setText("30.000đ"));
+                }
+            } catch (Exception e) {
+                runOnUiThread(() -> tvShippingFee.setText("30.000đ"));
+            }
+        }).start();
+    }
+    
+    private void loadDefaultShippingFee() {
+        TextView tvShippingFee = findViewById(R.id.tvShippingFee);
+        if (tvShippingFee == null) return;
+        
+        if (!SessionManager.getInstance().isLoggedIn()) {
+            tvShippingFee.setText("Vui lòng đăng nhập");
+            return;
+        }
+        
+        FirestoreHelper.loadAddresses(new FirestoreHelper.AddressesCallback() {
+            @Override
+            public void onLoaded(List<UserAddress> addresses) {
+                UserAddress defaultAddress = null;
+                for (UserAddress address : addresses) {
+                    if (address.isDefault()) {
+                        defaultAddress = address;
+                        break;
+                    }
+                }
+                if (defaultAddress == null && !addresses.isEmpty()) {
+                    defaultAddress = addresses.get(0);
+                }
+                
+                if (defaultAddress != null && defaultAddress.getDistrictId() != -1 && defaultAddress.getWardCode() != null && !defaultAddress.getWardCode().isEmpty()) {
+                    calculateShippingFeeForProduct(defaultAddress.getDistrictId(), defaultAddress.getWardCode());
+                } else {
+                    tvShippingFee.setText("30.000đ");
+                }
+            }
+            @Override
+            public void onFailure(String error) {
+                tvShippingFee.setText("30.000đ");
+            }
+        });
+    }
+
     private void loadReviews(String productId) {
         FirebaseFirestore.getInstance().collection("reviews")
                 .whereEqualTo("productId", productId)
@@ -432,7 +547,6 @@ public class ProductDetailActivity extends AppCompatActivity {
 
                         reviewAdapter.notifyDataSetChanged();
                         
-                        /*
                         // Update summary
                         TextView tvAvgRating = findViewById(R.id.tvAvgRating);
                         TextView tvTotalReviews = findViewById(R.id.tvTotalReviews);
@@ -467,7 +581,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                                 }
                             }
                         }
-                        */
                     }
                 });
     }
@@ -558,5 +671,35 @@ public class ProductDetailActivity extends AppCompatActivity {
         });
 
         dialog.show();
+    }
+
+    private void updateCartBadge() {
+        new CartManager().getCartCount(new CartManager.CartCountCallback() {
+            @Override
+            public void onCounted(int count) {
+                TextView tvBadgeCount = findViewById(R.id.tvCartBadgeCount);
+                if (tvBadgeCount != null) {
+                    if (count > 0) {
+                        tvBadgeCount.setVisibility(View.VISIBLE);
+                        tvBadgeCount.setText(String.valueOf(count));
+                        // Hiệu ứng pop-up
+                        tvBadgeCount.setScaleX(0f);
+                        tvBadgeCount.setScaleY(0f);
+                        tvBadgeCount.animate().scaleX(1f).scaleY(1f).setDuration(300).setInterpolator(new android.view.animation.OvershootInterpolator()).start();
+                    } else {
+                        tvBadgeCount.setVisibility(View.GONE);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+                // Không cần báo lỗi nếu chưa đăng nhập, cứ ẩn badge đi
+                TextView tvBadgeCount = findViewById(R.id.tvCartBadgeCount);
+                if (tvBadgeCount != null) {
+                    tvBadgeCount.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 }
