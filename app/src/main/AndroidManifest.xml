@@ -42,6 +42,7 @@
         <activity android:name=".activity.OrderSuccessActivity" android:exported="false" />
         <activity android:name=".activity.TrackOrderActivity" android:exported="false" />
         <activity android:name=".activity.OrderHistoryActivity" android:exported="false" />
+        <activity android:name=".activity.OrderDetailActivity" android:exported="false" />
 
         <activity android:name=".activity.AddressManagementActivity" android:exported="false" />
         <activity android:name=".activity.ReturnRequestActivity" android:exported="false" />
