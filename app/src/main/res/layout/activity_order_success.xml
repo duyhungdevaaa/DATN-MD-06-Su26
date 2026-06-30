@@ -22,12 +22,11 @@
                 android:id="@+id/tvBrand"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="serif"
-                android:text="TRENDIFY"
+
+                android:text="Đặt hàng thành công"
                 android:textColor="@color/black"
-                android:textSize="28sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.03"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -72,7 +71,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:fontFamily="serif"
+
                 android:gravity="center"
                 android:lineSpacingExtra="4dp"
                 android:text="THANH TOÁN\nTHÀNH CÔNG"
@@ -111,7 +110,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:fontFamily="serif"
+    
                     android:text="#TRND-8829-QX"
                     android:textColor="@color/black"
                     android:textSize="28sp"
@@ -153,7 +152,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:fontFamily="serif"
+    
                     android:text="24 Tháng 10, 2023"
                     android:textColor="@color/black"
                     android:textSize="26sp"
@@ -195,7 +194,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
                     android:layout_margin="16dp"
-                    android:fontFamily="serif"
+    
                     android:gravity="center"
                     android:lineSpacingExtra="2dp"
                     android:text="“Sự đơn giản là chìa khóa của mọi vẻ thanh lịch thực thụ.”"
