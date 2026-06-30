@@ -5,63 +5,55 @@
     android:layout_height="match_parent"
     android:background="@color/trend_bg">
 
-    <!-- Top Bar -->
+    <!-- Top Bar (Search) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:background="@color/trend_bg"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_height="56dp"
+        android:background="@color/white"
+        android:elevation="2dp"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/ivMenu"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_menu"
-            android:layout_marginStart="20dp"
-            app:tint="@color/trend_text"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/tvLogo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TRENDIFY"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="@color/trend_text"
-            android:letterSpacing="0.08"
-            android:fontFamily="serif"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <ImageView
-            android:id="@+id/ivSearch"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_search"
+        <LinearLayout
+            android:id="@+id/searchBarContainer"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            app:tint="@color/trend_text"
-            app:layout_constraintTop_toTopOf="parent"
+            android:background="@drawable/bg_card_surface"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/ivNotification" />
+            app:layout_constraintEnd_toStartOf="@id/ivCart"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_search"
+                app:tint="#757575" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Tìm trong ShopeeMall"
+                android:textColor="#757575"
+                android:textSize="13sp" />
+        </LinearLayout>
 
         <ImageView
-            android:id="@+id/ivNotification"
+            android:id="@+id/ivCart"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:layout_marginEnd="16dp"
             android:src="@drawable/ic_shopping_bag"
-            android:layout_marginEnd="20dp"
-            app:tint="@color/trend_text"
-            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#EE4D2D"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -90,7 +82,7 @@
             android:textColor="@color/trend_text"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:fontFamily="serif"
+
             android:layout_marginTop="16dp"
             android:gravity="center" />
 
@@ -110,8 +102,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="KHÁM PHÁ NGAY"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/black"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#EE4D2D"
             android:textSize="12sp"
             android:textStyle="bold"
             android:fontFamily="sans-serif-medium"
