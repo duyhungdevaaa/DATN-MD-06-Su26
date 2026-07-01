@@ -27,6 +27,10 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Transaction;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -373,10 +377,26 @@ public class OrderConfirmActivity extends AppCompatActivity {
         }
         order.put("items", items); // Firestore tự serialize list
 
-        FirebaseFirestore.getInstance()
-                .collection("orders")
-                .document(orderId)
-                .set(order)
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.runTransaction((Transaction.Function<Void>) transaction -> {
+            for (CartItem item : items) {
+                DocumentReference productRef = db.collection("products").document(item.getProductId());
+                DocumentSnapshot snapshot = transaction.get(productRef);
+                if (snapshot.exists()) {
+                    Long qty = snapshot.getLong("quantity");
+                    long currentQty = qty != null ? qty : 0;
+                    if (currentQty < item.getQuantity()) {
+                        throw new FirebaseFirestoreException("Sản phẩm " + item.getName() + " không đủ số lượng!", FirebaseFirestoreException.Code.ABORTED);
+                    }
+                    transaction.update(productRef, "quantity", currentQty - item.getQuantity());
+                } else {
+                    throw new FirebaseFirestoreException("Sản phẩm " + item.getName() + " không tồn tại!", FirebaseFirestoreException.Code.ABORTED);
+                }
+            }
+            DocumentReference orderRef = db.collection("orders").document(orderId);
+            transaction.set(orderRef, order);
+            return null;
+        })
                 .addOnSuccessListener(v -> {
                     // Xóa giỏ hàng sau khi đặt thành công
                     cartManager.clearCart(new CartManager.CartCallback() {
@@ -448,10 +468,26 @@ public class OrderConfirmActivity extends AppCompatActivity {
         }
         order.put("items", items);
 
-        FirebaseFirestore.getInstance()
-                .collection("orders")
-                .document(orderId)
-                .set(order)
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.runTransaction((Transaction.Function<Void>) transaction -> {
+            for (CartItem item : items) {
+                DocumentReference productRef = db.collection("products").document(item.getProductId());
+                DocumentSnapshot snapshot = transaction.get(productRef);
+                if (snapshot.exists()) {
+                    Long qty = snapshot.getLong("quantity");
+                    long currentQty = qty != null ? qty : 0;
+                    if (currentQty < item.getQuantity()) {
+                        throw new FirebaseFirestoreException("Sản phẩm " + item.getName() + " không đủ số lượng!", FirebaseFirestoreException.Code.ABORTED);
+                    }
+                    transaction.update(productRef, "quantity", currentQty - item.getQuantity());
+                } else {
+                    throw new FirebaseFirestoreException("Sản phẩm " + item.getName() + " không tồn tại!", FirebaseFirestoreException.Code.ABORTED);
+                }
+            }
+            DocumentReference orderRef = db.collection("orders").document(orderId);
+            transaction.set(orderRef, order);
+            return null;
+        })
                 .addOnSuccessListener(v -> {
                     if (progressBar != null) progressBar.setVisibility(View.GONE);
                     

@@ -12,6 +12,8 @@ import fpoly.DatnMD06Su26.trendify.helper.*;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Transaction;
+import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,26 +75,21 @@ public class CartManager {
             if (callback != null) callback.onFailure("Sản phẩm không hợp lệ");
             return;
         }
-        cartItemRef(item.getCartItemId()).get()
-                .addOnSuccessListener(snapshot -> {
-                    if (snapshot.exists()) {
-                        Long currentLong = snapshot.getLong("quantity");
-                        int current = currentLong != null ? currentLong.intValue() : 0;
-                        cartItemRef(item.getCartItemId())
-                                .update("quantity", current + 1)
-                                .addOnSuccessListener(v -> callback.onSuccess())
-                                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
-                    } else {
-                        if (item.getQuantity() <= 0) {
-                            item.setQuantity(1);
-                        }
-                        cartItemRef(item.getCartItemId())
-                                .set(item)
-                                .addOnSuccessListener(v -> callback.onSuccess())
-                                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
-                    }
-                })
-                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+        db.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentSnapshot snapshot = transaction.get(cartItemRef(item.getCartItemId()));
+            if (snapshot.exists()) {
+                Long currentLong = snapshot.getLong("quantity");
+                long current = currentLong != null ? currentLong : 0;
+                transaction.update(cartItemRef(item.getCartItemId()), "quantity", current + item.getQuantity());
+            } else {
+                if (item.getQuantity() <= 0) {
+                    item.setQuantity(1);
+                }
+                transaction.set(cartItemRef(item.getCartItemId()), item);
+            }
+            return null;
+        }).addOnSuccessListener(v -> callback.onSuccess())
+          .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
     // Xóa 1 sản phẩm khỏi giỏ

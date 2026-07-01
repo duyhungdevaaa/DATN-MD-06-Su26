@@ -5,9 +5,7 @@ plugins {
 
 android {
     namespace 'fpoly.DatnMD06Su26.trendify'
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk 36
 
     defaultConfig {
         applicationId "fpoly.DatnMD06Su26.trendify"

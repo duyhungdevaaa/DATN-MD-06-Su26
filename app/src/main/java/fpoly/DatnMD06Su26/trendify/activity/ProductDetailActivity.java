@@ -69,7 +69,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         TextView tvPrice = findViewById(R.id.tvProductPrice);
         ImageView ivProductImage = findViewById(R.id.ivProductImage);
         
-        if (!finalImageUrl.isEmpty()) {
+        if (!finalImageUrl.isEmpty() && ivProductImage != null) {
             Glide.with(this)
                     .load(finalImageUrl)
                     .centerCrop()
