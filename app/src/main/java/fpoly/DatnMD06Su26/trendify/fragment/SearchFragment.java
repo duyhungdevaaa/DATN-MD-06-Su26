@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment;
 import fpoly.DatnMD06Su26.trendify.R;
 
 public class SearchFragment extends Fragment {
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
