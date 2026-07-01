@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import fpoly.DatnMD06Su26.trendify.R;
 
 public class CategoryFragment extends Fragment {
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#FAF6F1"
+    tools:context="fpoly.DatnMD06Su26.trendify.activity.OrderSuccessActivity">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#FAF6F1">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:background="#FFFFFF"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp">
+
+            <TextView
+                android:id="@+id/tvBrand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="serif"
+                android:text="TRENDIFY"
+                android:textColor="@color/black"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.03"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/ivClose"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="Đóng"
+                android:src="@drawable/ic_close"
+                app:tint="@color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingTop="18dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="28dp">
+
+            <FrameLayout
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/bg_circle_grey">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Thành công"
+                    android:src="@drawable/ic_check"
+                    app:tint="@color/black" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:fontFamily="serif"
+                android:gravity="center"
+                android:lineSpacingExtra="4dp"
+                android:text="THANH TOÁN\nTHÀNH CÔNG"
+                android:textColor="@color/black"
+                android:textSize="34sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:lineSpacingExtra="4dp"
+                android:text="Sự lựa chọn của bạn thể hiện gu thẩm mỹ hoàn hảo. Chúng tôi đang chuẩn bị các món đồ để gửi tới bạn sớm nhất."
+                android:textColor="#4D4D4D"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:background="@drawable/bg_success_card"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MÃ ĐƠN HÀNG"
+                    android:textColor="#7C7C7C"
+                    android:textSize="12sp"
+                    android:letterSpacing="0.08" />
+
+                <TextView
+                    android:id="@+id/tvOrderId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:fontFamily="serif"
+                    android:text="#TRND-8829-QX"
+                    android:textColor="@color/black"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="14dp"
+                    android:background="#D7D0C8" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Email xác nhận đã được gửi đến hộp thư của bạn."
+                    android:textColor="@color/black"
+                    android:textSize="15sp"
+                    android:textStyle="italic" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_success_card"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DỰ KIẾN GIAO HÀNG"
+                    android:textColor="#7C7C7C"
+                    android:textSize="12sp"
+                    android:letterSpacing="0.08" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:fontFamily="serif"
+                    android:text="24 Tháng 10, 2023"
+                    android:textColor="@color/black"
+                    android:textSize="26sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:contentDescription="Giao hàng"
+                        android:src="@drawable/ic_local_shipping"
+                        app:tint="#8A5A14" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="CHUYỂN PHÁT NHANH"
+                        android:textColor="#8A5A14"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="320dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_success_feature">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_margin="16dp"
+                    android:fontFamily="serif"
+                    android:gravity="center"
+                    android:lineSpacingExtra="2dp"
+                    android:text="“Sự đơn giản là chìa khóa của mọi vẻ thanh lịch thực thụ.”"
+                    android:textColor="#F5F0EA"
+                    android:textSize="18sp"
+                    android:textStyle="italic" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_success_card"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="ĐỊA CHỈ GIAO HÀNG"
+                            android:textColor="#7C7C7C"
+                            android:textSize="12sp"
+                            android:letterSpacing="0.08" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:text="Julianne V. Sterling"
+                            android:textColor="@color/black"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="742 Fifth Avenue, Tầng 12"
+                            android:textColor="@color/black"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="New York, NY 10019"
+                            android:textColor="@color/black"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:contentDescription="Đã xác minh"
+                            android:src="@drawable/ic_check"
+                            app:tint="#8A5A14" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="ĐỊA CHỈ ĐÃ XÁC\nMINH"
+                            android:gravity="center"
+                            android:textColor="#8A5A14"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnContinueShopping"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="28dp"
+                android:background="@drawable/bg_button_black"
+                android:text="TIẾP TỤC MUA SẮM  →"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08" />
+
+            <Button
+                android:id="@+id/btnTrackOrder"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_button_outline"
+                android:text="THEO DÕI ĐƠN HÀNG"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08" />
+
+            <TextView
+                android:id="@+id/tvContactConcierge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="34dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:text="BẠN CẦN TRỢ GIÚP? LIÊN HỆ QUẢN GIA"
+                android:textColor="#6E6E6E"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
