@@ -1,12 +1,15 @@
 package fpoly.DatnMD06Su26.trendify.adapter;
 
-import fpoly.DatnMD06Su26.trendify.R;
-import fpoly.DatnMD06Su26.trendify.fragment.*;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
+
+import fpoly.DatnMD06Su26.trendify.fragment.CategoryFragment;
+import fpoly.DatnMD06Su26.trendify.fragment.FavoriteFragment;
+import fpoly.DatnMD06Su26.trendify.fragment.HomeFragment;
+import fpoly.DatnMD06Su26.trendify.fragment.ProfileFragment;
+import fpoly.DatnMD06Su26.trendify.fragment.SearchFragment;
 
 public class ScreenPagerAdapter extends FragmentStateAdapter {
 
