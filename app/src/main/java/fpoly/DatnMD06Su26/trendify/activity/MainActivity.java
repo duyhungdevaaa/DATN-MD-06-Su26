@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewPager2 viewPager;
     private BottomNavigationView bottomNavigationView;
+    private static com.google.firebase.firestore.ListenerRegistration notificationListener = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,10 +159,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void listenToAdminNotifications() {
+        if (notificationListener != null) {
+            notificationListener.remove();
+            notificationListener = null;
+        }
+
         android.content.SharedPreferences prefs = getSharedPreferences("trendify_prefs", android.content.Context.MODE_PRIVATE);
         long lastNotifTime = prefs.getLong("last_notif_time", System.currentTimeMillis() - 5000);
 
-        com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("notifications")
+        notificationListener = com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("notifications")
             .addSnapshotListener((snapshots, e) -> {
                 if (e != null) {
                     Log.e("MainActivity", "Listen to notifications failed", e);
