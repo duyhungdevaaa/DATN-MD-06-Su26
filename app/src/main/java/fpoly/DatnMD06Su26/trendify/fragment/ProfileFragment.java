@@ -43,6 +43,7 @@ public class ProfileFragment extends Fragment {
     private LinearLayout llLogout;
     private TextView tvUserName;
     private TextView tvUserEmail;
+    private ImageView ivUserAvatar;
     private UserProfile currentProfile;
 
     @Nullable
@@ -94,7 +95,8 @@ public class ProfileFragment extends Fragment {
             llRate.setOnClickListener(v -> openPlayStoreForRating());
         }
 
-        loadUserProfile();
+        ivUserAvatar = view.findViewById(R.id.ivUserAvatar);
+
         return view;
     }
 
@@ -130,6 +132,19 @@ public class ProfileFragment extends Fragment {
                 currentProfile = profile;
                 if (tvUserName != null) tvUserName.setText(profile.getFullName());
                 // if (tvUserEmail != null) tvUserEmail.setText(profile.getEmail());
+                
+                if (ivUserAvatar != null) {
+                    String avatar = profile.getAvatar();
+                    if (avatar != null && !avatar.isEmpty()) {
+                        com.bumptech.glide.Glide.with(ProfileFragment.this)
+                                .load(avatar)
+                                .placeholder(R.drawable.ic_person)
+                                .error(R.drawable.ic_person)
+                                .into(ivUserAvatar);
+                    } else {
+                        ivUserAvatar.setImageResource(R.drawable.ic_person);
+                    }
+                }
             }
 
             @Override
@@ -139,6 +154,9 @@ public class ProfileFragment extends Fragment {
                 currentProfile = new UserProfile(SessionManager.getInstance().getUserId(), displayName, email, "", null);
                 if (tvUserName != null) tvUserName.setText(displayName);
                 // if (tvUserEmail != null) tvUserEmail.setText(email);
+                if (ivUserAvatar != null) {
+                    showAvatarPlaceholder();
+                }
                 Toast.makeText(getContext(), "Không thể tải hồ sơ: " + error, Toast.LENGTH_SHORT).show();
             }
         });
@@ -245,8 +263,25 @@ public class ProfileFragment extends Fragment {
         startActivity(intent);
     }
 
+    private void showAvatarPlaceholder() {
+        if (ivUserAvatar == null) return;
+        // Convert 12dp to px correctly
+        int pad = (int) (12 * getResources().getDisplayMetrics().density);
+        ivUserAvatar.setImageResource(R.drawable.ic_person);
+        ivUserAvatar.setPadding(pad, pad, pad, pad);
+        ivUserAvatar.setColorFilter(android.graphics.Color.parseColor("#BDBDBD"),
+                android.graphics.PorterDuff.Mode.SRC_IN);
+    }
+
     private void showLoggedOutState() {
         if (tvUserName != null) tvUserName.setText("Chưa đăng nhập");
         // if (tvUserEmail != null) tvUserEmail.setText("");
+        showAvatarPlaceholder();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadUserProfile();
     }
 }
