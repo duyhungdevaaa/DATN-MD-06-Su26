@@ -23,9 +23,33 @@
             <!-- Product Image -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="323dp" />
+                android:layout_height="323dp">
+                
+                <ImageView
+                    android:id="@+id/ivProductImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:background="#EEEEEE" />
+                    
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- Price Box -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:padding="16dp"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/tvProductPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="₫250.000"
+                    android:textColor="#EE4D2D"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <!-- Product Info Container -->
             <LinearLayout
@@ -118,7 +142,7 @@
                 android:padding="16dp"
                 android:gravity="center_vertical">
                 
-                
+
             </LinearLayout>
 
             <!-- Spacer -->

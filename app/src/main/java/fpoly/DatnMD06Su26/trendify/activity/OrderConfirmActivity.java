@@ -92,7 +92,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
         tvPaymentMethod = findViewById(R.id.tvPaymentMethod);
         etVoucherCode = findViewById(R.id.etVoucherCode);
         btnApplyVoucher = findViewById(R.id.btnApplyVoucher);
-        tvVoucherMessage = null;
+        tvVoucherMessage = findViewById(R.id.tvVoucherMessage);
         
         tvDetailSubtotal = findViewById(R.id.tvDetailSubtotal);
         tvDetailShipping = findViewById(R.id.tvDetailShipping);
