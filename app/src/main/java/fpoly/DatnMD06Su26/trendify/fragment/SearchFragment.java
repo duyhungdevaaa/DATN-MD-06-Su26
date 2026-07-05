@@ -1,11 +1,14 @@
 package fpoly.DatnMD06Su26.trendify.fragment;
 
 import fpoly.DatnMD06Su26.trendify.SessionManager;
+
 import fpoly.DatnMD06Su26.trendify.R;
-import fpoly.DatnMD06Su26.trendify.activity.LoginActivity;
-import fpoly.DatnMD06Su26.trendify.adapter.ProductAdapter;
-import fpoly.DatnMD06Su26.trendify.model.ProductItem;
-import fpoly.DatnMD06Su26.trendify.helper.FirestoreHelper;
+
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
+import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
 
 import android.content.Context;
 import android.content.Intent;
@@ -41,6 +44,12 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -340,5 +349,21 @@ public class SearchFragment extends Fragment {
         rvSearchResults.setVisibility(View.GONE);
         tvNoResults.setVisibility(View.GONE);
         llStaticContent.setVisibility(View.VISIBLE);
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import fpoly.DatnMD06Su26.trendify.R;
+
+public class SearchFragment extends Fragment {
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_search, container, false);
     }
 }
+
