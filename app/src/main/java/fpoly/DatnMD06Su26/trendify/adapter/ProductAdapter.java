@@ -82,16 +82,41 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         builder.append(item.getName());
         holder.tvProductName.setText(builder);
         
-        holder.tvProductPrice.setText(item.getPrice());
+        if (item.getDiscount() > 0) {
+            holder.tvProductPrice.setText(formatPrice(item.getDiscountedPrice()));
+            if (holder.tvProductOriginalPrice != null) {
+                holder.tvProductOriginalPrice.setVisibility(View.VISIBLE);
+                holder.tvProductOriginalPrice.setText(formatPrice(item.getPrice()));
+                holder.tvProductOriginalPrice.setPaintFlags(holder.tvProductOriginalPrice.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            }
+        } else {
+            holder.tvProductPrice.setText(formatPrice(item.getPrice()));
+            if (holder.tvProductOriginalPrice != null) {
+                holder.tvProductOriginalPrice.setVisibility(View.GONE);
+            }
+        }
         
         Glide.with(holder.ivProductImage.getContext())
                 .load(item.getImageUrl())
                 .centerCrop()
                 .into(holder.ivProductImage);
 
+        if (holder.tvSoldCount != null) {
+            holder.tvSoldCount.setText("Đã bán " + item.getSoldCount());
+        }
+
+        if (holder.llDiscountTag != null && holder.tvDiscountPercent != null) {
+            if (item.getDiscount() > 0) {
+                holder.llDiscountTag.setVisibility(View.VISIBLE);
+                holder.tvDiscountPercent.setText((int)item.getDiscount() + "%");
+            } else {
+                holder.llDiscountTag.setVisibility(View.GONE);
+            }
+        }
+
         boolean isFavorite = favoriteIds.contains(item.getId());
         if (holder.ivFavorite != null) {
-            holder.ivFavorite.setColorFilter(isFavorite ? Color.RED : Color.BLACK);
+            holder.ivFavorite.setColorFilter(isFavorite ? Color.RED : Color.parseColor("#CCCCCC"));
             holder.ivFavorite.setOnClickListener(v -> {
                 if (favoriteListener != null) {
                     favoriteListener.onFavoriteToggle(item, !isFavorite);
@@ -116,6 +141,16 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         });
     }
 
+    private String formatPrice(String priceStr) {
+        if (priceStr == null || priceStr.isEmpty()) return "";
+        try {
+            double price = Double.parseDouble(priceStr);
+            return "đ" + String.format(java.util.Locale.US, "%,d", (long) price).replace(',', '.');
+        } catch (Exception e) {
+            return priceStr.startsWith("đ") ? priceStr : "đ" + priceStr;
+        }
+    }
+
     @Override
     public int getItemCount() {
         return items.size();
@@ -134,15 +169,23 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     static class ProductViewHolder extends RecyclerView.ViewHolder {
         TextView tvProductName;
         TextView tvProductPrice;
+        TextView tvProductOriginalPrice;
         ImageView ivFavorite;
         ImageView ivProductImage;
+        TextView tvSoldCount;
+        View llDiscountTag;
+        TextView tvDiscountPercent;
 
         ProductViewHolder(View view) {
             super(view);
             tvProductName = view.findViewById(R.id.tvProductName);
             tvProductPrice = view.findViewById(R.id.tvProductPrice);
+            tvProductOriginalPrice = view.findViewById(R.id.tvProductOriginalPrice);
             ivFavorite = view.findViewById(R.id.ivFavorite);
             ivProductImage = view.findViewById(R.id.ivProductImage);
+            tvSoldCount = view.findViewById(R.id.tvSoldCount);
+            llDiscountTag = view.findViewById(R.id.llDiscountTag);
+            tvDiscountPercent = view.findViewById(R.id.tvDiscountPercent);
         }
     }
 }

@@ -15,6 +15,7 @@ public class ProductItem {
     private int quantity = 10; // Default to 10 so older products are not immediately marked as out-of-stock
     private List<Variant> variants = new ArrayList<>();
     private Long createdAt = 0L;
+    private int sold = 0;
 
     public static class Variant {
         private String size = "";
@@ -121,6 +122,33 @@ public class ProductItem {
         return price != null ? String.valueOf(price) : "";
     }
 
+    public double getPriceDouble() {
+        String pStr = getPrice();
+        if (pStr.isEmpty()) return 0.0;
+        try {
+            pStr = pStr.replace("đ", "").replace("VND", "").replaceAll("[^0-9.]", "");
+            return Double.parseDouble(pStr);
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
+    }
+
+    public double getDiscountedPriceDouble() {
+        double originalPrice = getPriceDouble();
+        if (discount > 0) {
+            return originalPrice * (1.0 - discount / 100.0);
+        }
+        return originalPrice;
+    }
+
+    public String getDiscountedPrice() {
+        double discPrice = getDiscountedPriceDouble();
+        if (discPrice == (long) discPrice) {
+            return String.valueOf((long) discPrice);
+        }
+        return String.valueOf(discPrice);
+    }
+
     public void setPrice(Object price) {
         this.price = price;
     }
@@ -131,6 +159,18 @@ public class ProductItem {
 
     public void setDiscount(double discount) {
         this.discount = discount;
+    }
+
+    public int getSold() {
+        return sold;
+    }
+
+    public void setSold(int sold) {
+        this.sold = sold;
+    }
+
+    public int getSoldCount() {
+        return sold;
     }
 
     public Long getCreatedAt() {
