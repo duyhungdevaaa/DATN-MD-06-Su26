@@ -262,4 +262,39 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showAdBannerDialog();
+    }
+
+    private void showAdBannerDialog() {
+        android.app.Dialog dialog = new android.app.Dialog(this);
+        dialog.setContentView(R.layout.dialog_ad_banner);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+            dialog.getWindow().setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
+        android.widget.ImageView ivAdBanner = dialog.findViewById(R.id.ivAdBanner);
+        android.widget.ImageView ivCloseAd = dialog.findViewById(R.id.ivCloseAd);
+
+        // Load a stunning promotional fashion banner image via Glide
+        String adImageUrl = "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80";
+        com.bumptech.glide.Glide.with(this)
+                .load(adImageUrl)
+                .centerCrop()
+                .into(ivAdBanner);
+
+        ivCloseAd.setOnClickListener(v -> dialog.dismiss());
+        ivAdBanner.setOnClickListener(v -> {
+            dialog.dismiss();
+            android.content.Intent intent = new android.content.Intent(this, ProductListActivity.class);
+            intent.putExtra("FILTER_MODE", "SALE");
+            startActivity(intent);
+        });
+
+        dialog.show();
+    }
 }
