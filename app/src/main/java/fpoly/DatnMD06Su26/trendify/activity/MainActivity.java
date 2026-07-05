@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
                 this, 0, intent, pendingFlags);
 
         androidx.core.app.NotificationCompat.Builder builder = new androidx.core.app.NotificationCompat.Builder(this, "trendify_notifications")
-                .setSmallIcon(R.drawable.ic_notifications)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
