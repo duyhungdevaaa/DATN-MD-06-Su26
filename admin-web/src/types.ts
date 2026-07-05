@@ -9,6 +9,7 @@ export enum ActiveTab {
   USERS = "users",
   PRODUCTS = "products",
   CATEGORIES = "categories",
+  VOUCHERS = "vouchers",
   SETTINGS = "settings",
 }
 
@@ -26,6 +27,7 @@ export enum UserTier {
 
 export enum OrderStatus {
   AWAITING_PAYMENT = "Chờ thanh toán",
+  PENDING = "Chờ xử lý",
   PROCESSING = "Đang xử lý",
   SHIPPING = "Đang vận chuyển",
   DELIVERED = "Đã giao",
@@ -44,6 +46,7 @@ export interface Product {
   status: ProductStatus;
   imageUrl: string;
   lastModified: string;
+  discount?: number;
   sizes?: string[];
   colors?: string[];
   variants?: Array<{ size: string; color: string; quantity: number }>;
@@ -104,4 +107,13 @@ export interface User {
   email: string;
   phone?: string;
   joinedDate: string;
+}
+
+export interface Voucher {
+  id: string;
+  code: string;
+  discountAmount: number;
+  discountRate: number;
+  maximumDiscount: number;
+  expirationDate: string;
 }
