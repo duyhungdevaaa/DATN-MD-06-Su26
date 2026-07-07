@@ -44,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.viewPager);
         bottomNavigationView = findViewById(R.id.bottomNav);
 
+        // Seeder database categories and products if empty
+        FirestoreHelper.checkAndSeedDatabase();
+
         ScreenPagerAdapter adapter = new ScreenPagerAdapter(this);
         viewPager.setAdapter(adapter);
         viewPager.setUserInputEnabled(false); // Disable horizontal swipe to change tabs
@@ -69,9 +72,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        findViewById(R.id.fabCart).setOnClickListener(v -> {
-            startActivity(new android.content.Intent(MainActivity.this, CartActivity.class));
-        });
+
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
