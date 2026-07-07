@@ -11,16 +11,12 @@ android {
 
     defaultConfig {
         applicationId "fpoly.DatnMD06Su26.trendify"
-        minSdk 28
+        minSdk 34
         targetSdk 36
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    buildFeatures {
-        buildConfig = true
     }
 
     buildTypes {
@@ -40,7 +36,6 @@ dependencies {
     implementation libs.material
     implementation libs.activity
     implementation libs.constraintlayout
-    implementation libs.viewpager2
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
