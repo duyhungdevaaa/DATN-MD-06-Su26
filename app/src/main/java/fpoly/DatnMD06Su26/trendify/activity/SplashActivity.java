@@ -21,10 +21,9 @@ public class SplashActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                // Chuyển sang màn hình Onboarding giới thiệu ứng dụng
-                startActivity(new Intent(SplashActivity.this, OnboardingActivity.class));
+                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
                 finish();
             }
-        }, 500); // 0.5s theo yêu cầu
+        }, 2500);
     }
 }
