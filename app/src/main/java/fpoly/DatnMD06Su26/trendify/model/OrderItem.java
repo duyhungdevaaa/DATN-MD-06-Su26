@@ -1,5 +1,13 @@
 package fpoly.DatnMD06Su26.trendify.model;
 
+import fpoly.DatnMD06Su26.trendify.R;
+
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
+import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
+
 public class OrderItem {
     private String orderId;
     private String status;
@@ -8,8 +16,6 @@ public class OrderItem {
     private int quantity;
     private String price;
     private int productImageRes;
-
-    public OrderItem() {} // Bắt buộc cho Firestore
 
     public OrderItem(String orderId, String status, String date, String productName, int quantity, String price, int productImageRes) {
         this.orderId = orderId;

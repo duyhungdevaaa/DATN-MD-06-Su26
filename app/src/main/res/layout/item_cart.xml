@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginBottom="16dp"
+    app:cardBackgroundColor="@color/trend_bg"
+    app:cardCornerRadius="2dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/trend_border"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Product Image (Lookbook style 3:4 aspect ratio) -->
+        <ImageView
+            android:id="@+id/ivItemImage"
+            android:layout_width="84dp"
+            android:layout_height="112dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_shopping_bag"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Product Name -->
+        <TextView
+            android:id="@+id/tvItemName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Tên sản phẩm"
+            android:textColor="@color/trend_text"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:fontFamily="serif"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="12dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ivItemImage"
+            app:layout_constraintEnd_toStartOf="@id/btnDelete" />
+
+        <!-- Variant Info -->
+        <TextView
+            android:id="@+id/tvItemVariant"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="SIZE: M | MÀU: ĐEN"
+            android:textColor="@color/trend_muted"
+            android:textSize="11sp"
+            android:letterSpacing="0.08"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginTop="6dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="12dp"
+            android:textAllCaps="true"
+            app:layout_constraintTop_toBottomOf="@id/tvItemName"
+            app:layout_constraintStart_toEndOf="@id/ivItemImage"
+            app:layout_constraintEnd_toStartOf="@id/btnDelete" />
+
+        <!-- Price -->
+        <TextView
+            android:id="@+id/tvItemPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1.890.000đ"
+            android:textColor="@color/trend_text"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintTop_toBottomOf="@id/tvItemVariant"
+            app:layout_constraintStart_toEndOf="@id/ivItemImage" />
+
+        <!-- Delete Button (Must remain ImageView) -->
+        <ImageView
+            android:id="@+id/btnDelete"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_close"
+            android:padding="10dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:tint="@color/trend_muted"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Quantity Selector Layout (Square bordered design) -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_button_outline"
+            android:backgroundTint="@android:color/transparent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- Decrease Button -->
+            <TextView
+                android:id="@+id/btnDecrease"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:text="−"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="@color/trend_text"
+                android:background="?android:attr/selectableItemBackground" />
+
+            <!-- Divider Line 1 -->
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/trend_border" />
+
+            <!-- Quantity Display -->
+            <TextView
+                android:id="@+id/tvQuantity"
+                android:layout_width="36dp"
+                android:layout_height="match_parent"
+                android:text="1"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="@color/trend_text" />
+
+            <!-- Divider Line 2 -->
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/trend_border" />
+
+            <!-- Increase Button -->
+            <TextView
+                android:id="@+id/btnIncrease"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:text="+"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="@color/trend_text"
+                android:background="?android:attr/selectableItemBackground" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
