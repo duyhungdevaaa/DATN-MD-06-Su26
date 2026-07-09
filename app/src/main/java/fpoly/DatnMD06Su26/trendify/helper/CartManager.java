@@ -14,6 +14,10 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,11 +80,38 @@ public class CartManager {
             return;
         }
         db.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentSnapshot productSnap = transaction.get(db.collection("products").document(item.getProductId()));
+            if (!productSnap.exists()) throw new FirebaseFirestoreException("Sản phẩm không tồn tại", FirebaseFirestoreException.Code.ABORTED);
+            
+            long maxStock = productSnap.getLong("quantity") != null ? productSnap.getLong("quantity") : 0;
+            List<Map<String, Object>> variants = (List<Map<String, Object>>) productSnap.get("variants");
+            if (variants != null && !variants.isEmpty()) {
+                for (Map<String, Object> var : variants) {
+                    String vSize = (String) var.get("size");
+                    String vColor = (String) var.get("color");
+                    boolean matchSize = item.getSize() == null || item.getSize().isEmpty() || item.getSize().equalsIgnoreCase(vSize);
+                    boolean matchColor = item.getColor() == null || item.getColor().isEmpty() || item.getColor().equalsIgnoreCase(vColor);
+                    if (matchSize && matchColor) {
+                        maxStock = var.get("quantity") != null ? ((Number)var.get("quantity")).longValue() : 0;
+                        break;
+                    }
+                }
+            }
+            
             DocumentSnapshot snapshot = transaction.get(cartItemRef(item.getCartItemId()));
+            long current = 0;
             if (snapshot.exists()) {
                 Long currentLong = snapshot.getLong("quantity");
-                long current = currentLong != null ? currentLong : 0;
-                transaction.update(cartItemRef(item.getCartItemId()), "quantity", current + item.getQuantity());
+                current = currentLong != null ? currentLong : 0;
+            }
+            
+            long requestQty = current + item.getQuantity();
+            if (requestQty > maxStock) {
+                throw new FirebaseFirestoreException("Số lượng tồn kho không đủ (còn " + maxStock + ")", FirebaseFirestoreException.Code.ABORTED);
+            }
+            
+            if (snapshot.exists()) {
+                transaction.update(cartItemRef(item.getCartItemId()), "quantity", requestQty);
             } else {
                 if (item.getQuantity() <= 0) {
                     item.setQuantity(1);
@@ -110,9 +141,37 @@ public class CartManager {
             removeFromCart(productId, callback);
             return;
         }
-        cartItemRef(productId).update("quantity", newQty)
-                .addOnSuccessListener(v -> callback.onSuccess())
-                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+        db.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentSnapshot cartSnap = transaction.get(cartItemRef(productId));
+            if (!cartSnap.exists()) throw new FirebaseFirestoreException("Sản phẩm không có trong giỏ", FirebaseFirestoreException.Code.ABORTED);
+            CartItem cartItem = cartSnap.toObject(CartItem.class);
+            if (cartItem == null) throw new FirebaseFirestoreException("Lỗi dữ liệu", FirebaseFirestoreException.Code.ABORTED);
+            
+            DocumentSnapshot productSnap = transaction.get(db.collection("products").document(cartItem.getProductId()));
+            if (!productSnap.exists()) throw new FirebaseFirestoreException("Sản phẩm không tồn tại", FirebaseFirestoreException.Code.ABORTED);
+            
+            long maxStock = productSnap.getLong("quantity") != null ? productSnap.getLong("quantity") : 0;
+            List<Map<String, Object>> variants = (List<Map<String, Object>>) productSnap.get("variants");
+            if (variants != null && !variants.isEmpty()) {
+                for (Map<String, Object> var : variants) {
+                    String vSize = (String) var.get("size");
+                    String vColor = (String) var.get("color");
+                    boolean matchSize = cartItem.getSize() == null || cartItem.getSize().isEmpty() || cartItem.getSize().equalsIgnoreCase(vSize);
+                    boolean matchColor = cartItem.getColor() == null || cartItem.getColor().isEmpty() || cartItem.getColor().equalsIgnoreCase(vColor);
+                    if (matchSize && matchColor) {
+                        maxStock = var.get("quantity") != null ? ((Number)var.get("quantity")).longValue() : 0;
+                        break;
+                    }
+                }
+            }
+            if (newQty > maxStock) {
+                throw new FirebaseFirestoreException("Số lượng kho chỉ còn " + maxStock, FirebaseFirestoreException.Code.ABORTED);
+            }
+            
+            transaction.update(cartItemRef(productId), "quantity", newQty);
+            return null;
+        }).addOnSuccessListener(v -> callback.onSuccess())
+          .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
     // Load toàn bộ giỏ hàng

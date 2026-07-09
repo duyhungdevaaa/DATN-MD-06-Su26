@@ -385,10 +385,34 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     Long qty = snapshot.getLong("quantity");
                     long currentQty = qty != null ? qty : 0;
+                    
+                    List<Map<String, Object>> variants = (List<Map<String, Object>>) snapshot.get("variants");
+                    boolean variantUpdated = false;
+                    if (variants != null && !variants.isEmpty()) {
+                        for (Map<String, Object> var : variants) {
+                            String vSize = (String) var.get("size");
+                            String vColor = (String) var.get("color");
+                            boolean matchSize = item.getSize() == null || item.getSize().isEmpty() || item.getSize().equalsIgnoreCase(vSize);
+                            boolean matchColor = item.getColor() == null || item.getColor().isEmpty() || item.getColor().equalsIgnoreCase(vColor);
+                            if (matchSize && matchColor) {
+                                long vQty = var.get("quantity") != null ? ((Number)var.get("quantity")).longValue() : 0;
+                                if (vQty < item.getQuantity()) {
+                                    throw new FirebaseFirestoreException("Phân loại " + item.getName() + " không đủ số lượng!", FirebaseFirestoreException.Code.ABORTED);
+                                }
+                                var.put("quantity", vQty - item.getQuantity());
+                                variantUpdated = true;
+                                break;
+                            }
+                        }
+                    }
+                    
                     if (currentQty < item.getQuantity()) {
                         throw new FirebaseFirestoreException("Sản phẩm " + item.getName() + " không đủ số lượng!", FirebaseFirestoreException.Code.ABORTED);
                     }
                     transaction.update(productRef, "quantity", currentQty - item.getQuantity());
+                    if (variantUpdated) {
+                        transaction.update(productRef, "variants", variants);
+                    }
                 } else {
                     throw new FirebaseFirestoreException("Sản phẩm " + item.getName() + " không tồn tại!", FirebaseFirestoreException.Code.ABORTED);
                 }
@@ -476,10 +500,34 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     Long qty = snapshot.getLong("quantity");
                     long currentQty = qty != null ? qty : 0;
+                    
+                    List<Map<String, Object>> variants = (List<Map<String, Object>>) snapshot.get("variants");
+                    boolean variantUpdated = false;
+                    if (variants != null && !variants.isEmpty()) {
+                        for (Map<String, Object> var : variants) {
+                            String vSize = (String) var.get("size");
+                            String vColor = (String) var.get("color");
+                            boolean matchSize = item.getSize() == null || item.getSize().isEmpty() || item.getSize().equalsIgnoreCase(vSize);
+                            boolean matchColor = item.getColor() == null || item.getColor().isEmpty() || item.getColor().equalsIgnoreCase(vColor);
+                            if (matchSize && matchColor) {
+                                long vQty = var.get("quantity") != null ? ((Number)var.get("quantity")).longValue() : 0;
+                                if (vQty < item.getQuantity()) {
+                                    throw new FirebaseFirestoreException("Phân loại " + item.getName() + " không đủ số lượng!", FirebaseFirestoreException.Code.ABORTED);
+                                }
+                                var.put("quantity", vQty - item.getQuantity());
+                                variantUpdated = true;
+                                break;
+                            }
+                        }
+                    }
+                    
                     if (currentQty < item.getQuantity()) {
                         throw new FirebaseFirestoreException("Sản phẩm " + item.getName() + " không đủ số lượng!", FirebaseFirestoreException.Code.ABORTED);
                     }
                     transaction.update(productRef, "quantity", currentQty - item.getQuantity());
+                    if (variantUpdated) {
+                        transaction.update(productRef, "variants", variants);
+                    }
                 } else {
                     throw new FirebaseFirestoreException("Sản phẩm " + item.getName() + " không tồn tại!", FirebaseFirestoreException.Code.ABORTED);
                 }
