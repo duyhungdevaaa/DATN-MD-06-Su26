@@ -127,6 +127,7 @@
 
                     <!-- Kích Cỡ -->
                     <TextView
+                        android:id="@+id/tvSizeLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Kích Cỡ"
@@ -188,6 +189,7 @@
 
                     <!-- Màu Sắc -->
                     <TextView
+                        android:id="@+id/tvColorLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Màu Sắc"

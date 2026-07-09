@@ -254,12 +254,19 @@ public class ProductDetailActivity extends AppCompatActivity {
         List<String> sizes = product.getSizes();
         List<String> colors = product.getColors();
         
-        if (sizes == null || sizes.isEmpty()) {
-            sizes = new ArrayList<>(java.util.Arrays.asList("S", "M", "L", "XL", "XXL"));
-        }
-        if (colors == null || colors.isEmpty()) {
-            colors = new ArrayList<>(java.util.Arrays.asList("Xanh", "Đỏ", "Tím", "Vàng", "Trắng", "Đen"));
-        }
+        if (sizes == null) sizes = new ArrayList<>();
+        if (colors == null) colors = new ArrayList<>();
+        
+        productHasSizes = !sizes.isEmpty();
+        productHasColors = !colors.isEmpty();
+        
+        TextView tvSizeLabel = findViewById(R.id.tvSizeLabel);
+        if (tvSizeLabel != null) tvSizeLabel.setVisibility(productHasSizes ? View.VISIBLE : View.GONE);
+        layoutSizes.setVisibility(productHasSizes ? View.VISIBLE : View.GONE);
+        
+        TextView tvColorLabel = findViewById(R.id.tvColorLabel);
+        if (tvColorLabel != null) tvColorLabel.setVisibility(productHasColors ? View.VISIBLE : View.GONE);
+        layoutColors.setVisibility(productHasColors ? View.VISIBLE : View.GONE);
         
         productHasSizes = !sizes.isEmpty();
         productHasColors = !colors.isEmpty();
