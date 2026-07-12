@@ -7,71 +7,17 @@
     android:background="#000000"
     tools:context=".activity.SplashActivity">
 
-    <!-- background line pattern decoration (subtle overlay) -->
-    <ImageView
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottieSplash"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/scene_about_lines"
-        android:alpha="0.05"
-        android:scaleType="centerCrop" />
-
-    <!-- Center Content -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
+        android:scaleType="centerCrop"
+        app:lottie_rawRes="@raw/splash_screen"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/tvSubtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="THÀNH LẬP 2024"
-            android:textColor="#88FFFFFF"
-            android:textSize="11sp"
-            android:letterSpacing="0.3"
-            android:textAllCaps="true"
-            android:fontFamily="sans-serif-medium" />
-
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Trendify"
-            android:textColor="@color/white"
-            android:textSize="54sp"
-            android:textStyle="italic"
-            android:fontFamily="serif"
-            android:layout_marginTop="6dp" />
-
-        <!-- Thin elegant gold progress indicator -->
-        <ProgressBar
-            android:id="@+id/progressBarSplash"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="100dp"
-            android:layout_height="2dp"
-            android:layout_marginTop="36dp"
-            android:indeterminate="true"
-            android:indeterminateTint="@color/trend_gold" />
-
-    </LinearLayout>
-
-    <!-- Footer Identity -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="BỘ SƯU TẬP"
-        android:textColor="#55FFFFFF"
-        android:textSize="11sp"
-        android:letterSpacing="0.25"
-        android:fontFamily="sans-serif-medium"
-        android:layout_marginBottom="48dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

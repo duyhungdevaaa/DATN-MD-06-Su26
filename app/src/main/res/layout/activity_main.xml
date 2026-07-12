@@ -31,15 +31,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/fabChat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:src="@android:drawable/ic_dialog_email"
-        app:backgroundTint="?attr/colorPrimary"
-        app:tint="@android:color/white"
+        app:lottie_rawRes="@raw/chatbot"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintBottom_toTopOf="@id/bottomNav"
         app:layout_constraintEnd_toEndOf="parent" />
 
