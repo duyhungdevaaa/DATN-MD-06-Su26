@@ -1,12 +1,7 @@
 package fpoly.DatnMD06Su26.trendify.adapter;
 
 import fpoly.DatnMD06Su26.trendify.R;
-
-import fpoly.DatnMD06Su26.trendify.activity.*;
-import fpoly.DatnMD06Su26.trendify.fragment.*;
-import fpoly.DatnMD06Su26.trendify.adapter.*;
-import fpoly.DatnMD06Su26.trendify.model.*;
-import fpoly.DatnMD06Su26.trendify.helper.*;
+import fpoly.DatnMD06Su26.trendify.model.OrderItem;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,8 +52,6 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
         } else {
             holder.tvOrderStatus.setTextColor(0xFF757575);
         }
-
-        // btnViewDetails click listener removed - no action for now
     }
 
     @Override
