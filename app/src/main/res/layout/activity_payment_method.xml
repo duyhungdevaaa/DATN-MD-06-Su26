@@ -88,6 +88,134 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="32dp" />
 
+            <!-- 1. Credit/Debit Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardCredit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardBackgroundColor="@color/trend_card"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/trend_border"
+                app:strokeWidth="2dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="20dp">
+
+                    <ImageView
+                        android:id="@+id/iconCredit"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_credit_card"
+                        app:tint="@color/trend_text" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_toEndOf="@id/iconCredit"
+                        android:layout_toStartOf="@id/indicatorCredit"
+                        android:layout_marginStart="16dp"
+                        android:layout_centerVertical="true">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="THẺ TÍN DỤNG / GHI NỢ"
+                            android:textColor="@color/trend_text"
+                            android:textSize="11sp"
+                            android:letterSpacing="0.1"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Visa, Mastercard, JCB, AMEX"
+                            android:textColor="@color/trend_muted"
+                            android:textSize="12sp"
+                            android:layout_marginTop="2dp" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/indicatorCredit"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/bg_circle_black" />
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 2. Ví MoMo -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardMomo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardBackgroundColor="@color/trend_card"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/trend_border"
+                app:strokeWidth="2dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="20dp">
+
+                    <ImageView
+                        android:id="@+id/iconMomo"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_credit_card"
+                        app:tint="@color/trend_muted" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_toEndOf="@id/iconMomo"
+                        android:layout_toStartOf="@id/indicatorMomo"
+                        android:layout_marginStart="16dp"
+                        android:layout_centerVertical="true">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="VÍ MOMO"
+                            android:textColor="@color/trend_text"
+                            android:textSize="11sp"
+                            android:letterSpacing="0.1"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Thanh toán nhanh qua ví điện tử"
+                            android:textColor="@color/trend_muted"
+                            android:textSize="12sp"
+                            android:layout_marginTop="2dp" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/indicatorMomo"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/bg_circle" />
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- 3. Chuyển khoản ngân hàng -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardBankTransfer"
