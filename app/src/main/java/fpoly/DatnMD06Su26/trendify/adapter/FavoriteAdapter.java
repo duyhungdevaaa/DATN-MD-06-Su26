@@ -1,12 +1,8 @@
 package fpoly.DatnMD06Su26.trendify.adapter;
 
 import fpoly.DatnMD06Su26.trendify.R;
-
-import fpoly.DatnMD06Su26.trendify.activity.*;
-import fpoly.DatnMD06Su26.trendify.fragment.*;
-import fpoly.DatnMD06Su26.trendify.adapter.*;
-import fpoly.DatnMD06Su26.trendify.model.*;
-import fpoly.DatnMD06Su26.trendify.helper.*;
+import fpoly.DatnMD06Su26.trendify.activity.ProductDetailActivity;
+import fpoly.DatnMD06Su26.trendify.model.ProductItem;
 
 import android.content.Intent;
 import com.bumptech.glide.Glide;
