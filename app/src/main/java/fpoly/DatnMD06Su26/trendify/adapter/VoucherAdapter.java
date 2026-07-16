@@ -60,7 +60,13 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VoucherV
         holder.tvExpiry.setText("HSD: " + voucher.getExpirationDate());
         
         holder.itemView.setOnClickListener(v -> {
-            Toast.makeText(v.getContext(), "Mã lưu: " + voucher.getCode(), Toast.LENGTH_SHORT).show();
+            if (v.getContext() instanceof android.app.Activity) {
+                android.app.Activity activity = (android.app.Activity) v.getContext();
+                android.content.Intent data = new android.content.Intent();
+                data.putExtra("selected_voucher_code", voucher.getCode());
+                activity.setResult(android.app.Activity.RESULT_OK, data);
+                activity.finish();
+            }
         });
     }
 

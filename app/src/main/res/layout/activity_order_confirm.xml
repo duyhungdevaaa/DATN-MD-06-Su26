@@ -316,11 +316,15 @@
                 android:orientation="vertical">
 
                 <LinearLayout
+                    android:id="@+id/btnSelectVoucher"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="12dp">
+                    android:padding="12dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?android:attr/selectableItemBackground">
 
                     <ImageView
                         android:layout_width="20dp"

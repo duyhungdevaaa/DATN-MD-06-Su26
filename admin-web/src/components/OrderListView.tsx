@@ -49,12 +49,28 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
 
   const getStatusBadgeClass = (status: OrderStatus) => {
     switch (status) {
-      case OrderStatus.PENDING:
+      case OrderStatus.AWAITING_PAYMENT:
         return "bg-amber-50 text-amber-700 border-amber-200/50";
+      case OrderStatus.AWAITING_CONFIRMATION:
+        return "bg-zinc-50 text-zinc-700 border-zinc-200/50";
+      case OrderStatus.PREPARING:
+        return "bg-purple-50 text-purple-700 border-purple-200/50";
       case OrderStatus.SHIPPING:
         return "bg-sky-50 text-sky-700 border-sky-200/50";
       case OrderStatus.DELIVERED:
         return "bg-green-50 text-green-700 border-green-200/50";
+      case OrderStatus.FAILED_DELIVERY:
+        return "bg-red-50 text-red-700 border-red-200/50";
+      case OrderStatus.RETURNING:
+        return "bg-orange-50 text-orange-700 border-orange-200/50";
+      case OrderStatus.RETURNED:
+        return "bg-neutral-100 text-neutral-700 border-neutral-200/50";
+      case OrderStatus.REFUNDED:
+        return "bg-rose-50 text-rose-700 border-rose-200/50";
+      case OrderStatus.REFUND_APPROVED:
+        return "bg-emerald-50 text-emerald-700 border-emerald-200/50";
+      case OrderStatus.REFUND_REJECTED:
+        return "bg-stone-100 text-stone-700 border-stone-200/50";
       default:
         return "bg-neutral-100 text-neutral-500 border-neutral-200";
     }
@@ -81,10 +97,11 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
             className="bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none focus:bg-white font-sans text-zinc-700 font-bold"
           >
             <option value="All">Tất cả vận đơn</option>
-            <option value={OrderStatus.PENDING}>Đang xử lý ({orders.filter(o => o.status === OrderStatus.PENDING).length})</option>
-            <option value={OrderStatus.SHIPPING}>Đang giao ({orders.filter(o => o.status === OrderStatus.SHIPPING).length})</option>
-            <option value={OrderStatus.DELIVERED}>Đã hoàn thành ({orders.filter(o => o.status === OrderStatus.DELIVERED).length})</option>
-            <option value={OrderStatus.CANCELLED}>Đã hủy ({orders.filter(o => o.status === OrderStatus.CANCELLED).length})</option>
+            {Object.values(OrderStatus).map((status) => (
+              <option key={status} value={status}>
+                {status} ({orders.filter((o) => o.status === status).length})
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -192,31 +209,27 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
 
                       {/* Status design control */}
                       <td className="p-5 align-middle text-center">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold ${
-                          order.status === OrderStatus.AWAITING_PAYMENT
-                            ? "bg-amber-50 text-amber-700 border-amber-100"
-                            : order.status === OrderStatus.PROCESSING
-                            ? "bg-purple-50 text-purple-700 border-purple-100"
-                            : order.status === OrderStatus.SHIPPING
-                            ? "bg-sky-50 text-sky-700 border-sky-100"
-                            : order.status === OrderStatus.DELIVERED
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-                            : order.status === OrderStatus.REFUNDED
-                            ? "bg-rose-50 text-rose-700 border-rose-100"
-                            : "bg-red-50 text-red-700 border-red-100" // Cancelled
-                        }`}>
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold ${getStatusBadgeClass(order.status)}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${
                             order.status === OrderStatus.AWAITING_PAYMENT 
                               ? 'bg-amber-500 animate-pulse' 
-                              : order.status === OrderStatus.PROCESSING 
+                              : order.status === OrderStatus.AWAITING_CONFIRMATION
+                              ? 'bg-zinc-500'
+                              : order.status === OrderStatus.PREPARING 
                               ? 'bg-purple-500 animate-pulse' 
                               : order.status === OrderStatus.SHIPPING 
                               ? "bg-sky-500 animate-pulse" 
-                              : order.status === OrderStatus.CANCELLED
+                              : order.status === OrderStatus.CANCELLED || order.status === OrderStatus.FAILED_DELIVERY
                               ? "bg-red-500"
+                              : order.status === OrderStatus.RETURNING
+                              ? "bg-orange-500 animate-pulse"
+                              : order.status === OrderStatus.RETURNED
+                              ? "bg-neutral-500"
                               : order.status === OrderStatus.REFUNDED
                               ? "bg-rose-500"
-                              : "bg-emerald-500" // DELIVERED
+                              : order.status === OrderStatus.REFUND_APPROVED
+                              ? "bg-emerald-500"
+                              : "bg-stone-500"
                           }`} />
                           {order.status}
                         </span>

@@ -26,6 +26,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.HashMap;
+import android.widget.Toast;
 
 public class OrderDetailActivity extends AppCompatActivity {
 
@@ -39,6 +42,7 @@ public class OrderDetailActivity extends AppCompatActivity {
     private TextView tvShippingFee;
     private TextView tvDiscount;
     private TextView tvTotal;
+    private TextView tvPaymentStatus;
     private ImageView ivBack;
     private ProgressBar progressBar;
 
@@ -63,6 +67,7 @@ public class OrderDetailActivity extends AppCompatActivity {
         tvShippingFee = findViewById(R.id.tvShippingFee);
         tvDiscount = findViewById(R.id.tvDiscount);
         tvTotal = findViewById(R.id.tvTotal);
+        tvPaymentStatus = findViewById(R.id.tvPaymentStatus);
         progressBar = findViewById(R.id.progressBar);
 
         ivBack.setOnClickListener(v -> finish());
@@ -99,7 +104,14 @@ public class OrderDetailActivity extends AppCompatActivity {
                     String status = doc.getString("status");
                     String date = doc.getString("date");
                     String address = doc.getString("shippingAddress");
+                    if (address != null && address.contains("|||")) {
+                        String[] parts = address.split("\\|\\|\\|");
+                        if (parts.length > 0) {
+                            address = parts[parts.length - 1].trim();
+                        }
+                    }
                     String paymentMethod = doc.getString("paymentMethod");
+                    String paymentStatus = doc.getString("paymentStatus");
                     Long total = doc.getLong("total");
                     Long shippingFee = doc.getLong("shippingFee");
                     Long discount = doc.getLong("discount");
@@ -120,15 +132,116 @@ public class OrderDetailActivity extends AppCompatActivity {
                     tvShippingAddress.setText(address != null ? address : "Chưa có địa chỉ");
                     tvPaymentMethod.setText(paymentMethod != null ? paymentMethod : "Chưa có phương thức thanh toán");
 
+                    // Set payment status display
+                    String displayPaymentStatus = "Chưa thanh toán";
+                    int paymentStatusColor = 0xFFF44336; // Red by default
+
+                    if ("Chuyển khoản ngân hàng".equals(paymentMethod)) {
+                        if ("PAID".equals(paymentStatus)) {
+                            displayPaymentStatus = "Đã thanh toán (Qua PayOS)";
+                            paymentStatusColor = 0xFF4CAF50; // Green
+                        } else {
+                            displayPaymentStatus = "Chờ thanh toán (Chuyển khoản)";
+                            paymentStatusColor = 0xFFFF9800; // Orange
+                        }
+                    } else if ("COD".equals(paymentMethod)) {
+                        if ("Đã giao".equals(status)) {
+                            displayPaymentStatus = "Đã thanh toán (Thu hộ COD)";
+                            paymentStatusColor = 0xFF4CAF50; // Green
+                        } else {
+                            displayPaymentStatus = "Thanh toán khi nhận hàng (COD)";
+                            paymentStatusColor = 0xFF2196F3; // Blue
+                        }
+                    } else {
+                        if (paymentMethod != null && !paymentMethod.isEmpty()) {
+                            displayPaymentStatus = paymentMethod;
+                        }
+                    }
+
+                    if (tvPaymentStatus != null) {
+                        tvPaymentStatus.setText("Trạng thái thanh toán: " + displayPaymentStatus);
+                        tvPaymentStatus.setTextColor(paymentStatusColor);
+                    }
+
                     // Set status badge color based on status
                     if (status != null) {
                         if (status.equals("Đã giao")) {
-                            tvOrderStatus.setTextColor(0xFF4CAF50);
+                            tvOrderStatus.setTextColor(0xFF4CAF50); // Green
                         } else if (status.equals("Đang vận chuyển")) {
-                            tvOrderStatus.setTextColor(0xFFFF9800);
+                            tvOrderStatus.setTextColor(0xFF00BCD4); // Cyan
+                        } else if (status.equals("Chờ thanh toán")) {
+                            tvOrderStatus.setTextColor(0xFFFF9800); // Orange
+                        } else if (status.equals("Chờ xác nhận")) {
+                            tvOrderStatus.setTextColor(0xFF9E9E9E); // Gray
+                        } else if (status.equals("Đang chuẩn bị hàng") || status.equals("Đang xử lý")) {
+                            tvOrderStatus.setTextColor(0xFF9C27B0); // Purple
+                        } else if (status.equals("Giao hàng thất bại")) {
+                            tvOrderStatus.setTextColor(0xFFF44336); // Red
+                        } else if (status.equals("Đang chuyển hoàn")) {
+                            tvOrderStatus.setTextColor(0xFFFF5722); // Deep Orange
+                        } else if (status.equals("Đã chuyển hoàn")) {
+                            tvOrderStatus.setTextColor(0xFF607D8B); // Blue Gray
+                        } else if (status.equals("Đã hủy")) {
+                            tvOrderStatus.setTextColor(0xFFF44336); // Red
+                        } else if (status.contains("Trả hàng/Hoàn tiền") || status.contains("Trả hàng/Hoàn đơn") || status.contains("Yêu cầu")) {
+                            tvOrderStatus.setTextColor(0xFFE91E63); // Pink
+                        } else if (status.equals("Đã hoàn tiền")) {
+                            tvOrderStatus.setTextColor(0xFF4CAF50); // Green
+                        } else if (status.equals("Từ chối trả hàng")) {
+                            tvOrderStatus.setTextColor(0xFF9E9E9E); // Gray
                         } else {
-                            tvOrderStatus.setTextColor(0xFFFF9800);
+                            tvOrderStatus.setTextColor(0xFF757575);
                         }
+                    }
+
+                    // Show or hide bottom action bar and individual buttons
+                    View llBottomActions = findViewById(R.id.llBottomActions);
+                    View btnReturnRefund = findViewById(R.id.btnReturnRefund);
+                    com.google.android.material.button.MaterialButton btnConfirmReceived = findViewById(R.id.btnConfirmReceived);
+
+                    Double receivedRating = doc.getDouble("receivedRating");
+                    boolean hasRated = receivedRating != null && receivedRating > 0;
+
+                    boolean canReturn = status != null && (status.equals("Đã giao") || status.equals("Đang vận chuyển") || status.equals("Đang chuẩn bị hàng") || status.equals("Chờ xác nhận"));
+                    boolean canConfirmReceived = status != null && (status.equals("Đang vận chuyển"));
+                    boolean canRate = status != null && status.equals("Đã giao") && !hasRated;
+
+                    if (canReturn || canConfirmReceived || canRate) {
+                        if (llBottomActions != null) {
+                            llBottomActions.setVisibility(View.VISIBLE);
+                        }
+                        if (btnReturnRefund != null) {
+                            btnReturnRefund.setVisibility(canReturn ? View.VISIBLE : View.GONE);
+                        }
+                        if (btnConfirmReceived != null) {
+                            if (canConfirmReceived) {
+                                btnConfirmReceived.setText("Đã nhận được hàng");
+                                btnConfirmReceived.setVisibility(View.VISIBLE);
+                            } else if (canRate) {
+                                btnConfirmReceived.setText("Đánh giá");
+                                btnConfirmReceived.setVisibility(View.VISIBLE);
+                            } else {
+                                btnConfirmReceived.setVisibility(View.GONE);
+                            }
+                        }
+                    } else {
+                        if (llBottomActions != null) {
+                            llBottomActions.setVisibility(View.GONE);
+                        }
+                    }
+
+                    if (btnReturnRefund != null) {
+                        btnReturnRefund.setOnClickListener(v -> {
+                            android.content.Intent intent = new android.content.Intent(OrderDetailActivity.this, ReturnRequestActivity.class);
+                            intent.putExtra("orderId", orderId);
+                            startActivity(intent);
+                        });
+                    }
+
+                    if (btnConfirmReceived != null) {
+                        btnConfirmReceived.setOnClickListener(v -> {
+                            showRatingDialog(orderId);
+                        });
                     }
 
                     // Calculate price summary
@@ -168,5 +281,53 @@ public class OrderDetailActivity extends AppCompatActivity {
                     if (progressBar != null) progressBar.setVisibility(View.GONE);
                     finish();
                 });
+    }
+
+    private void showRatingDialog(String orderId) {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_order_rating, null);
+        builder.setView(dialogView);
+
+        android.widget.RatingBar ratingBar = dialogView.findViewById(R.id.dialogRatingBar);
+        com.google.android.material.textfield.TextInputEditText etComment = dialogView.findViewById(R.id.etComment);
+        com.google.android.material.button.MaterialButton btnSubmit = dialogView.findViewById(R.id.btnSubmitRating);
+
+        android.app.AlertDialog dialog = builder.create();
+
+        btnSubmit.setOnClickListener(v -> {
+            float rating = ratingBar.getRating();
+            String comment = etComment.getText() == null ? "" : etComment.getText().toString().trim();
+
+            if (rating == 0) {
+                Toast.makeText(OrderDetailActivity.this, "Vui lòng chọn số sao đánh giá", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("status", "Đã giao");
+            updates.put("receivedRating", rating);
+            updates.put("receivedComment", comment);
+
+            FirebaseFirestore.getInstance()
+                    .collection("orders")
+                    .whereEqualTo("orderId", orderId)
+                    .get()
+                    .addOnSuccessListener(snapshot -> {
+                        if (!snapshot.isEmpty()) {
+                            snapshot.getDocuments().get(0).getReference()
+                                    .update(updates)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(OrderDetailActivity.this, "Cảm ơn bạn đã đánh giá đơn hàng!", Toast.LENGTH_SHORT).show();
+                                        dialog.dismiss();
+                                        loadOrderDetails(); // Reload
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(OrderDetailActivity.this, "Lỗi lưu đánh giá: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
+                        }
+                    });
+        });
+
+        dialog.show();
     }
 }

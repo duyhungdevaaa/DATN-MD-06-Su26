@@ -132,8 +132,30 @@ public class OrderConfirmActivity extends AppCompatActivity {
         }
         loadOrderSummary();
 
+        View btnSelectVoucher = findViewById(R.id.btnSelectVoucher);
+        if (btnSelectVoucher != null) {
+            btnSelectVoucher.setOnClickListener(v -> {
+                android.content.Intent intent = new android.content.Intent(this, VoucherListActivity.class);
+                startActivityForResult(intent, 2002);
+            });
+        }
+
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
         findViewById(R.id.btnPlaceOrder).setOnClickListener(v -> placeOrder());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 2002 && resultCode == RESULT_OK && data != null) {
+            String code = data.getStringExtra("selected_voucher_code");
+            if (code != null && !code.isEmpty()) {
+                if (etVoucherCode != null) {
+                    etVoucherCode.setText(code);
+                    applyVoucherCode();
+                }
+            }
+        }
     }
 
     private void loadOrderSummary() {
@@ -456,12 +478,15 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 .document(orderId)
                 .set(order)
                 .addOnSuccessListener(v -> {
+                    deductProductStock(items);
                     // Xóa giỏ hàng sau khi đặt thành công
                     cartManager.clearCart(new CartManager.CartCallback() {
                         @Override public void onSuccess() {
                             if (progressBar != null) progressBar.setVisibility(View.GONE);
                             Intent intent = new Intent(OrderConfirmActivity.this, OrderSuccessActivity.class);
                             intent.putExtra("order_id", orderId);
+                            intent.putExtra("shipping_address", shippingAddress);
+                            intent.putExtra("payment_method", paymentMethod);
                             startActivity(intent);
                             finish();
                         }
@@ -470,6 +495,8 @@ public class OrderConfirmActivity extends AppCompatActivity {
                             if (progressBar != null) progressBar.setVisibility(View.GONE);
                             Intent intent = new Intent(OrderConfirmActivity.this, OrderSuccessActivity.class);
                             intent.putExtra("order_id", orderId);
+                            intent.putExtra("shipping_address", shippingAddress);
+                            intent.putExtra("payment_method", paymentMethod);
                             startActivity(intent);
                             finish();
                         }
@@ -531,6 +558,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 .document(orderId)
                 .set(order)
                 .addOnSuccessListener(v -> {
+                    deductProductStock(items);
                     if (progressBar != null) progressBar.setVisibility(View.GONE);
                     
                     Intent paymentIntent = new Intent(OrderConfirmActivity.this, PayOSPaymentActivity.class);
@@ -543,6 +571,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
                     paymentIntent.putExtra("accountName", accountName);
                     paymentIntent.putExtra("description", description);
                     paymentIntent.putExtra("bin", bin);
+                    paymentIntent.putExtra("shipping_address", shippingAddress);
                     
                     startActivity(paymentIntent);
                     finish();
@@ -679,6 +708,53 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 });
             }
         }).start();
+    }
+
+    private void deductProductStock(List<CartItem> items) {
+        if (items == null || items.isEmpty()) return;
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        for (CartItem item : items) {
+            String prodId = item.getProductId();
+            if (prodId == null || prodId.isEmpty()) continue;
+            
+            db.collection("products").document(prodId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (!documentSnapshot.exists()) return;
+                    
+                    ProductItem product = documentSnapshot.toObject(ProductItem.class);
+                    if (product == null) return;
+                    
+                    // Deduct overall quantity
+                    int newQty = Math.max(0, product.getQuantity() - item.getQuantity());
+                    product.setQuantity(newQty);
+                    
+                    // Deduct variant quantity
+                    List<ProductItem.Variant> variants = product.getVariants();
+                    if (variants != null && !variants.isEmpty()) {
+                        String selectedSz = item.getSize();
+                        String selectedCl = item.getColor();
+                        if (selectedSz != null && selectedCl != null) {
+                            for (ProductItem.Variant var : variants) {
+                                if (var.getSize().equalsIgnoreCase(selectedSz) && var.getColor().equalsIgnoreCase(selectedCl)) {
+                                    int varQty = Math.max(0, var.getQuantity() - item.getQuantity());
+                                    var.setQuantity(varQty);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    int newSold = product.getSold() + item.getQuantity();
+                    
+                    documentSnapshot.getReference().update(
+                        "quantity", newQty,
+                        "variants", variants,
+                        "sold", newSold
+                    )
+                        .addOnSuccessListener(aVoid -> Log.d("StockUpdate", "Deducted stock for " + prodId + " successfully"))
+                        .addOnFailureListener(e -> Log.e("StockUpdate", "Failed to write back stock for " + prodId + ": " + e.getMessage()));
+                });
+        }
     }
 
     private String formatCurrency(long value) {

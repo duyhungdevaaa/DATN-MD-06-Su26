@@ -65,7 +65,7 @@ public class ShippingAddressActivity extends AppCompatActivity {
 
     private void setupActions() {
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
-        btnAddAddress.setOnClickListener(v -> showAddressTypeSelector());
+        btnAddAddress.setOnClickListener(v -> showAddressForm("address", null));
         btnContinue.setOnClickListener(v -> {
             if (selectedAddress == null) {
                 showMessage("Vui lòng chọn địa chỉ giao hàng");
@@ -305,7 +305,7 @@ public class ShippingAddressActivity extends AppCompatActivity {
 
                     UserAddress address = existingAddress != null ? existingAddress : new UserAddress();
                     address.setType(type);
-                    address.setLabel(type.equals("home") ? "Nhà riêng" : "Văn phòng");
+                    address.setLabel("Địa chỉ");
                     address.setName(name);
                     address.setPhone(phone);
                     address.setAddress(fullAddress);

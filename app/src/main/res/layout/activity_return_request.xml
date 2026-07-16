@@ -234,47 +234,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="HÌNH THỨC XỬ LÝ"
-                android:textColor="@color/trend_muted"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <RadioGroup
-                android:id="@+id/rgProcessType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="vertical">
-
-                <RadioButton
-                    android:id="@+id/rbExchangeProduct"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:background="@color/trend_card"
-                    android:buttonTint="@color/trend_text"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="14dp"
-                    android:text="Đổi sản phẩm"
-                    android:textColor="@color/trend_text"
-                    android:textSize="14sp" />
-
-                <RadioButton
-                    android:id="@+id/rbRefund"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="8dp"
-                    android:background="@color/trend_card"
-                    android:buttonTint="@color/trend_text"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="14dp"
-                    android:text="Trả hàng hoàn tiền"
-                    android:textColor="@color/trend_text"
-                    android:textSize="14sp" />
-            </RadioGroup>
+            <!-- Process type removed. Default is Return/Refund. -->
 
             <TextView
                 android:layout_width="match_parent"
@@ -357,6 +317,7 @@
                 android:orientation="horizontal">
 
                 <LinearLayout
+                    android:id="@+id/layoutUploadImage"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginEnd="8dp"
@@ -364,7 +325,9 @@
                     android:background="@drawable/bg_dashed_upload"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="10dp">
+                    android:padding="10dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <ImageView
                         android:layout_width="30dp"
@@ -382,13 +345,16 @@
                         android:textSize="11sp" />
                 </LinearLayout>
 
-                <View
+                <ImageView
+                    android:id="@+id/ivProofImage"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginHorizontal="4dp"
                     android:layout_weight="1"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone"
                     android:background="@drawable/bg_pill"
-                    android:backgroundTint="@color/trend_card_soft" />
+                    android:clipToOutline="true" />
 
                 <View
                     android:layout_width="0dp"

@@ -28,18 +28,14 @@ export const UserListView: React.FC<UserListViewProps> = ({
   searchText
 }) => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [tierFilter, setTierFilter] = useState<string>("All");
 
   // Filters logic
   const filteredUsers = users.filter((user) => {
-    const matchesSearch = 
+    return (
       user.name.toLowerCase().includes(searchText.toLowerCase()) ||
       user.email.toLowerCase().includes(searchText.toLowerCase()) ||
-      user.id.toLowerCase().includes(searchText.toLowerCase());
-    
-    const matchesTier = tierFilter === "All" || user.tier === tierFilter;
-    
-    return matchesSearch && matchesTier;
+      user.id.toLowerCase().includes(searchText.toLowerCase())
+    );
   });
 
   const handleOpenStats = (user: User) => {
@@ -70,20 +66,7 @@ export const UserListView: React.FC<UserListViewProps> = ({
           </p>
         </div>
 
-        {/* Tier filter dropdown */}
-        <div className="flex items-center gap-2">
-          <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest font-bold">Hạng thẻ:</span>
-          <select
-            value={tierFilter}
-            onChange={(e) => setTierFilter(e.target.value)}
-            className="bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none focus:bg-white font-sans text-zinc-700 font-bold"
-          >
-            <option value="All">Tất cả thứ hạng</option>
-            <option value={UserTier.GOLD}>Thành viên GOLD</option>
-            <option value={UserTier.SILVER}>Thành viên SILVER</option>
-            <option value={UserTier.GUEST}>Hạng chuẩn GUEST</option>
-          </select>
-        </div>
+
       </div>
 
       {/* Main clients grid or empty box */}
@@ -124,15 +107,7 @@ export const UserListView: React.FC<UserListViewProps> = ({
                     <h4 className="font-serif text-base text-zinc-900 font-bold truncate">
                       {user.name}
                     </h4>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
-                      user.tier === UserTier.GOLD 
-                        ? 'bg-amber-50 text-amber-700 border-amber-200' 
-                        : user.tier === UserTier.SILVER 
-                        ? 'bg-slate-50 text-slate-700 border-slate-200' 
-                        : 'bg-zinc-50 text-zinc-500 border-zinc-200'
-                    }`}>
-                      {user.tier}
-                    </span>
+
                   </div>
 
                   <span className="font-mono text-[9px] text-zinc-400 block mt-0.5 uppercase tracking-widest">
@@ -158,7 +133,7 @@ export const UserListView: React.FC<UserListViewProps> = ({
                       onClick={() => handleOpenStats(user)}
                       className="px-3.5 py-1.5 bg-zinc-50 hover:bg-[#8c7623]/10 text-zinc-650 hover:text-[#8c7623] hover:border-[#8c7623]/30 text-[10px] font-bold uppercase tracking-wider border border-zinc-200 rounded-lg font-sans transition-all duration-200"
                     >
-                      Bảng đặc quyền & Hạng thẻ
+                      Xem chi tiết
                     </button>
                   </div>
                 </div>
@@ -200,15 +175,7 @@ export const UserListView: React.FC<UserListViewProps> = ({
                   ID: {selectedUser.id}
                 </p>
                 
-                <span className={`px-3.5 py-1 rounded-full text-[10px] font-bold border inline-block mt-3 ${
-                  selectedUser.tier === UserTier.GOLD 
-                    ? 'bg-amber-50 text-amber-700 border-amber-200' 
-                    : selectedUser.tier === UserTier.SILVER 
-                    ? 'bg-slate-50 text-slate-700 border-slate-200' 
-                    : 'bg-zinc-50 text-zinc-500 border-zinc-200'
-                }`}>
-                  Hạng Thẻ Hiện Tại: {selectedUser.tier}
-                </span>
+
               </div>
 
               {/* Statistical details simulation */}
@@ -221,61 +188,6 @@ export const UserListView: React.FC<UserListViewProps> = ({
                   <span className="text-xs font-sans text-zinc-500 font-semibold">Số đơn hoàn thành:</span>
                   <span className="text-xs font-mono font-bold text-zinc-950">3 Đơn hàng</span>
                 </div>
-                <div className="flex items-center justify-between pt-3">
-                  <span className="text-xs font-sans text-zinc-500 font-semibold">Voucher đề xuất:</span>
-                  <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-bold">VIP_COU_15</span>
-                </div>
-              </div>
-
-              {/* Interactive Tier Change control panel */}
-              <div className="space-y-4 text-left">
-                <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans border-b border-zinc-100 pb-2">
-                  Thay đổi phân hạng ưu tiên hội viên:
-                </p>
-
-                <div className="space-y-2.5">
-                  {Object.values(UserTier).map((tierOpt) => {
-                    const isSelected = selectedUser.tier === tierOpt;
-                    return (
-                      <button
-                        key={tierOpt}
-                        onClick={() => {
-                          onUpdateUserTier(selectedUser.id, tierOpt);
-                          setSelectedUser({ ...selectedUser, tier: tierOpt });
-                        }}
-                        className={`w-full p-4 rounded-xl border text-left flex items-center justify-between transition-all duration-200 ${
-                          isSelected
-                            ? "bg-[#8c7623]/10 border-[#8c7623] text-[#8c7623]"
-                            : "bg-white border-zinc-200 text-zinc-650 hover:bg-zinc-50 hover:text-zinc-900"
-                        }`}
-                      >
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs font-bold uppercase tracking-wider">{tierOpt}</span>
-                            {tierOpt === UserTier.GOLD && (
-                              <span className="text-[9px] font-sans font-bold text-amber-700">Giảm giá 15% VIP</span>
-                            )}
-                            {tierOpt === UserTier.SILVER && (
-                              <span className="text-[9px] font-sans font-bold text-slate-700">Giảm giá 5% VIP</span>
-                            )}
-                          </div>
-                          <p className="text-[10px] text-zinc-400 font-sans mt-0.5 leading-normal">
-                            {tierOpt === UserTier.GOLD 
-                              ? "Yêu cầu chi tiêu tối thiểu 30 triệu đồng hàng năm." 
-                              : tierOpt === UserTier.SILVER 
-                              ? "Yêu cầu chi tiêu tối thiểu 10 triệu đồng hàng năm." 
-                              : "Thẻ thành viên tiêu chuẩn thông dụng."}
-                          </p>
-                        </div>
-                        {isSelected && (
-                          <div className="w-5 h-5 rounded-full bg-[#8c7623] flex items-center justify-center text-white shrink-0 shadow-sm shadow-amber-800/10">
-                            <Check className="h-3 w-3" />
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
             </div>
 
@@ -285,7 +197,7 @@ export const UserListView: React.FC<UserListViewProps> = ({
                 onClick={() => setSelectedUser(null)}
                 className="w-full py-3.5 bg-zinc-900 text-white text-xs font-bold tracking-wider font-sans uppercase rounded-xl hover:bg-[#8c7623] hover:shadow-lg hover:shadow-zinc-900/5 transition-all duration-200"
               >
-                Xác nhận thay đổi
+                Đóng cửa sổ
               </button>
             </div>
 

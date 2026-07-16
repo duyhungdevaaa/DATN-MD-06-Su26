@@ -68,9 +68,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       id: "users",
       title: "Thành Viên Độc Quyền",
       value: `${users.length} Hội viên`,
-      change: "Hạng VIP Gold",
+      change: "Tài khoản hoạt động",
       isPositive: true,
-      subtext: `${users.filter(u => u.tier === "GOLD").length} khách hàng VIP Gold`,
+      subtext: `${users.length} tài khoản khách hàng`,
       icon: Award,
       color: "bg-amber-500/10 text-amber-600 border-amber-500/20"
     }
@@ -107,31 +107,35 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       };
     });
 
-  const daysOfWeek = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
-  const revenueByDay = [0, 0, 0, 0, 0, 0, 0];
-
-  orders.filter(o => o.status !== "Đã hủy").forEach(o => {
+  const revenueByDateKey: { [key: string]: number } = {};
+  orders.filter(o => o.status !== "Đã hủy" && o.status !== "Trả hàng" && o.status !== "Yêu cầu trả hàng").forEach(o => {
     try {
       const datePart = o.date.split(" ")[0];
-      const [day, month, year] = datePart.split("/");
-      if (day && month && year) {
-        const dateObj = new Date(`${year}-${month}-${day}`);
-        if (!isNaN(dateObj.getTime())) {
-          revenueByDay[dateObj.getDay()] += o.total;
-        }
+      const [dayStr, monthStr, yearStr] = datePart.split("/");
+      if (dayStr && monthStr && yearStr) {
+        const key = `${dayStr.padStart(2, "0")}/${monthStr.padStart(2, "0")}/${yearStr}`;
+        revenueByDateKey[key] = (revenueByDateKey[key] || 0) + o.total;
       }
     } catch (e) {}
   });
 
-  const chartData = [
-    { label: "T2", value: revenueByDay[1] },
-    { label: "T3", value: revenueByDay[2] },
-    { label: "T4", value: revenueByDay[3] },
-    { label: "T5", value: revenueByDay[4] },
-    { label: "T6", value: revenueByDay[5] },
-    { label: "T7", value: revenueByDay[6] },
-    { label: "CN", value: revenueByDay[0] },
-  ];
+  const chartData = [];
+  const dayNames = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+  
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    
+    const dayStr = String(d.getDate()).padStart(2, "0");
+    const monthStr = String(d.getMonth() + 1).padStart(2, "0");
+    const yearStr = String(d.getFullYear());
+    const key = `${dayStr}/${monthStr}/${yearStr}`;
+    
+    const label = dayNames[d.getDay()];
+    const value = revenueByDateKey[key] || 0;
+    
+    chartData.push({ label, value });
+  }
 
   const maxChartValue = Math.max(...chartData.map(d => d.value), 1000000);
   const formatShortValue = (val: number) => {
@@ -233,7 +237,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   Hiệu suất dòng tiền giao dịch
                 </h4>
                 <p className="font-sans text-[10px] text-zinc-400 mt-0.5">
-                  Thống kê doanh số bán ra theo thứ trong tuần (VNĐ)
+                  Thống kê doanh số bán ra trong 7 ngày gần nhất (VNĐ)
                 </p>
               </div>
               <div className="flex items-center gap-4">

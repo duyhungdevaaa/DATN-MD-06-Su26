@@ -51,9 +51,29 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
         
         // Set status badge color based on status
         if (order.getStatus().equals("Đã giao")) {
-            holder.tvOrderStatus.setTextColor(0xFF4CAF50);
+            holder.tvOrderStatus.setTextColor(0xFF4CAF50); // Green
         } else if (order.getStatus().equals("Đang vận chuyển")) {
-            holder.tvOrderStatus.setTextColor(0xFFFF9800);
+            holder.tvOrderStatus.setTextColor(0xFF00BCD4); // Cyan
+        } else if (order.getStatus().equals("Chờ thanh toán")) {
+            holder.tvOrderStatus.setTextColor(0xFFFF9800); // Orange
+        } else if (order.getStatus().equals("Chờ xác nhận")) {
+            holder.tvOrderStatus.setTextColor(0xFF9E9E9E); // Gray
+        } else if (order.getStatus().equals("Đang chuẩn bị hàng") || order.getStatus().equals("Đang xử lý")) {
+            holder.tvOrderStatus.setTextColor(0xFF9C27B0); // Purple
+        } else if (order.getStatus().equals("Giao hàng thất bại")) {
+            holder.tvOrderStatus.setTextColor(0xFFF44336); // Red
+        } else if (order.getStatus().equals("Đang chuyển hoàn")) {
+            holder.tvOrderStatus.setTextColor(0xFFFF5722); // Deep Orange
+        } else if (order.getStatus().equals("Đã chuyển hoàn")) {
+            holder.tvOrderStatus.setTextColor(0xFF607D8B); // Blue Gray
+        } else if (order.getStatus().equals("Đã hủy")) {
+            holder.tvOrderStatus.setTextColor(0xFFF44336); // Red
+        } else if (order.getStatus().contains("Trả hàng/Hoàn tiền") || order.getStatus().contains("Trả hàng/Hoàn đơn") || order.getStatus().contains("Yêu cầu")) {
+            holder.tvOrderStatus.setTextColor(0xFFE91E63); // Pink
+        } else if (order.getStatus().equals("Đã hoàn tiền")) {
+            holder.tvOrderStatus.setTextColor(0xFF4CAF50); // Green
+        } else if (order.getStatus().equals("Từ chối trả hàng")) {
+            holder.tvOrderStatus.setTextColor(0xFF9E9E9E); // Gray
         } else {
             holder.tvOrderStatus.setTextColor(0xFF757575);
         }

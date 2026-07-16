@@ -194,6 +194,16 @@ public class ProductDetailActivity extends AppCompatActivity {
                                 android.util.Log.d("ProductDetailActivity", "Loaded sizes: " + loadedSizes + ", colors: " + loadedColors);
                                 setupSizesAndColors(productDetail, layoutSizes, layoutColors);
 
+                                TextView tvProductDescription = findViewById(R.id.tvProductDescription);
+                                if (tvProductDescription != null) {
+                                    String desc = productDetail.getDescription();
+                                    if (desc != null && !desc.trim().isEmpty()) {
+                                        tvProductDescription.setText(desc);
+                                    } else {
+                                        tvProductDescription.setText("Chưa có mô tả cho sản phẩm này.");
+                                    }
+                                }
+
                                 // Update real prices from Firestore
                                 TextView tvDetailPrice = findViewById(R.id.tvProductPrice);
                                 TextView tvDetailOriginalPrice = findViewById(R.id.tvProductOriginalPrice);
@@ -388,6 +398,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                     }
                     tv.setBackgroundResource(R.drawable.bg_chip_selected);
                     tv.setTextColor(Color.WHITE);
+                    updateStockQuantityDisplay();
                 });
                 layoutSizes.addView(tv);
             }
@@ -413,8 +424,73 @@ public class ProductDetailActivity extends AppCompatActivity {
                         child.setBackground(getColorDrawable(otherColor, false));
                     }
                     colorView.setBackground(getColorDrawable(color, true));
+                    updateStockQuantityDisplay();
                 });
                 layoutColors.addView(colorView);
+            }
+        }
+        updateStockQuantityDisplay();
+    }
+
+    private void updateStockQuantityDisplay() {
+        TextView tvStockQuantity = findViewById(R.id.tvStockQuantity);
+        if (tvStockQuantity == null || productDetail == null) return;
+
+        if (selectedSize.isEmpty()) {
+            tvStockQuantity.setVisibility(View.GONE);
+            return;
+        }
+
+        tvStockQuantity.setVisibility(View.VISIBLE);
+
+        List<ProductItem.Variant> variants = productDetail.getVariants();
+        if (variants == null || variants.isEmpty()) {
+            tvStockQuantity.setText("Còn " + productDetail.getQuantity() + " sản phẩm");
+            tvStockQuantity.setTextColor(0xFFEE4D2D);
+            return;
+        }
+
+        if (!selectedColor.isEmpty()) {
+            // Both size and color selected
+            int qty = 0;
+            boolean found = false;
+            for (ProductItem.Variant var : variants) {
+                if (var.getSize().equalsIgnoreCase(selectedSize) && var.getColor().equalsIgnoreCase(selectedColor)) {
+                    qty = var.getQuantity();
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                if (qty > 0) {
+                    tvStockQuantity.setText("Còn " + qty + " sản phẩm (" + selectedSize + " - " + selectedColor + ")");
+                    tvStockQuantity.setTextColor(0xFFEE4D2D);
+                } else {
+                    tvStockQuantity.setText("Hết hàng cho phân loại này (" + selectedSize + " - " + selectedColor + ")");
+                    tvStockQuantity.setTextColor(Color.RED);
+                }
+            } else {
+                tvStockQuantity.setText("Hết hàng cho phân loại này (" + selectedSize + " - " + selectedColor + ")");
+                tvStockQuantity.setTextColor(Color.RED);
+            }
+        } else {
+            // Only size selected: list quantities for each color of this size
+            StringBuilder sb = new StringBuilder();
+            sb.append("Số lượng cho cỡ ").append(selectedSize).append(":\n");
+            int totalForSize = 0;
+            for (ProductItem.Variant var : variants) {
+                if (var.getSize().equalsIgnoreCase(selectedSize)) {
+                    sb.append("• ").append(var.getColor()).append(": ").append(var.getQuantity()).append(" sản phẩm\n");
+                    totalForSize += var.getQuantity();
+                }
+            }
+            if (totalForSize == 0) {
+                tvStockQuantity.setText("Cỡ " + selectedSize + " hiện đã hết hàng!");
+                tvStockQuantity.setTextColor(Color.RED);
+            } else {
+                if (sb.length() > 0) sb.setLength(sb.length() - 1);
+                tvStockQuantity.setText(sb.toString());
+                tvStockQuantity.setTextColor(0xFF555555);
             }
         }
     }

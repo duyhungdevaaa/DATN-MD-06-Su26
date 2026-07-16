@@ -89,10 +89,6 @@
                     android:layout_marginTop="12dp"
                     android:gravity="center_vertical">
                     
-                    <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/ic_star" app:tint="#FFC107" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4.9/5" android:textColor="#FFC107" android:textSize="12sp" android:layout_marginStart="4dp" />
-                    <View android:layout_width="1dp" android:layout_height="12dp" android:background="#E0E0E0" android:layout_marginHorizontal="8dp" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1,2k Đã bán" android:textColor="#757575" android:textSize="12sp" />
                     <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
                     <ImageView android:id="@+id/ivFavorite" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_favorite" app:tint="#757575" />
                 </LinearLayout>
@@ -141,6 +137,16 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginTop="12dp" />
+
+                <TextView
+                    android:id="@+id/tvStockQuantity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#EE4D2D"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="12dp"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <!-- Spacer -->
@@ -175,6 +181,7 @@
                 android:padding="16dp">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chi Tiết Sản Phẩm" android:textColor="#333333" android:textSize="14sp" android:textStyle="bold" />
                 <TextView
+                    android:id="@+id/tvProductDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Mô tả chi tiết sản phẩm sẽ được hiển thị ở đây. Nó có thể rất dài và chứa nhiều thông tin hữu ích cho người dùng..."
@@ -424,13 +431,6 @@
                 android:layout_height="22dp" 
                 android:src="@drawable/ic_chat" 
                 app:tint="#EE4D2D" />
-            <TextView 
-                android:layout_width="wrap_content" 
-                android:layout_height="wrap_content" 
-                android:text="Chat ngay" 
-                android:textSize="9sp" 
-                android:textColor="#4A4A4A" 
-                android:layout_marginTop="2dp" />
         </LinearLayout>
 
         <!-- Divider -->

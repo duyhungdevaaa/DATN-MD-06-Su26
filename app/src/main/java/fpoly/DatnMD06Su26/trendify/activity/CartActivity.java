@@ -55,6 +55,16 @@ public class CartActivity extends AppCompatActivity {
 
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
 
+        View btnShopNow = findViewById(R.id.btnShopNow);
+        if (btnShopNow != null) {
+            btnShopNow.setOnClickListener(v -> {
+                Intent intent = new Intent(CartActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            });
+        }
+
         findViewById(R.id.btnCheckout).setOnClickListener(v -> {
             if (adapter.getItemCount() == 0) {
                 Toast.makeText(this, "Giỏ hàng đang trống", Toast.LENGTH_SHORT).show();

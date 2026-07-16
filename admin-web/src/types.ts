@@ -29,12 +29,17 @@ export enum UserTier {
 
 export enum OrderStatus {
   AWAITING_PAYMENT = "Chờ thanh toán",
-  PENDING = "Chờ xử lý",
-  PROCESSING = "Đang xử lý",
+  AWAITING_CONFIRMATION = "Chờ xác nhận",
+  PREPARING = "Đang chuẩn bị hàng",
   SHIPPING = "Đang vận chuyển",
   DELIVERED = "Đã giao",
+  FAILED_DELIVERY = "Giao hàng thất bại",
+  RETURNING = "Đang chuyển hoàn",
+  RETURNED = "Đã chuyển hoàn",
+  REFUNDED = "Yêu cầu Trả hàng/Hoàn tiền",
+  REFUND_APPROVED = "Đã hoàn tiền",
+  REFUND_REJECTED = "Từ chối trả hàng",
   CANCELLED = "Đã hủy",
-  REFUNDED = "Trả hàng/Hoàn tiền",
 }
 
 export interface Product {
@@ -99,6 +104,9 @@ export interface Order {
     shipping: { active: boolean; time: string };
     delivered: { active: boolean; time: string };
   };
+  returnReason?: string;
+  returnDescription?: string;
+  returnImages?: string[];
 }
 
 export interface User {

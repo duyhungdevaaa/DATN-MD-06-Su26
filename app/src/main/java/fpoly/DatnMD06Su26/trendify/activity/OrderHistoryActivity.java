@@ -66,6 +66,18 @@ public class OrderHistoryActivity extends AppCompatActivity {
                 tvTitle.setText("Đơn Đang Giao");
             } else if (statusFilter.equals("DANH_GIAO")) {
                 tvTitle.setText("Đơn Chờ Đánh Giá");
+            } else if (statusFilter.equals("CHO_THANH_TOAN")) {
+                tvTitle.setText("Đơn Chờ Thanh Toán");
+            } else if (statusFilter.equals("DANG_XU_LY")) {
+                tvTitle.setText("Đơn Đang Xử Lý");
+            } else if (statusFilter.equals("DANG_VAN_CHUYEN")) {
+                tvTitle.setText("Đơn Đang Vận Chuyển");
+            } else if (statusFilter.equals("DA_GIAO")) {
+                tvTitle.setText("Đơn Đã Giao");
+            } else if (statusFilter.equals("DA_HUY")) {
+                tvTitle.setText("Đơn Đã Hủy");
+            } else if (statusFilter.equals("TRA_HANG_HOAN_TIEN")) {
+                tvTitle.setText("Đơn Trả Hàng / Hoàn Tiền");
             }
         }
 
@@ -141,19 +153,43 @@ public class OrderHistoryActivity extends AppCompatActivity {
                             String st = order.getStatus();
                             if (st != null) {
                                 if (statusFilter.equals("CHO_XAC_NHAN")) {
-                                    if (st.contains("xử lý") || st.contains("thanh toán") || st.contains("Xác nhận") || st.contains("xác nhận") || st.contains("xu ly") || st.contains("thanh toan")) {
+                                    if (st.equals("Chờ xác nhận") || st.equals("Chờ xử lý") || st.contains("xử lý") || st.contains("thanh toán") || st.contains("Xác nhận") || st.contains("xác nhận") || st.contains("xu ly") || st.contains("thanh toan")) {
                                         filteredOrders.add(order);
                                     }
                                 } else if (statusFilter.equals("CHO_LAY_HANG")) {
-                                    if (st.contains("chuẩn bị") || st.contains("lấy hàng") || st.contains("chờ lấy") || st.contains("Chờ lấy") || st.contains("chuan bi") || st.contains("lay hang")) {
+                                    if (st.equals("Đang xử lý") || st.contains("chuẩn bị") || st.contains("lấy hàng") || st.contains("chờ lấy") || st.contains("Chờ lấy") || st.contains("chuan bi") || st.contains("lay hang")) {
                                         filteredOrders.add(order);
                                     }
                                 } else if (statusFilter.equals("DANG_GIAO")) {
-                                    if (st.contains("vận chuyển") || st.contains("đang giao") || st.contains("Đang giao") || st.contains("van chuyen") || st.contains("dang giao")) {
+                                    if (st.equals("Đang vận chuyển") || st.equals("Đang giao") || st.contains("vận chuyển") || st.contains("đang giao") || st.contains("Đang giao") || st.contains("van chuyen") || st.contains("dang giao")) {
                                         filteredOrders.add(order);
                                     }
                                 } else if (statusFilter.equals("DANH_GIAO")) {
-                                    if (st.contains("đã giao") || st.contains("Đã giao") || st.contains("thành công") || st.contains("Thành công") || st.contains("hoàn thành") || st.contains("Hoàn thành") || st.contains("da giao") || st.contains("thanh cong") || st.contains("hoan thanh")) {
+                                    if (st.equals("Đã giao") || st.contains("đã giao") || st.contains("Đã giao") || st.contains("thành công") || st.contains("Thành công") || st.contains("hoàn thành") || st.contains("Hoàn thành") || st.contains("da giao") || st.contains("thanh cong") || st.contains("hoan thanh")) {
+                                        filteredOrders.add(order);
+                                    }
+                                } else if (statusFilter.equals("CHO_THANH_TOAN")) {
+                                    if (st.equals("Chờ thanh toán")) {
+                                        filteredOrders.add(order);
+                                    }
+                                } else if (statusFilter.equals("DANG_XU_LY")) {
+                                    if (st.equals("Đang xử lý")) {
+                                        filteredOrders.add(order);
+                                    }
+                                } else if (statusFilter.equals("DANG_VAN_CHUYEN")) {
+                                    if (st.equals("Đang vận chuyển") || st.equals("Đang giao")) {
+                                        filteredOrders.add(order);
+                                    }
+                                } else if (statusFilter.equals("DA_GIAO")) {
+                                    if (st.equals("Đã giao")) {
+                                        filteredOrders.add(order);
+                                    }
+                                } else if (statusFilter.equals("DA_HUY")) {
+                                    if (st.equals("Đã hủy")) {
+                                        filteredOrders.add(order);
+                                    }
+                                } else if (statusFilter.equals("TRA_HANG_HOAN_TIEN")) {
+                                    if (st.equals("Trả hàng/Hoàn tiền") || st.equals("Trả hàng/Hoàn đơn")) {
                                         filteredOrders.add(order);
                                     }
                                 }

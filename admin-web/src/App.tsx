@@ -20,7 +20,7 @@ import { VoucherFormView } from "./components/VoucherFormView";
 import { NotificationsView } from "./components/NotificationsView";
 import { BannersView } from "./components/BannersView";
 
-import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc, increment, getDoc } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { db, storage, auth } from "./firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
@@ -137,7 +137,13 @@ export default function App() {
     });
 
     const unsubOrders = onSnapshot(collection(db, "orders"), (snapshot) => {
-      const loadedOrders: Order[] = snapshot.docs.map(docSnap => {
+      const sortedDocs = [...snapshot.docs].sort((a, b) => {
+        const timeA = a.data().createdAt?.seconds || 0;
+        const timeB = b.data().createdAt?.seconds || 0;
+        return timeB - timeA;
+      });
+
+      const loadedOrders: Order[] = sortedDocs.map(docSnap => {
         const data = docSnap.data();
         const createdDate = data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date();
         
@@ -146,13 +152,25 @@ export default function App() {
           status = OrderStatus.DELIVERED;
         } else if (data.status === "Đang vận chuyển" || data.status === "Dang van chuyen") {
           status = OrderStatus.SHIPPING;
-        } else if (data.status === "Đang xử lý" || data.status === "Dang xu ly") {
-          status = OrderStatus.PROCESSING;
+        } else if (data.status === "Đang chuẩn bị hàng" || data.status === "Đang xử lý" || data.status === "Dang xu ly") {
+          status = OrderStatus.PREPARING;
+        } else if (data.status === "Giao hàng thất bại") {
+          status = OrderStatus.FAILED_DELIVERY;
+        } else if (data.status === "Đang chuyển hoàn") {
+          status = OrderStatus.RETURNING;
+        } else if (data.status === "Đã chuyển hoàn") {
+          status = OrderStatus.RETURNED;
         } else if (data.status === "Đã hủy" || data.status === "Da huy") {
           status = OrderStatus.CANCELLED;
-        } else if (data.status === "Trả hàng/Hoàn tiền" || data.status === "Tra hang/Hoan tien" || data.status === "Trả hàng/Hoàn đơn") {
+        } else if (data.status === "Yêu cầu Trả hàng/Hoàn tiền" || data.status === "Trả hàng/Hoàn tiền" || data.status === "Tra hang/Hoan tien" || data.status === "Trả hàng/Hoàn đơn") {
           status = OrderStatus.REFUNDED;
-        } else if (data.status === "Chờ thanh toán" || data.status === "Cho thanh toan" || data.status === "Chờ xác nhận" || data.status === "Cho xac nhan") {
+        } else if (data.status === "Đã hoàn tiền") {
+          status = OrderStatus.REFUND_APPROVED;
+        } else if (data.status === "Từ chối trả hàng") {
+          status = OrderStatus.REFUND_REJECTED;
+        } else if (data.status === "Chờ xác nhận" || data.status === "Cho xac nhan") {
+          status = OrderStatus.AWAITING_CONFIRMATION;
+        } else if (data.status === "Chờ thanh toán" || data.status === "Cho thanh toan") {
           status = OrderStatus.AWAITING_PAYMENT;
         }
 
@@ -172,6 +190,9 @@ export default function App() {
           date: createdDate.toLocaleDateString(),
           time: createdDate.toLocaleTimeString(),
           items: data.items || [],
+          returnReason: data.returnReason || "",
+          returnDescription: data.returnDescription || "",
+          returnImages: data.returnImages || [],
           timeline: {
             confirmed: { active: true, time: createdDate.toLocaleString() },
             packing: { active: status !== OrderStatus.AWAITING_PAYMENT && status !== OrderStatus.CANCELLED, time: "" },
@@ -259,6 +280,7 @@ export default function App() {
         discount: payload.discount || 0,
         categoryId: payload.categoryName,
         quantity: payload.stock,
+        description: payload.description || "",
         tags: payload.description ? [payload.description] : [],
         status: payload.status || ProductStatus.ACTIVE,
         uploadedAt: new Date(),
@@ -337,9 +359,24 @@ export default function App() {
 
   // --- CRUD Actions for Vouchers ---
   const handleSaveVoucher = async (payload: Partial<Voucher>) => {
+    const newCode = payload.code?.trim().toUpperCase();
+    if (!newCode) return;
+
+    // Check if the voucher code already exists
+    // If editing (payload.id exists): check other vouchers (v.id !== payload.id)
+    // If adding (payload.id is undefined): check all vouchers
+    const isDuplicate = vouchers.some(v => 
+      v.code && v.code.toUpperCase() === newCode && (!payload.id || v.id !== payload.id)
+    );
+
+    if (isDuplicate) {
+      alert(`Mã voucher "${newCode}" đã tồn tại! Vui lòng chọn mã khác.`);
+      return;
+    }
+
     try {
       const docData = {
-        code: payload.code,
+        code: newCode,
         discountAmount: payload.discountAmount || 0,
         discountRate: payload.discountRate || 0,
         maximumDiscount: payload.maximumDiscount || 0,
@@ -347,12 +384,20 @@ export default function App() {
       };
 
       if (payload.id) {
-        await updateDoc(doc(db, "vouchers", payload.id), docData);
+        // If the code (which is also the document ID) is changing:
+        // We delete the old document and create a new one with the new code as the ID.
+        if (payload.id !== newCode) {
+          await deleteDoc(doc(db, "vouchers", payload.id));
+        }
+        await setDoc(doc(db, "vouchers", newCode), docData);
       } else {
-        await addDoc(collection(db, "vouchers"), docData);
+        // Add new voucher: use code as the document ID
+        await setDoc(doc(db, "vouchers", newCode), docData);
       }
     } catch (e) {
       console.error("Error saving voucher:", e);
+      alert("Lỗi khi lưu voucher: " + (e as Error).message);
+      return;
     }
 
     setEditingVoucher(null);
@@ -398,6 +443,95 @@ export default function App() {
       // Update selected order view dynamically
       if (selectedOrder && selectedOrder.id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatus });
+      }
+
+      // Send status notification targeted to the specific user
+      const targetOrder = orders.find(o => o.id === orderId);
+      if (targetOrder) {
+        const userId = targetOrder.customerName; // customerName maps from data.userId
+        if (userId && userId !== "Khách hàng") {
+          await addDoc(collection(db, "notifications"), {
+            title: `Cập nhật đơn hàng #${orderId}`,
+            body: `Đơn hàng của bạn đã chuyển sang trạng thái: "${newStatus}"`,
+            userId: userId,
+            createdAt: new Date()
+          });
+        }
+
+        // Adjust stock if status changes to/from Cancelled/Returned/Refunded/Failed Delivery
+        const oldStatus = targetOrder.status;
+        const isOldCancelled = oldStatus === OrderStatus.CANCELLED || oldStatus === OrderStatus.RETURNED || oldStatus === OrderStatus.REFUND_APPROVED || oldStatus === OrderStatus.FAILED_DELIVERY;
+        const isNewCancelled = newStatus === OrderStatus.CANCELLED || newStatus === OrderStatus.RETURNED || newStatus === OrderStatus.REFUND_APPROVED || newStatus === OrderStatus.FAILED_DELIVERY;
+
+        if (!isOldCancelled && isNewCancelled) {
+          // Restore stock (add back)
+          for (const item of targetOrder.items) {
+            const prodId = (item as any).productId || item.id;
+            if (prodId) {
+              try {
+                const prodRef = doc(db, "products", prodId);
+                const prodSnap = await getDoc(prodRef);
+                if (prodSnap.exists()) {
+                  const productData = prodSnap.data();
+                  const currentQuantity = productData.quantity || 0;
+                  const newQuantity = currentQuantity + item.quantity;
+                  
+                  // Update variants
+                  let variants = productData.variants || [];
+                  if (variants.length > 0) {
+                    variants = variants.map((v: any) => {
+                      if (v.size?.toLowerCase() === item.size?.toLowerCase() && v.color?.toLowerCase() === item.color?.toLowerCase()) {
+                        return { ...v, quantity: (v.quantity || 0) + item.quantity };
+                      }
+                      return v;
+                    });
+                  }
+                  
+                  await updateDoc(prodRef, {
+                    quantity: newQuantity,
+                    variants: variants
+                  });
+                }
+              } catch (err) {
+                console.error(`Failed to restore stock for product ${prodId}:`, err);
+              }
+            }
+          }
+        } else if (isOldCancelled && !isNewCancelled) {
+          // Deduct stock (since order is active again)
+          for (const item of targetOrder.items) {
+            const prodId = (item as any).productId || item.id;
+            if (prodId) {
+              try {
+                const prodRef = doc(db, "products", prodId);
+                const prodSnap = await getDoc(prodRef);
+                if (prodSnap.exists()) {
+                  const productData = prodSnap.data();
+                  const currentQuantity = productData.quantity || 0;
+                  const newQuantity = Math.max(0, currentQuantity - item.quantity);
+                  
+                  // Update variants
+                  let variants = productData.variants || [];
+                  if (variants.length > 0) {
+                    variants = variants.map((v: any) => {
+                      if (v.size?.toLowerCase() === item.size?.toLowerCase() && v.color?.toLowerCase() === item.color?.toLowerCase()) {
+                        return { ...v, quantity: Math.max(0, (v.quantity || 0) - item.quantity) };
+                      }
+                      return v;
+                    });
+                  }
+                  
+                  await updateDoc(prodRef, {
+                    quantity: newQuantity,
+                    variants: variants
+                  });
+                }
+              } catch (err) {
+                console.error(`Failed to deduct stock for product ${prodId}:`, err);
+              }
+            }
+          }
+        }
       }
     } catch (e) {
       console.error("Error updating order status:", e);

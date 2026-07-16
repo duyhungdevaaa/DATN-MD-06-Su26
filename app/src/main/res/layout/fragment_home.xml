@@ -92,7 +92,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="140dp"
                 android:background="#FF9800"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
 
             <!-- Menu Grid 2x4 -->
             <LinearLayout
