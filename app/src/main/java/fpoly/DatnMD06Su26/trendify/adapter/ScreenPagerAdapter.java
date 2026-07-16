@@ -1,5 +1,8 @@
 package fpoly.DatnMD06Su26.trendify.adapter;
 
+import fpoly.DatnMD06Su26.trendify.R;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
