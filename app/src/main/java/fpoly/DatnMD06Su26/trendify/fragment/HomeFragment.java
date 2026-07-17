@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 
@@ -36,12 +37,20 @@ public class HomeFragment extends Fragment {
     private ProductAdapter newArrivalsAdapter;
     private Set<String> favoriteIds = new HashSet<>();
     private List<CategoryItem> loadedCategoryItems = new ArrayList<>();
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private int pendingRefreshCount = 0;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setColorSchemeColors(
+                android.graphics.Color.parseColor("#EE4D2D"),
+                android.graphics.Color.parseColor("#FF9800")
+        );
+        swipeRefreshLayout.setOnRefreshListener(this::refreshAllData);
 
         rvNewArrivals = view.findViewById(R.id.rvNewArrivals);
         rvFlashSale = view.findViewById(R.id.rvFlashSale);
@@ -147,6 +156,67 @@ public class HomeFragment extends Fragment {
         loadNewArrivals();
         return view;
     }
+
+    private void refreshAllData() {
+        // Đếm 2 task cần hoàn thành: loadNewArrivals + loadFavoriteIds
+        pendingRefreshCount = 2;
+        loadCategories();
+        loadFavoriteIdsForRefresh();
+        loadNewArrivalsForRefresh();
+    }
+
+    private void onRefreshTaskDone() {
+        pendingRefreshCount--;
+        if (pendingRefreshCount <= 0 && swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    private void loadNewArrivalsForRefresh() {
+        FirestoreHelper.loadAllProducts(new FirestoreHelper.ProductsCallback() {
+            @Override
+            public void onLoaded(List<ProductItem> products) {
+                int count = Math.min(products.size(), 10);
+                List<ProductItem> subList = products.subList(0, count);
+                newArrivalsAdapter.setItems(subList);
+                int flashSaleCount = Math.min(products.size(), 5);
+                rvFlashSale.setAdapter(new FlashSaleAdapter(products.subList(0, flashSaleCount)));
+                onRefreshTaskDone();
+            }
+
+            @Override
+            public void onFailure(String error) {
+                if (getContext() != null) {
+                    Toast.makeText(requireContext(), "Không thể tải sản phẩm: " + error, Toast.LENGTH_SHORT).show();
+                }
+                onRefreshTaskDone();
+            }
+        });
+    }
+
+    private void loadFavoriteIdsForRefresh() {
+        if (!SessionManager.getInstance().isLoggedIn()) {
+            favoriteIds.clear();
+            newArrivalsAdapter.setFavoriteIds(favoriteIds);
+            onRefreshTaskDone();
+            return;
+        }
+        FirestoreHelper.loadFavoriteIds(new FirestoreHelper.FavoriteIdsCallback() {
+            @Override
+            public void onLoaded(List<String> ids) {
+                favoriteIds.clear();
+                favoriteIds.addAll(ids);
+                newArrivalsAdapter.setFavoriteIds(favoriteIds);
+                onRefreshTaskDone();
+            }
+
+            @Override
+            public void onFailure(String error) {
+                onRefreshTaskDone();
+            }
+        });
+    }
+
 
     @Override
     public void onResume() {

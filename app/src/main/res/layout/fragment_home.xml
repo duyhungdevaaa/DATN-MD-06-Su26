@@ -74,158 +74,166 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Main Scrollable Content -->
-    <androidx.core.widget.NestedScrollView
+    <!-- Pull-to-Refresh wrapper -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
+        <!-- Main Scrollable Content -->
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="64dp">
+            android:layout_height="match_parent">
 
-            <!-- Banner Area (Hardcoded View instead of ViewPager for now) -->
-            <ImageView
-                android:id="@+id/ivBanner"
-                android:layout_width="match_parent"
-                android:layout_height="140dp"
-                android:background="#FF9800"
-                android:scaleType="centerCrop" />
-
-            <!-- Menu Grid 2x4 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
                 android:orientation="vertical"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp">
+                android:paddingBottom="64dp">
 
-                <!-- Row 1 -->
+                <!-- Banner Area (Hardcoded View instead of ViewPager for now) -->
+                <ImageView
+                    android:id="@+id/ivBanner"
+                    android:layout_width="match_parent"
+                    android:layout_height="140dp"
+                    android:background="#FF9800"
+                    android:scaleType="centerCrop" />
+
+                <!-- Menu Grid 2x4 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:background="@color/white"
+                    android:orientation="vertical"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
 
-                    <!-- Săn Sale -->
-                    <LinearLayout android:id="@+id/llSanSale" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackground">
-                        <com.airbnb.lottie.LottieAnimationView android:layout_width="48dp" android:layout_height="48dp" app:lottie_rawRes="@raw/sale" app:lottie_autoPlay="true" app:lottie_loop="true" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Săn Sale" android:textSize="12sp" android:textStyle="bold" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
-                    </LinearLayout>
+                    <!-- Row 1 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
 
-                    <!-- Hàng Mới -->
-                    <LinearLayout android:id="@+id/llHangMoi" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackground">
-                        <com.airbnb.lottie.LottieAnimationView android:layout_width="48dp" android:layout_height="48dp" app:lottie_rawRes="@raw/hangmoi" app:lottie_autoPlay="true" app:lottie_loop="true" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hàng Mới" android:textSize="12sp" android:textStyle="bold" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
-                    </LinearLayout>
+                        <!-- Săn Sale -->
+                        <LinearLayout android:id="@+id/llSanSale" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackground">
+                            <com.airbnb.lottie.LottieAnimationView android:layout_width="48dp" android:layout_height="48dp" app:lottie_rawRes="@raw/sale" app:lottie_autoPlay="true" app:lottie_loop="true" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Săn Sale" android:textSize="12sp" android:textStyle="bold" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                        </LinearLayout>
 
-                    <!-- Voucher -->
-                    <LinearLayout android:id="@+id/llVoucher" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackground">
-                        <com.airbnb.lottie.LottieAnimationView android:layout_width="48dp" android:layout_height="48dp" app:lottie_rawRes="@raw/voucher_tag" app:lottie_autoPlay="true" app:lottie_loop="true" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Voucher" android:textSize="12sp" android:textStyle="bold" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                        <!-- Hàng Mới -->
+                        <LinearLayout android:id="@+id/llHangMoi" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackground">
+                            <com.airbnb.lottie.LottieAnimationView android:layout_width="48dp" android:layout_height="48dp" app:lottie_rawRes="@raw/hangmoi" app:lottie_autoPlay="true" app:lottie_loop="true" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hàng Mới" android:textSize="12sp" android:textStyle="bold" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                        </LinearLayout>
+
+                        <!-- Voucher -->
+                        <LinearLayout android:id="@+id/llVoucher" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackground">
+                            <com.airbnb.lottie.LottieAnimationView android:layout_width="48dp" android:layout_height="48dp" app:lottie_rawRes="@raw/voucher_tag" app:lottie_autoPlay="true" app:lottie_loop="true" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Voucher" android:textSize="12sp" android:textStyle="bold" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                        </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
 
-            <!-- Spacer -->
-            <View android:layout_width="match_parent" android:layout_height="8dp" android:background="#F5F5F5" />
+                <!-- Spacer -->
+                <View android:layout_width="match_parent" android:layout_height="8dp" android:background="#F5F5F5" />
 
-            <!-- Flash Sale Section -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:orientation="vertical"
-                android:paddingTop="12dp">
-
+                <!-- Flash Sale Section -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="12dp">
-                    
+                    android:background="@color/white"
+                    android:orientation="vertical"
+                    android:paddingTop="12dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="12dp">
+                        
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="FLASH SALE"
+                            android:textColor="#EE4D2D"
+                            android:textSize="16sp"
+                            android:textStyle="bold|italic" />
+
+                        <!-- Countdown dummy -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:orientation="horizontal">
+                            <TextView android:id="@+id/tvTimerHours" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@color/black" android:textColor="@color/white" android:text="02" android:padding="2dp" android:textStyle="bold" android:textSize="12sp" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=":" android:textColor="@color/black" android:textStyle="bold" android:paddingHorizontal="2dp" />
+                            <TextView android:id="@+id/tvTimerMinutes" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@color/black" android:textColor="@color/white" android:text="45" android:padding="2dp" android:textStyle="bold" android:textSize="12sp" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=":" android:textColor="@color/black" android:textStyle="bold" android:paddingHorizontal="2dp" />
+                            <TextView android:id="@+id/tvTimerSeconds" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@color/black" android:textColor="@color/white" android:text="13" android:padding="2dp" android:textStyle="bold" android:textSize="12sp" />
+                        </LinearLayout>
+                        
+                        <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+                        
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Xem tất cả >"
+                            android:textColor="#757575"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <!-- Horizontal RecyclerView for Flash Sale -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvFlashSale"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="12dp"
+                        android:clipToPadding="false"
+                        android:layout_marginTop="8dp"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                </LinearLayout>
+
+                <!-- Spacer -->
+                <View android:layout_width="match_parent" android:layout_height="8dp" android:background="#F5F5F5" />
+
+                <!-- Daily Discovery Header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@color/white"
+                    android:gravity="center"
+                    android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="FLASH SALE"
+                        android:text="GỢI Ý HÔM NAY"
                         android:textColor="#EE4D2D"
                         android:textSize="16sp"
-                        android:textStyle="bold|italic" />
-
-                    <!-- Countdown dummy -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:orientation="horizontal">
-                        <TextView android:id="@+id/tvTimerHours" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@color/black" android:textColor="@color/white" android:text="02" android:padding="2dp" android:textStyle="bold" android:textSize="12sp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=":" android:textColor="@color/black" android:textStyle="bold" android:paddingHorizontal="2dp" />
-                        <TextView android:id="@+id/tvTimerMinutes" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@color/black" android:textColor="@color/white" android:text="45" android:padding="2dp" android:textStyle="bold" android:textSize="12sp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=":" android:textColor="@color/black" android:textStyle="bold" android:paddingHorizontal="2dp" />
-                        <TextView android:id="@+id/tvTimerSeconds" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@color/black" android:textColor="@color/white" android:text="13" android:padding="2dp" android:textStyle="bold" android:textSize="12sp" />
-                    </LinearLayout>
-                    
-                    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
-                    
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Xem tất cả >"
-                        android:textColor="#757575"
-                        android:textSize="12sp" />
+                        android:textStyle="bold" />
+                    <View
+                        android:layout_width="100dp"
+                        android:layout_height="3dp"
+                        android:layout_marginTop="4dp"
+                        android:background="#EE4D2D" />
                 </LinearLayout>
 
-                <!-- Horizontal RecyclerView for Flash Sale -->
+                <!-- Daily Discovery Grid -->
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvFlashSale"
+                    android:id="@+id/rvNewArrivals"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="12dp"
-                    android:clipToPadding="false"
-                    android:layout_marginTop="8dp"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-            </LinearLayout>
-
-            <!-- Spacer -->
-            <View android:layout_width="match_parent" android:layout_height="8dp" android:background="#F5F5F5" />
-
-            <!-- Daily Discovery Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@color/white"
-                android:gravity="center"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="GỢI Ý HÔM NAY"
-                    android:textColor="#EE4D2D"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-                <View
-                    android:layout_width="100dp"
-                    android:layout_height="3dp"
+                    android:layout_marginHorizontal="4dp"
                     android:layout_marginTop="4dp"
-                    android:background="#EE4D2D" />
+                    android:nestedScrollingEnabled="false"
+                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                    app:spanCount="2" />
+
             </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
 
-            <!-- Daily Discovery Grid -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvNewArrivals"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="4dp"
-                android:layout_marginTop="4dp"
-                android:nestedScrollingEnabled="false"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:spanCount="2" />
-
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
