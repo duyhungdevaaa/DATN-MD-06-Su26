@@ -16,8 +16,10 @@
         android:layout_marginEnd="16dp">
 
         <ImageView
+            android:id="@+id/ivReviewerAvatar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:scaleType="centerCrop"
             android:src="@drawable/ic_person"
             android:padding="8dp"
             app:tint="#777777" />
