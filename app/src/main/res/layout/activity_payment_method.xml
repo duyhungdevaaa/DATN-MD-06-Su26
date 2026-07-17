@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/trend_bg"
-    tools:context="fpoly.DatnMD06Su26.trendify.activity.PaymentMethodActivity">
+    tools:context=".activity.PaymentMethodActivity">
 
     <!-- Top AppBar / Toolbar -->
     <RelativeLayout
@@ -127,7 +127,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="THÈ TÍN DỤNG / GHI NỢ"
+                            android:text="THẺ TÍN DỤNG / GHI NỢ"
                             android:textColor="@color/trend_text"
                             android:textSize="11sp"
                             android:letterSpacing="0.1"

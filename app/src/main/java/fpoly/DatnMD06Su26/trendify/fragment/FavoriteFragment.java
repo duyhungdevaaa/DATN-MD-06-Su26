@@ -2,15 +2,17 @@ package fpoly.DatnMD06Su26.trendify.fragment;
 
 import fpoly.DatnMD06Su26.trendify.SessionManager;
 import fpoly.DatnMD06Su26.trendify.R;
-import fpoly.DatnMD06Su26.trendify.activity.LoginActivity;
-import fpoly.DatnMD06Su26.trendify.adapter.FavoriteAdapter;
-import fpoly.DatnMD06Su26.trendify.model.ProductItem;
-import fpoly.DatnMD06Su26.trendify.helper.FirestoreHelper;
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
+import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +29,7 @@ public class FavoriteFragment extends Fragment {
 
     private RecyclerView rvFavorites;
     private TextView tvNoFavorites;
+    private View layoutEmptyState;
     private FavoriteAdapter adapter;
 
     @Nullable
@@ -34,12 +37,43 @@ public class FavoriteFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favorite, container, false);
 
+        ImageView ivSearch = view.findViewById(R.id.ivSearch);
+        ImageView ivNotification = view.findViewById(R.id.ivNotification);
+        ImageView ivMenu = view.findViewById(R.id.ivMenu);
+
+        if (ivMenu != null) {
+            ivMenu.setOnClickListener(v -> Toast.makeText(requireContext(), "Menu chính", Toast.LENGTH_SHORT).show());
+        }
+        if (ivSearch != null) {
+            ivSearch.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).setCurrentPage(1);
+                }
+            });
+        }
+        if (ivNotification != null) {
+            ivNotification.setOnClickListener(v -> {
+                startActivity(new Intent(requireContext(), CartActivity.class));
+            });
+        }
+
         rvFavorites = view.findViewById(R.id.rvFavorites);
         tvNoFavorites = view.findViewById(R.id.tvNoFavorites);
+        layoutEmptyState = view.findViewById(R.id.layoutEmptyState);
 
         rvFavorites.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         adapter = new FavoriteAdapter(new ArrayList<>(), this::removeFavorite);
         rvFavorites.setAdapter(adapter);
+
+        // Bind Explore button on Empty State
+        View btnExploreFavorites = view.findViewById(R.id.btnExploreFavorites);
+        if (btnExploreFavorites != null) {
+            btnExploreFavorites.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).setCurrentPage(0); // Page 0 is Home
+                }
+            });
+        }
 
         loadFavorites();
 
@@ -48,8 +82,8 @@ public class FavoriteFragment extends Fragment {
 
     private void loadFavorites() {
         if (!SessionManager.getInstance().isLoggedIn()) {
-            tvNoFavorites.setText("Đăng nhập để xem sản phẩm yêu thích.");
-            tvNoFavorites.setVisibility(View.VISIBLE);
+            if (tvNoFavorites != null) tvNoFavorites.setText("Đăng nhập để xem sản phẩm yêu thích.");
+            if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.VISIBLE);
             adapter.setItems(new ArrayList<>());
             android.util.Log.d("FavoriteFragment", "loadFavorites: User not logged in");
             return;
@@ -62,10 +96,10 @@ public class FavoriteFragment extends Fragment {
             public void onLoaded(List<ProductItem> products) {
                 android.util.Log.d("FavoriteFragment", "loadFavorites success: Loaded " + (products != null ? products.size() : 0) + " products");
                 if (products == null || products.isEmpty()) {
-                    tvNoFavorites.setText("Bạn chưa có sản phẩm yêu thích.");
-                    tvNoFavorites.setVisibility(View.VISIBLE);
+                    if (tvNoFavorites != null) tvNoFavorites.setText("Bạn chưa có sản phẩm yêu thích. Hãy khám phá bộ sưu tập mới nhất để thêm những món đồ yêu thích.");
+                    if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.VISIBLE);
                 } else {
-                    tvNoFavorites.setVisibility(View.GONE);
+                    if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.GONE);
                 }
                 adapter.setItems(products != null ? products : new ArrayList<>());
             }
@@ -73,8 +107,8 @@ public class FavoriteFragment extends Fragment {
             @Override
             public void onFailure(String error) {
                 android.util.Log.e("FavoriteFragment", "loadFavorites failure: " + error);
-                tvNoFavorites.setText("Không thể tải yêu thích: " + error);
-                tvNoFavorites.setVisibility(View.VISIBLE);
+                if (tvNoFavorites != null) tvNoFavorites.setText("Không thể tải yêu thích: " + error);
+                if (layoutEmptyState != null) layoutEmptyState.setVisibility(View.VISIBLE);
                 adapter.setItems(new ArrayList<>());
             }
         });
@@ -100,16 +134,5 @@ public class FavoriteFragment extends Fragment {
                 Toast.makeText(requireContext(), "Không thể bỏ yêu thích: " + error, Toast.LENGTH_SHORT).show();
             }
         });
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import fpoly.DatnMD06Su26.trendify.R;
-
-public class FavoriteFragment extends Fragment {
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_favorite, container, false);
     }
 }
