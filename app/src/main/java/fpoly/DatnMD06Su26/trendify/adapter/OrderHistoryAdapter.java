@@ -60,14 +60,22 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
             holder.ivProductImage.setImageResource(R.drawable.ic_shopping_bag);
         }
         
-        // Set status badge color based on status
+        // Set status badge background color based on status
+        int backgroundColor;
         if (order.getStatus().equals("Đã giao")) {
-            holder.tvOrderStatus.setTextColor(0xFF4CAF50);
+            backgroundColor = 0xFF4CAF50; // Green
         } else if (order.getStatus().equals("Đang vận chuyển")) {
-            holder.tvOrderStatus.setTextColor(0xFFFF9800);
+            backgroundColor = 0xFFFF9800; // Orange
+        } else if (order.getStatus().equals("Đang xử lý")) {
+            backgroundColor = 0xFFEE4D2D; // Red
+        } else if (order.getStatus().equals("Đã hủy")) {
+            backgroundColor = 0xFF757575; // Grey
         } else {
-            holder.tvOrderStatus.setTextColor(0xFF757575);
+            backgroundColor = 0xFF2196F3; // Blue (default)
         }
+        
+        holder.tvOrderStatus.setTextColor(0xFFFFFFFF); // White text
+        holder.tvOrderStatus.getBackground().setTint(backgroundColor);
 
         holder.btnViewDetails.setOnClickListener(v -> {
             android.content.Intent intent = new android.content.Intent(v.getContext(), OrderDetailActivity.class);
