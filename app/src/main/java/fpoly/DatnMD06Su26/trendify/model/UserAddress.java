@@ -8,13 +8,11 @@ public class UserAddress {
     private String phone;
     private String address;
     private boolean isDefault;
-    private int districtId;
-    private String wardCode;
 
     public UserAddress() {
     }
 
-    public UserAddress(String id, String type, String label, String name, String phone, String address, boolean isDefault, int districtId, String wardCode) {
+    public UserAddress(String id, String type, String label, String name, String phone, String address, boolean isDefault) {
         this.id = id;
         this.type = type;
         this.label = label;
@@ -22,8 +20,6 @@ public class UserAddress {
         this.phone = phone;
         this.address = address;
         this.isDefault = isDefault;
-        this.districtId = districtId;
-        this.wardCode = wardCode;
     }
 
     public String getId() {
@@ -80,21 +76,5 @@ public class UserAddress {
 
     public void setDefault(boolean aDefault) {
         isDefault = aDefault;
-    }
-
-    public int getDistrictId() {
-        return districtId;
-    }
-
-    public void setDistrictId(int districtId) {
-        this.districtId = districtId;
-    }
-
-    public String getWardCode() {
-        return wardCode;
-    }
-
-    public void setWardCode(String wardCode) {
-        this.wardCode = wardCode;
     }
 }

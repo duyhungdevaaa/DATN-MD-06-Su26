@@ -12,10 +12,10 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class PaymentMethodActivity extends AppCompatActivity {
 
-    private View cardBankTransfer, cardCod;
+    private View cardCredit, cardMomo, cardBankTransfer, cardCod;
     private View selectedCard = null;
     private String shippingAddress;
-    private String paymentMethod = "Chuyển khoản ngân hàng";
+    private String paymentMethod = "Thẻ tín dụng";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,12 +30,16 @@ public class PaymentMethodActivity extends AppCompatActivity {
 
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
 
+        cardCredit = findViewById(R.id.cardCredit);
+        cardMomo   = findViewById(R.id.cardMomo);
         cardBankTransfer = findViewById(R.id.cardBankTransfer);
         cardCod    = findViewById(R.id.cardCod);
 
-        // Mặc định chọn chuyển khoản ngân hàng
-        selectCard(cardBankTransfer);
+        // Mặc định chọn thẻ tín dụng
+        selectCard(cardCredit);
 
+        cardCredit.setOnClickListener(v -> selectCard(cardCredit));
+        cardMomo.setOnClickListener(v -> selectCard(cardMomo));
         cardBankTransfer.setOnClickListener(v -> selectCard(cardBankTransfer));
         cardCod.setOnClickListener(v -> selectCard(cardCod));
 
@@ -54,12 +58,18 @@ public class PaymentMethodActivity extends AppCompatActivity {
 
     private void selectCard(View card) {
         // Reset tất cả về border mờ
+        setSelected(cardCredit, false);
+        setSelected(cardMomo,   false);
         setSelected(cardBankTransfer, false);
         setSelected(cardCod,    false);
         // Highlight card được chọn
         setSelected(card, true);
         selectedCard = card;
-        if (card == cardBankTransfer) {
+        if (card == cardCredit) {
+            paymentMethod = "Thẻ tín dụng";
+        } else if (card == cardMomo) {
+            paymentMethod = "Ví MoMo";
+        } else if (card == cardBankTransfer) {
             paymentMethod = "Chuyển khoản ngân hàng";
         } else if (card == cardCod) {
             paymentMethod = "COD";
