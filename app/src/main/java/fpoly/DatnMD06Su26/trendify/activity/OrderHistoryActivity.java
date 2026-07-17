@@ -20,6 +20,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -32,6 +33,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
     private OrderHistoryAdapter adapter;
     private ProgressBar progressBar;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +49,14 @@ public class OrderHistoryActivity extends AppCompatActivity {
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
 
         progressBar = findViewById(R.id.progressBar);
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setColorSchemeColors(
+                android.graphics.Color.parseColor("#EE4D2D"),
+                android.graphics.Color.parseColor("#FF9800")
+        );
+        swipeRefreshLayout.setOnRefreshListener(this::loadOrders);
+
         RecyclerView rv = findViewById(R.id.rvOrders);
         adapter = new OrderHistoryAdapter();
         rv.setLayoutManager(new LinearLayoutManager(this));
@@ -65,6 +75,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(snapshot -> {
                     if (progressBar != null) progressBar.setVisibility(View.GONE);
+                    if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                     List<com.google.firebase.firestore.DocumentSnapshot> documents = snapshot.getDocuments();
                     documents.sort((a, b) -> {
                         Timestamp ta = a.getTimestamp("createdAt");
@@ -100,6 +111,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     if (progressBar != null) progressBar.setVisibility(View.GONE);
+                    if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                     Toast.makeText(this, "Lỗi tải đơn hàng", Toast.LENGTH_SHORT).show();
                 });
     }
