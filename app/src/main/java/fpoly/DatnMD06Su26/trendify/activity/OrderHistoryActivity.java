@@ -100,12 +100,29 @@ public class OrderHistoryActivity extends AppCompatActivity {
                         }
                         Long total         = doc.getLong("total");
                         List<?> items      = (List<?>) doc.get("items");
-                        String productName = items != null && !items.isEmpty()
-                                ? "Đơn hàng " + orderId : "Đơn hàng";
+                        
+                        String productName = "Đơn hàng " + orderId;
+                        String firstImageUrl = null;
+                        
+                        if (items != null && !items.isEmpty()) {
+                            Object firstItem = items.get(0);
+                            if (firstItem instanceof java.util.Map) {
+                                java.util.Map<?, ?> itemMap = (java.util.Map<?, ?>) firstItem;
+                                Object nameObj = itemMap.get("name");
+                                if (nameObj instanceof String) {
+                                    productName = (String) nameObj;
+                                }
+                                Object imageObj = itemMap.get("imageUrl");
+                                if (imageObj instanceof String) {
+                                    firstImageUrl = (String) imageObj;
+                                }
+                            }
+                        }
+                        
                         orders.add(new OrderItem(
                                 orderId, status, date, productName, 1,
                                 total != null ? String.format("%,dđ", total).replace(",", ".") : "0đ",
-                                0));
+                                firstImageUrl != null ? firstImageUrl : ""));
                     }
                     adapter.setOrderList(orders);
                 })
