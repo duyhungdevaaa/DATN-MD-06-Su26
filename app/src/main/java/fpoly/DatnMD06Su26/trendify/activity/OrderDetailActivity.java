@@ -33,6 +33,7 @@ public class OrderDetailActivity extends AppCompatActivity {
     private TextView tvOrderId;
     private TextView tvOrderStatus;
     private TextView tvOrderDate;
+    private TextView tvRecipientNamePhone;
     private TextView tvShippingAddress;
     private TextView tvPaymentMethod;
     private TextView tvSubtotal;
@@ -57,6 +58,7 @@ public class OrderDetailActivity extends AppCompatActivity {
         tvOrderId = findViewById(R.id.tvOrderId);
         tvOrderStatus = findViewById(R.id.tvOrderStatus);
         tvOrderDate = findViewById(R.id.tvOrderDate);
+        tvRecipientNamePhone = findViewById(R.id.tvRecipientNamePhone);
         tvShippingAddress = findViewById(R.id.tvShippingAddress);
         tvPaymentMethod = findViewById(R.id.tvPaymentMethod);
         tvSubtotal = findViewById(R.id.tvSubtotal);
@@ -117,7 +119,76 @@ public class OrderDetailActivity extends AppCompatActivity {
                     tvOrderId.setText(orderId);
                     tvOrderStatus.setText(status != null ? status : "");
                     tvOrderDate.setText(date != null ? date : "");
-                    tvShippingAddress.setText(address != null ? address : "Chưa có địa chỉ");
+                    
+                    // Parse shipping address from GHTK format
+                    if (address != null && !address.isEmpty()) {
+                        String recipientNamePhone = "";
+                        String cleanAddress = "";
+                        
+                        // Split by newlines first
+                        String[] lines = address.split("\n");
+                        
+                        if (lines.length >= 2) {
+                            // First line contains recipient info with codes
+                            String firstLine = lines[0];
+                            // Second line contains actual address
+                            String secondLine = lines[1];
+                            
+                            // Extract recipient name and phone from first line
+                            // Format: codes|||Văn phòng: Name - Phone address
+                            if (firstLine.contains("Văn phòng:")) {
+                                String[] officeParts = firstLine.split("Văn phòng:");
+                                if (officeParts.length >= 2) {
+                                    String recipientPart = officeParts[1].trim();
+                                    // Extract "Name - Phone" pattern
+                                    String[] namePhoneParts = recipientPart.split("-");
+                                    if (namePhoneParts.length >= 2) {
+                                        String name = namePhoneParts[0].trim();
+                                        String phoneAndAddress = namePhoneParts[1].trim();
+                                        // Extract phone number (first sequence of digits)
+                                        String[] phoneParts = phoneAndAddress.split("\\s+");
+                                        if (phoneParts.length > 0) {
+                                            String phone = phoneParts[0].trim();
+                                            recipientNamePhone = name + " - " + phone;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            cleanAddress = secondLine.trim();
+                        } else {
+                            // Fallback: try to extract from single line
+                            if (address.contains("Văn phòng:")) {
+                                String[] officeParts = address.split("Văn phòng:");
+                                if (officeParts.length >= 2) {
+                                    String recipientPart = officeParts[1].trim();
+                                    String[] namePhoneParts = recipientPart.split("-");
+                                    if (namePhoneParts.length >= 2) {
+                                        String name = namePhoneParts[0].trim();
+                                        String phoneAndAddress = namePhoneParts[1].trim();
+                                        String[] phoneParts = phoneAndAddress.split("\\s+");
+                                        if (phoneParts.length > 0) {
+                                            String phone = phoneParts[0].trim();
+                                            recipientNamePhone = name + " - " + phone;
+                                            // Extract address part after phone
+                                            if (phoneParts.length > 1) {
+                                                cleanAddress = phoneAndAddress.substring(phone.length()).trim();
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                cleanAddress = address;
+                            }
+                        }
+                        
+                        tvRecipientNamePhone.setText(recipientNamePhone.isEmpty() ? "Chưa có thông tin" : recipientNamePhone);
+                        tvShippingAddress.setText(cleanAddress.isEmpty() ? "Chưa có địa chỉ" : cleanAddress);
+                    } else {
+                        tvRecipientNamePhone.setText("Chưa có thông tin");
+                        tvShippingAddress.setText("Chưa có địa chỉ");
+                    }
+                    
                     tvPaymentMethod.setText(paymentMethod != null ? paymentMethod : "Chưa có phương thức thanh toán");
 
                     // Set status badge color based on status
