@@ -1,11 +1,9 @@
 package fpoly.DatnMD06Su26.trendify.activity;
 
 import fpoly.DatnMD06Su26.trendify.R;
-import fpoly.DatnMD06Su26.trendify.activity.*;
-import fpoly.DatnMD06Su26.trendify.fragment.*;
-import fpoly.DatnMD06Su26.trendify.adapter.*;
-import fpoly.DatnMD06Su26.trendify.model.*;
-import fpoly.DatnMD06Su26.trendify.helper.*;
+import fpoly.DatnMD06Su26.trendify.adapter.CartAdapter;
+import fpoly.DatnMD06Su26.trendify.model.CartItem;
+import fpoly.DatnMD06Su26.trendify.helper.CartManager;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -60,7 +58,8 @@ public class CartActivity extends AppCompatActivity {
                 Toast.makeText(this, "Giỏ hàng đang trống", Toast.LENGTH_SHORT).show();
                 return;
             }
-            startActivity(new Intent(this, ShippingAddressActivity.class));
+            // TODO: Chuyển sang ShippingAddressActivity khi màn hình đó được copy sang
+            Toast.makeText(this, "Thanh toán (Tính năng đang phát triển)", Toast.LENGTH_SHORT).show();
         });
 
         loadCart();
