@@ -14,11 +14,11 @@ import android.widget.ImageView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class OrderSuccessActivity extends AppCompatActivity {
 
-    private ImageView ivBack;
     private ImageView ivClose;
     private TextView tvOrderId;
     private Button btnContinueShopping;
@@ -36,8 +36,16 @@ public class OrderSuccessActivity extends AppCompatActivity {
         btnTrackOrder = findViewById(R.id.btnTrackOrder);
         tvContactConcierge = findViewById(R.id.tvContactConcierge);
 
-        // Close button
-        ivClose.setOnClickListener(v -> finish());
+        // Phím Back (cứng/gesture) → về Home, clear toàn bộ back stack
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                navigateHome();
+            }
+        });
+
+        // Nút X → về Home, clear back stack
+        ivClose.setOnClickListener(v -> navigateHome());
 
         // Show order ID from the checkout screen
         String orderId = getIntent().getStringExtra("order_id");
@@ -45,12 +53,8 @@ public class OrderSuccessActivity extends AppCompatActivity {
             tvOrderId.setText(orderId);
         }
 
-        btnContinueShopping.setOnClickListener(v -> {
-            Intent intent = new Intent(OrderSuccessActivity.this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
-            finish();
-        });
+        // Nút "Tiếp tục mua sắm" → về Home, clear back stack
+        btnContinueShopping.setOnClickListener(v -> navigateHome());
 
         btnTrackOrder.setOnClickListener(v -> {
             Intent intent = new Intent(OrderSuccessActivity.this, TrackOrderActivity.class);
@@ -60,5 +64,16 @@ public class OrderSuccessActivity extends AppCompatActivity {
 
         tvContactConcierge.setOnClickListener(v ->
                 Toast.makeText(this, "Liên hệ quản gia sẽ được thêm sau.", Toast.LENGTH_SHORT).show());
+    }
+
+    /**
+     * Về trang chủ và xóa toàn bộ back stack.
+     * Cart → OrderConfirm → OrderSuccess đều bị xóa, người dùng không thể Back lại luồng đặt hàng.
+     */
+    private void navigateHome() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
     }
 }
