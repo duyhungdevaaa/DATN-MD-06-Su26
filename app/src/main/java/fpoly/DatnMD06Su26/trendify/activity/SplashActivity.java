@@ -8,6 +8,9 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.animation.Animator;
+import com.airbnb.lottie.LottieAnimationView;
+
 public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,13 +21,28 @@ public class SplashActivity extends AppCompatActivity {
             getSupportActionBar().hide();
         }
 
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+        LottieAnimationView lottieSplash = findViewById(R.id.lottieSplash);
+        lottieSplash.addAnimatorListener(new Animator.AnimatorListener() {
             @Override
-            public void run() {
+            public void onAnimationStart(Animator animation) {}
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
                 // Chuyển sang màn hình Onboarding giới thiệu ứng dụng
                 startActivity(new Intent(SplashActivity.this, OnboardingActivity.class));
                 finish();
             }
-        }, 500); // 0.5s theo yêu cầu
+
+            @Override
+            public void onAnimationCancel(Animator animation) {}
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {}
+        });
+            public void run() {
+                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+                finish();
+            }
+        }, 2500);
     }
 }
