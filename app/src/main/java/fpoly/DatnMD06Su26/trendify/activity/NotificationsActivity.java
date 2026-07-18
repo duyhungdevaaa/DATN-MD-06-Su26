@@ -1,14 +1,20 @@
 package fpoly.DatnMD06Su26.trendify.activity;
 
-import android.os.Bundle;
-import android.widget.ImageView;
+import fpoly.DatnMD06Su26.trendify.R;
 
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
+import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-
-import fpoly.DatnMD06Su26.trendify.R;
 
 public class NotificationsActivity extends AppCompatActivity {
 
