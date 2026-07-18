@@ -1,7 +1,12 @@
 package fpoly.DatnMD06Su26.trendify.activity;
 
 import fpoly.DatnMD06Su26.trendify.R;
-import fpoly.DatnMD06Su26.trendify.helper.CartManager;
+
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
+import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -121,12 +126,17 @@ public class PayOSPaymentActivity extends AppCompatActivity {
     }
 
     private void displayPaymentDetails() {
-        // Render QR Code with VietQR image API template for standard styling
+        // Render QR Code with alternative API because VietQR might be down
         try {
-            String bankId = bin != null ? bin : "970422";
-            String encodedAccountName = Uri.encode(accountName != null ? accountName : "");
-            String encodedDescription = Uri.encode(description != null ? description : "");
-            String qrImageUrl = "https://img.vietqr.io/image/" + bankId + "-" + accountNumber + "-qr_only.png?amount=" + amount + "&addInfo=" + encodedDescription + "&accountName=" + encodedAccountName;
+            String qrImageUrl = "";
+            if (qrCode != null && !qrCode.isEmpty()) {
+                qrImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=" + Uri.encode(qrCode);
+            } else {
+                String bankId = bin != null ? bin : "970422";
+                String encodedAccountName = Uri.encode(accountName != null ? accountName : "");
+                String encodedDescription = Uri.encode(description != null ? description : "");
+                qrImageUrl = "https://img.vietqr.io/image/" + bankId + "-" + accountNumber + "-qr_only.png?amount=" + amount + "&addInfo=" + encodedDescription + "&accountName=" + encodedAccountName;
+            }
 
             Log.d(TAG, "Loading QR Image: " + qrImageUrl);
 

@@ -1,0 +1,110 @@
+package fpoly.DatnMD06Su26.trendify.activity;
+
+import fpoly.DatnMD06Su26.trendify.R;
+
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
+import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
+
+import android.os.Bundle;
+import android.util.Log;
+
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class MainActivity extends AppCompatActivity {
+
+    private ViewPager2 viewPager;
+    private BottomNavigationView bottomNavigationView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_main);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+        viewPager = findViewById(R.id.viewPager);
+        bottomNavigationView = findViewById(R.id.bottomNav);
+
+        // Seeder database categories and products if empty
+        FirestoreHelper.checkAndSeedDatabase();
+
+        ScreenPagerAdapter adapter = new ScreenPagerAdapter(this);
+        viewPager.setAdapter(adapter);
+        viewPager.setUserInputEnabled(false); // Disable horizontal swipe to change tabs
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
+                viewPager.setCurrentItem(0, false);
+                return true;
+            } else if (id == R.id.nav_search) {
+                viewPager.setCurrentItem(1, false);
+                return true;
+            } else if (id == R.id.nav_category) {
+                viewPager.setCurrentItem(2, false);
+                return true;
+            } else if (id == R.id.nav_favorite) {
+                viewPager.setCurrentItem(3, false);
+                return true;
+            } else if (id == R.id.nav_profile) {
+                viewPager.setCurrentItem(4, false);
+                return true;
+            }
+            return false;
+        });
+
+
+
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                if (position == 0) {
+                    bottomNavigationView.setSelectedItemId(R.id.nav_home);
+                } else if (position == 1) {
+                    bottomNavigationView.setSelectedItemId(R.id.nav_search);
+                } else if (position == 2) {
+                    bottomNavigationView.setSelectedItemId(R.id.nav_category);
+                } else if (position == 3) {
+                    bottomNavigationView.setSelectedItemId(R.id.nav_favorite);
+                } else {
+                    bottomNavigationView.setSelectedItemId(R.id.nav_profile);
+                }
+            }
+        });
+
+        if (savedInstanceState == null) {
+            bottomNavigationView.setSelectedItemId(R.id.nav_home);
+        }
+
+        findViewById(R.id.fabChat).setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(this, fpoly.DatnMD06Su26.trendify.activity.ChatActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    public void setCurrentPage(int page) {
+        if (viewPager != null) {
+            viewPager.setCurrentItem(page, false);
+        }
+    }
+}

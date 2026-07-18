@@ -1,10 +1,13 @@
 package fpoly.DatnMD06Su26.trendify.adapter;
 
 import fpoly.DatnMD06Su26.trendify.R;
-import fpoly.DatnMD06Su26.trendify.model.CartItem;
-import fpoly.DatnMD06Su26.trendify.helper.CartManager;
 
 import com.bumptech.glide.Glide;
+import fpoly.DatnMD06Su26.trendify.activity.*;
+import fpoly.DatnMD06Su26.trendify.fragment.*;
+import fpoly.DatnMD06Su26.trendify.adapter.*;
+import fpoly.DatnMD06Su26.trendify.model.*;
+import fpoly.DatnMD06Su26.trendify.helper.*;
 
 import android.view.LayoutInflater;
 import android.view.View;
