@@ -4,8 +4,6 @@ import fpoly.DatnMD06Su26.trendify.R;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.Animator;
@@ -29,7 +27,7 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animator animation) {
                 // Chuyển sang màn hình Onboarding giới thiệu ứng dụng
-                startActivity(new Intent(SplashActivity.this, OnboardingActivity.class));
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
                 finish();
             }
 
@@ -39,10 +37,5 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void onAnimationRepeat(Animator animation) {}
         });
-            public void run() {
-                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
-                finish();
-            }
-        }, 2500);
     }
 }

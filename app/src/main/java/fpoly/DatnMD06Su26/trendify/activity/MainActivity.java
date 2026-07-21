@@ -44,12 +44,9 @@ public class MainActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.viewPager);
         bottomNavigationView = findViewById(R.id.bottomNav);
 
-        // Seeder database categories and products if empty
-        FirestoreHelper.checkAndSeedDatabase();
-
         ScreenPagerAdapter adapter = new ScreenPagerAdapter(this);
         viewPager.setAdapter(adapter);
-        viewPager.setUserInputEnabled(false); // Disable horizontal swipe to change tabs
+        viewPager.setUserInputEnabled(false);
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
