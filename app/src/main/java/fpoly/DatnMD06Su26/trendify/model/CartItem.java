@@ -11,8 +11,11 @@ public class CartItem {
     private String size = "";
     private String color = "";
     private String cartItemId = "";
+    
+    @Exclude
+    private boolean selected = true;
 
-    public CartItem() {} // bắt buộc cho Firestore
+    public CartItem() {}
 
     public CartItem(String productId, String name, String price, int quantity, String imageUrl) {
         this.productId = productId;
@@ -60,9 +63,13 @@ public class CartItem {
     }
     public void setCartItemId(String cartItemId) { this.cartItemId = cartItemId; }
 
-    public void setPriceAsLong(long priceAsLong) { /* Ignore - required to prevent Firestore mapping warnings */ }
+    @Exclude
+    public boolean isSelected() { return selected; }
+    @Exclude
+    public void setSelected(boolean selected) { this.selected = selected; }
 
-    // Tính giá số để cộng tổng (bỏ "đ" và dấu chấm)
+    public void setPriceAsLong(long priceAsLong) { }
+
     @Exclude
     public long getPriceAsLong() {
         try {
