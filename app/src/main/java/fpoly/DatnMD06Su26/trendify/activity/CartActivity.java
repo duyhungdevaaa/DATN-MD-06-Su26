@@ -10,6 +10,7 @@ import fpoly.DatnMD06Su26.trendify.helper.*;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +21,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class CartActivity extends AppCompatActivity {
@@ -29,6 +32,7 @@ public class CartActivity extends AppCompatActivity {
     private View layoutEmpty;
     private ProgressBar progressBar;
     private CartManager cartManager;
+    private CheckBox cbSelectAll;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +54,18 @@ public class CartActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
 
         adapter = new CartAdapter(cartManager);
+        adapter.setOnSelectionChangedListener((selectedCount, totalPrice) -> {
+            updateCheckoutButton(selectedCount, totalPrice);
+        });
         rvCartItems.setLayoutManager(new LinearLayoutManager(this));
         rvCartItems.setAdapter(adapter);
 
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
+
+        cbSelectAll = findViewById(R.id.cbSelectAll);
+        cbSelectAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            adapter.selectAll(isChecked);
+        });
 
         View btnShopNow = findViewById(R.id.btnShopNow);
         if (btnShopNow != null) {
@@ -66,11 +78,14 @@ public class CartActivity extends AppCompatActivity {
         }
 
         findViewById(R.id.btnCheckout).setOnClickListener(v -> {
-            if (adapter.getItemCount() == 0) {
-                Toast.makeText(this, "Giỏ hàng đang trống", Toast.LENGTH_SHORT).show();
+            List<CartItem> selectedItems = adapter.getSelectedItems();
+            if (selectedItems.isEmpty()) {
+                Toast.makeText(this, "Vui lòng chọn sản phẩm để mua", Toast.LENGTH_SHORT).show();
                 return;
             }
-            startActivity(new Intent(this, ShippingAddressActivity.class));
+            Intent intent = new Intent(this, ShippingAddressActivity.class);
+            intent.putParcelableArrayListExtra("selected_items", new ArrayList<>(selectedItems));
+            startActivity(intent);
         });
 
         loadCart();
@@ -100,6 +115,16 @@ public class CartActivity extends AppCompatActivity {
         for (CartItem item : items) total += item.getPriceAsLong() * item.getQuantity();
         if (tvTotal != null) {
             tvTotal.setText(String.format("%,dđ", total).replace(",", "."));
+        }
+    }
+
+    private void updateCheckoutButton(int selectedCount, long totalPrice) {
+        TextView btnCheckout = findViewById(R.id.btnCheckout);
+        if (btnCheckout != null) {
+            btnCheckout.setText("Mua Hàng (" + selectedCount + ")");
+        }
+        if (tvTotal != null) {
+            tvTotal.setText(String.format("%,dđ", totalPrice).replace(",", "."));
         }
     }
 }

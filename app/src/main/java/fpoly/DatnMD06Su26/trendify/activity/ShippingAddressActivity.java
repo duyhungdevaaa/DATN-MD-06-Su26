@@ -39,6 +39,7 @@ public class ShippingAddressActivity extends AppCompatActivity {
 
     private final List<UserAddress> addresses = new ArrayList<>();
     private UserAddress selectedAddress;
+    private ArrayList<CartItem> selectedItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +51,8 @@ public class ShippingAddressActivity extends AppCompatActivity {
             v.setPadding(v.getPaddingLeft(), s.top, v.getPaddingRight(), v.getPaddingBottom());
             return insets;
         });
+
+        selectedItems = getIntent().getParcelableArrayListExtra("selected_items");
 
         initViews();
         setupActions();
@@ -73,6 +76,9 @@ public class ShippingAddressActivity extends AppCompatActivity {
             }
             Intent intent = new Intent(this, PaymentMethodActivity.class);
             intent.putExtra("shipping_address", buildAddressSummary(selectedAddress));
+            if (selectedItems != null) {
+                intent.putParcelableArrayListExtra("selected_items", selectedItems);
+            }
             startActivity(intent);
         });
     }

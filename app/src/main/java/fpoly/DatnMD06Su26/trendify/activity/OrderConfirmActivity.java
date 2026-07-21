@@ -35,6 +35,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -68,6 +69,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
     private Voucher appliedVoucher;
     private long appliedDiscount;
     private String paymentMethod = "Thẻ tín dụng";
+    private ArrayList<CartItem> selectedItems;
     
     // UI details
     private TextView tvDetailSubtotal;
@@ -130,7 +132,18 @@ public class OrderConfirmActivity extends AppCompatActivity {
         if (tvDiscount != null) {
             tvDiscount.setText("-0đ");
         }
-        loadOrderSummary();
+
+        selectedItems = getIntent().getParcelableArrayListExtra("selected_items");
+        if (selectedItems != null && !selectedItems.isEmpty()) {
+            calculateShippingFee(selectedItems, new Runnable() {
+                @Override
+                public void run() {
+                    updateSummary(selectedItems);
+                }
+            });
+        } else {
+            loadOrderSummary();
+        }
 
         View btnSelectVoucher = findViewById(R.id.btnSelectVoucher);
         if (btnSelectVoucher != null) {
@@ -262,24 +275,32 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 }
                 appliedVoucher = voucher;
                 appliedDiscount = 0;
-                cartManager.loadCart(new CartManager.CartLoadCallback() {
-                    @Override
-                    public void onLoaded(List<CartItem> items) {
-                        calculateShippingFee(items, () -> {
-                            updateSummary(items);
-                            if (tvVoucherMessage != null) {
-                                tvVoucherMessage.setText("Đã áp dụng voucher: " + voucher.getCode());
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onFailure(String error) {
+                if (selectedItems != null && !selectedItems.isEmpty()) {
+                    calculateShippingFee(selectedItems, () -> {
+                        updateSummary(selectedItems);
                         if (tvVoucherMessage != null) {
-                            tvVoucherMessage.setText("Không thể cập nhật voucher ngay bây giờ");
+                            tvVoucherMessage.setText("Đã áp dụng voucher: " + voucher.getCode());
                         }
-                    }
-                });
+                    });
+                } else {
+                    cartManager.loadCart(new CartManager.CartLoadCallback() {
+                        @Override
+                        public void onLoaded(List<CartItem> items) {
+                            calculateShippingFee(items, () -> {
+                                updateSummary(items);
+                                if (tvVoucherMessage != null) {
+                                    tvVoucherMessage.setText("Đã áp dụng voucher: " + voucher.getCode());
+                                }
+                            });
+                        }
+                        @Override
+                        public void onFailure(String error) {
+                            if (tvVoucherMessage != null) {
+                                tvVoucherMessage.setText("Không thể cập nhật voucher ngay bây giờ");
+                            }
+                        }
+                    });
+                }
                 btnApplyVoucher.setEnabled(true);
             }
 
@@ -293,16 +314,20 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 if (tvVoucherMessage != null) {
                     tvVoucherMessage.setText(error);
                 }
-                cartManager.loadCart(new CartManager.CartLoadCallback() {
-                    @Override
-                    public void onLoaded(List<CartItem> items) {
-                        calculateShippingFee(items, () -> updateSummary(items));
-                    }
-                    @Override
-                    public void onFailure(String innerError) {
-                        // ignore
-                    }
-                });
+                if (selectedItems != null && !selectedItems.isEmpty()) {
+                    calculateShippingFee(selectedItems, () -> updateSummary(selectedItems));
+                } else {
+                    cartManager.loadCart(new CartManager.CartLoadCallback() {
+                        @Override
+                        public void onLoaded(List<CartItem> items) {
+                            calculateShippingFee(items, () -> updateSummary(items));
+                        }
+                        @Override
+                        public void onFailure(String innerError) {
+                            // ignore
+                        }
+                    });
+                }
                 btnApplyVoucher.setEnabled(true);
             }
         });
@@ -403,35 +428,47 @@ public class OrderConfirmActivity extends AppCompatActivity {
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
         findViewById(R.id.btnPlaceOrder).setEnabled(false);
 
-        // Load giỏ hàng rồi lưu đơn hàng
-        Log.d("PayOSIntegration", "Đang gọi cartManager.loadCart...");
-        cartManager.loadCart(new CartManager.CartLoadCallback() {
-            @Override
-            public void onLoaded(List<CartItem> items) {
-                Log.d("PayOSIntegration", "cartManager.loadCart.onLoaded() được gọi. Số lượng sản phẩm: " + items.size());
-                if (items.isEmpty()) {
-                    Toast.makeText(OrderConfirmActivity.this, "Giỏ hàng trống", Toast.LENGTH_SHORT).show();
+        // Sử dụng selectedItems nếu có, ngược lại load toàn bộ giỏ hàng
+        if (selectedItems != null && !selectedItems.isEmpty()) {
+            Log.d("PayOSIntegration", "Sử dụng selectedItems. Số lượng sản phẩm: " + selectedItems.size());
+            if ("Chuyển khoản ngân hàng".equals(paymentMethod)) {
+                Log.d("PayOSIntegration", "Gọi createPayOSPaymentLink...");
+                createPayOSPaymentLink(selectedItems);
+            } else {
+                Log.d("PayOSIntegration", "Gọi saveOrderToFirestore...");
+                saveOrderToFirestore(selectedItems);
+            }
+        } else {
+            // Load giỏ hàng rồi lưu đơn hàng
+            Log.d("PayOSIntegration", "Đang gọi cartManager.loadCart...");
+            cartManager.loadCart(new CartManager.CartLoadCallback() {
+                @Override
+                public void onLoaded(List<CartItem> items) {
+                    Log.d("PayOSIntegration", "cartManager.loadCart.onLoaded() được gọi. Số lượng sản phẩm: " + items.size());
+                    if (items.isEmpty()) {
+                        Toast.makeText(OrderConfirmActivity.this, "Giỏ hàng trống", Toast.LENGTH_SHORT).show();
+                        if (progressBar != null) progressBar.setVisibility(View.GONE);
+                        findViewById(R.id.btnPlaceOrder).setEnabled(true);
+                        return;
+                    }
+                    Log.d("PayOSIntegration", "Phương thức thanh toán đã chọn: " + paymentMethod);
+                    if ("Chuyển khoản ngân hàng".equals(paymentMethod)) {
+                        Log.d("PayOSIntegration", "Gọi createPayOSPaymentLink...");
+                        createPayOSPaymentLink(items);
+                    } else {
+                        Log.d("PayOSIntegration", "Gọi saveOrderToFirestore...");
+                        saveOrderToFirestore(items);
+                    }
+                }
+                @Override
+                public void onFailure(String error) {
+                    Log.e("PayOSIntegration", "cartManager.loadCart.onFailure() được gọi. Lỗi: " + error);
+                    Toast.makeText(OrderConfirmActivity.this, "Lỗi: " + error, Toast.LENGTH_SHORT).show();
                     if (progressBar != null) progressBar.setVisibility(View.GONE);
                     findViewById(R.id.btnPlaceOrder).setEnabled(true);
-                    return;
                 }
-                Log.d("PayOSIntegration", "Phương thức thanh toán đã chọn: " + paymentMethod);
-                if ("Chuyển khoản ngân hàng".equals(paymentMethod)) {
-                    Log.d("PayOSIntegration", "Gọi createPayOSPaymentLink...");
-                    createPayOSPaymentLink(items);
-                } else {
-                    Log.d("PayOSIntegration", "Gọi saveOrderToFirestore...");
-                    saveOrderToFirestore(items);
-                }
-            }
-            @Override
-            public void onFailure(String error) {
-                Log.e("PayOSIntegration", "cartManager.loadCart.onFailure() được gọi. Lỗi: " + error);
-                Toast.makeText(OrderConfirmActivity.this, "Lỗi: " + error, Toast.LENGTH_SHORT).show();
-                if (progressBar != null) progressBar.setVisibility(View.GONE);
-                findViewById(R.id.btnPlaceOrder).setEnabled(true);
-            }
-        });
+            });
+        }
     }
 
     private void saveOrderToFirestore(List<CartItem> items) {
