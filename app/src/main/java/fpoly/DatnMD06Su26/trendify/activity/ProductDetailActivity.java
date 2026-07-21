@@ -12,6 +12,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -20,6 +21,7 @@ import androidx.activity.EdgeToEdge;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.FirebaseFirestore;
+import org.json.JSONObject;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -28,6 +30,17 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import android.app.Dialog;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RatingBar;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.Query;
+import fpoly.DatnMD06Su26.trendify.adapter.ReviewAdapter;
 
 public class ProductDetailActivity extends AppCompatActivity {
 
@@ -38,6 +51,10 @@ public class ProductDetailActivity extends AppCompatActivity {
     private ProductItem productDetail = null;
     private boolean isFavorite = false;
     private ImageView ivFavorite;
+    
+    private RecyclerView rvReviews;
+    private ReviewAdapter reviewAdapter;
+    private List<ReviewItem> reviewList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +62,20 @@ public class ProductDetailActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_product_detail);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.ivBack), (v, insets) -> {
-            Insets s = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(v.getPaddingLeft(), s.top + 20, v.getPaddingRight(), v.getPaddingBottom());
-            return insets;
-        });
+        View headerLayout = findViewById(R.id.headerLayout);
+        if (headerLayout != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(headerLayout, (v, insets) -> {
+                Insets s = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                int pLeft = v.getPaddingLeft();
+                int pRight = v.getPaddingRight();
+                int pTop = s.top + (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+                int pBottom = (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+                v.setPadding(pLeft, pTop, pRight, pBottom);
+                return insets;
+            });
+        }
 
         String productId   = getIntent().getStringExtra("PRODUCT_ID");
         String productName = getIntent().getStringExtra("PRODUCT_NAME");
@@ -82,9 +108,8 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         ivFavorite = findViewById(R.id.ivFavorite);
         if (ivFavorite != null) {
-            ivFavorite.setColorFilter(Color.WHITE); // Default
+            ivFavorite.setColorFilter(Color.WHITE); 
             
-            // Check if product is in favorites
             if (SessionManager.getInstance().isLoggedIn() && finalProductId != null) {
                 FirestoreHelper.loadFavoriteIds(new FirestoreHelper.FavoriteIdsCallback() {
                     @Override
@@ -112,7 +137,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                 if (finalProductId == null) return;
                 
                 if (isFavorite) {
-                    // Remove from favorites
                     FirestoreHelper.removeFavoriteProduct(finalProductId, new FirestoreHelper.SimpleCallback() {
                         @Override
                         public void onSuccess() {
@@ -127,7 +151,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                         }
                     });
                 } else {
-                    // Add to favorites
                     ProductItem itemToFav = productDetail;
                     if (itemToFav == null) {
                         itemToFav = new ProductItem(finalProductId, "", finalProductName, finalProductPrice, finalImageUrl);
@@ -159,30 +182,62 @@ public class ProductDetailActivity extends AppCompatActivity {
             FirebaseFirestore.getInstance().collection("products").document(finalProductId)
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
-                        android.util.Log.d("ProductDetailActivity", "Firestore doc snapshot exists: " + documentSnapshot.exists());
                         if (documentSnapshot.exists()) {
                             productDetail = documentSnapshot.toObject(ProductItem.class);
                             if (productDetail != null) {
                                 productDetail.setId(documentSnapshot.getId());
                                 List<String> loadedSizes = productDetail.getSizes();
                                 List<String> loadedColors = productDetail.getColors();
-                                android.util.Log.d("ProductDetailActivity", "Loaded sizes: " + loadedSizes + ", colors: " + loadedColors);
                                 setupSizesAndColors(productDetail, layoutSizes, layoutColors);
+
+                                TextView tvProductDescription = findViewById(R.id.tvProductDescription);
+                                if (tvProductDescription != null) {
+                                    String desc = productDetail.getDescription();
+                                    if (desc != null && !desc.trim().isEmpty()) {
+                                        tvProductDescription.setText(desc);
+                                    } else {
+                                        tvProductDescription.setText("Chưa có mô tả cho sản phẩm này.");
+                                    }
+                                }
+
+                                TextView tvDetailPrice = findViewById(R.id.tvProductPrice);
+                                TextView tvDetailOriginalPrice = findViewById(R.id.tvProductOriginalPrice);
+                                if (tvDetailPrice != null) {
+                                    if (productDetail.getDiscount() > 0) {
+                                        tvDetailPrice.setText(formatPrice(productDetail.getDiscountedPrice()));
+                                        if (tvDetailOriginalPrice != null) {
+                                            tvDetailOriginalPrice.setVisibility(View.VISIBLE);
+                                            tvDetailOriginalPrice.setText(formatPrice(productDetail.getPrice()));
+                                            tvDetailOriginalPrice.setPaintFlags(tvDetailOriginalPrice.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+                                        }
+                                    } else {
+                                        tvDetailPrice.setText(formatPrice(productDetail.getPrice()));
+                                        if (tvDetailOriginalPrice != null) {
+                                            tvDetailOriginalPrice.setVisibility(View.GONE);
+                                        }
+                                    }
+                                }
                             } else {
-                                Toast.makeText(this, "Lỗi: Dữ liệu sản phẩm rỗng!", Toast.LENGTH_LONG).show();
+                                Toast.makeText(this, "Lỗi dữ liệu sản phẩm!", Toast.LENGTH_LONG).show();
                             }
                         } else {
-                            Toast.makeText(this, "Lỗi: Sản phẩm không tồn tại trên hệ thống! (ID: " + finalProductId + ")", Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, "Sản phẩm không tồn tại trên hệ thống!", Toast.LENGTH_LONG).show();
                         }
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(this, "Không thể tải chi tiết sản phẩm: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     });
-        } else {
-            Toast.makeText(this, "Lỗi: PRODUCT_ID bị null!", Toast.LENGTH_LONG).show();
         }
 
         findViewById(R.id.btnAddToCart).setOnClickListener(v -> {
+            android.animation.ObjectAnimator scaleX = android.animation.ObjectAnimator.ofFloat(v, "scaleX", 1f, 0.9f, 1f);
+            android.animation.ObjectAnimator scaleY = android.animation.ObjectAnimator.ofFloat(v, "scaleY", 1f, 0.9f, 1f);
+            scaleX.setDuration(200);
+            scaleY.setDuration(200);
+            android.animation.AnimatorSet scaleDown = new android.animation.AnimatorSet();
+            scaleDown.play(scaleX).with(scaleY);
+            scaleDown.start();
+
             if (finalProductId == null) {
                 Toast.makeText(this, "Lỗi sản phẩm", Toast.LENGTH_SHORT).show();
                 return;
@@ -202,7 +257,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                 return;
             }
             
-            // Check variant quantity
             if (productDetail != null && productDetail.getVariants() != null && !productDetail.getVariants().isEmpty()) {
                 boolean variantFound = false;
                 for (ProductItem.Variant variant : productDetail.getVariants()) {
@@ -226,19 +280,19 @@ public class ProductDetailActivity extends AppCompatActivity {
                 return;
             }
 
-            // Create cartItemId using productId + selected variant details to make distinct cart items
             String cartItemId = finalProductId;
             if (!selectedSize.isEmpty() || !selectedColor.isEmpty()) {
                 cartItemId = finalProductId + "_" + selectedSize + "_" + selectedColor;
             }
 
-            CartItem item = new CartItem(finalProductId, finalProductName, finalProductPrice, 1, 
+            String cartItemPrice = (productDetail != null) ? productDetail.getDiscountedPrice() : finalProductPrice;
+            CartItem item = new CartItem(finalProductId, finalProductName, cartItemPrice, 1, 
                     finalImageUrl != null ? finalImageUrl : "", selectedSize, selectedColor, cartItemId);
             
             new CartManager().addToCart(item, new CartManager.CartCallback() {
                 @Override
                 public void onSuccess() {
-                    Toast.makeText(ProductDetailActivity.this, "Đã thêm vào giỏ hàng ✓", Toast.LENGTH_SHORT).show();
+                    playAddToCartAnimation();
                 }
                 @Override
                 public void onFailure(String error) {
@@ -246,6 +300,76 @@ public class ProductDetailActivity extends AppCompatActivity {
                 }
             });
         });
+        
+        updateCartBadge();
+
+        View btnBuyNow = findViewById(R.id.btnBuyNow);
+        if (btnBuyNow != null) {
+            btnBuyNow.setOnClickListener(v -> {
+                findViewById(R.id.btnAddToCart).performClick();
+                startActivity(new Intent(this, CartActivity.class));
+            });
+        }
+
+        ImageView ivCartTop = findViewById(R.id.ivCartTop);
+        if (ivCartTop != null) {
+            ivCartTop.setOnClickListener(v -> startActivity(new Intent(this, CartActivity.class)));
+        }
+
+        rvReviews = findViewById(R.id.rvReviews);
+        if (rvReviews != null) {
+            rvReviews.setLayoutManager(new LinearLayoutManager(this));
+            reviewAdapter = new ReviewAdapter(reviewList);
+            rvReviews.setAdapter(reviewAdapter);
+            if (finalProductId != null) {
+                loadReviews(finalProductId);
+            }
+        }
+
+        View btnWriteReview = findViewById(R.id.btnWriteReview);
+        if (btnWriteReview != null) {
+            btnWriteReview.setOnClickListener(v -> {
+                if (!SessionManager.getInstance().isLoggedIn()) {
+                    Toast.makeText(this, "Vui lòng đăng nhập để đánh giá", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(this, LoginActivity.class));
+                    return;
+                }
+                
+                if (finalProductId == null) return;
+
+                FirebaseFirestore.getInstance().collection("orders")
+                        .whereEqualTo("userId", SessionManager.getInstance().getUserId())
+                        .whereIn("status", java.util.Arrays.asList("Đã giao", "Hoàn thành", "completed"))
+                        .get()
+                        .addOnSuccessListener(queryDocumentSnapshots -> {
+                            boolean purchased = false;
+                            for (com.google.firebase.firestore.QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                                List<Map<String, Object>> items = (List<Map<String, Object>>) doc.get("items");
+                                if (items != null) {
+                                    for (Map<String, Object> item : items) {
+                                        Object pidObj = item.get("productId");
+                                        if (pidObj != null && finalProductId.equals(pidObj.toString())) {
+                                            purchased = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (purchased) break;
+                            }
+
+                            if (purchased) {
+                                showWriteReviewDialog(finalProductId);
+                            } else {
+                                Toast.makeText(this, "Bạn phải mua và nhận sản phẩm này mới có thể đánh giá", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(this, "Lỗi kiểm tra thông tin mua hàng", Toast.LENGTH_SHORT).show();
+                        });
+            });
+        }
+        
+        loadDefaultShippingFee();
     }
 
     private void setupSizesAndColors(ProductItem product, LinearLayout layoutSizes, LinearLayout layoutColors) {
@@ -292,6 +416,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                     }
                     tv.setBackgroundResource(R.drawable.bg_chip_selected);
                     tv.setTextColor(Color.WHITE);
+                    updateStockQuantityDisplay();
                 });
                 layoutSizes.addView(tv);
             }
@@ -317,8 +442,71 @@ public class ProductDetailActivity extends AppCompatActivity {
                         child.setBackground(getColorDrawable(otherColor, false));
                     }
                     colorView.setBackground(getColorDrawable(color, true));
+                    updateStockQuantityDisplay();
                 });
                 layoutColors.addView(colorView);
+            }
+        }
+        updateStockQuantityDisplay();
+    }
+
+    private void updateStockQuantityDisplay() {
+        TextView tvStockQuantity = findViewById(R.id.tvStockQuantity);
+        if (tvStockQuantity == null || productDetail == null) return;
+
+        if (selectedSize.isEmpty()) {
+            tvStockQuantity.setVisibility(View.GONE);
+            return;
+        }
+
+        tvStockQuantity.setVisibility(View.VISIBLE);
+
+        List<ProductItem.Variant> variants = productDetail.getVariants();
+        if (variants == null || variants.isEmpty()) {
+            tvStockQuantity.setText("Còn " + productDetail.getQuantity() + " sản phẩm");
+            tvStockQuantity.setTextColor(0xFFEE4D2D);
+            return;
+        }
+
+        if (!selectedColor.isEmpty()) {
+            int qty = 0;
+            boolean found = false;
+            for (ProductItem.Variant var : variants) {
+                if (var.getSize().equalsIgnoreCase(selectedSize) && var.getColor().equalsIgnoreCase(selectedColor)) {
+                    qty = var.getQuantity();
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                if (qty > 0) {
+                    tvStockQuantity.setText("Còn " + qty + " sản phẩm (" + selectedSize + " - " + selectedColor + ")");
+                    tvStockQuantity.setTextColor(0xFFEE4D2D);
+                } else {
+                    tvStockQuantity.setText("Hết hàng cho phân loại này (" + selectedSize + " - " + selectedColor + ")");
+                    tvStockQuantity.setTextColor(Color.RED);
+                }
+            } else {
+                tvStockQuantity.setText("Hết hàng cho phân loại này (" + selectedSize + " - " + selectedColor + ")");
+                tvStockQuantity.setTextColor(Color.RED);
+            }
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Số lượng cho cỡ ").append(selectedSize).append(":\n");
+            int totalForSize = 0;
+            for (ProductItem.Variant var : variants) {
+                if (var.getSize().equalsIgnoreCase(selectedSize)) {
+                    sb.append("• ").append(var.getColor()).append(": ").append(var.getQuantity()).append(" sản phẩm\n");
+                    totalForSize += var.getQuantity();
+                }
+            }
+            if (totalForSize == 0) {
+                tvStockQuantity.setText("Cỡ " + selectedSize + " hiện đã hết hàng!");
+                tvStockQuantity.setTextColor(Color.RED);
+            } else {
+                if (sb.length() > 0) sb.setLength(sb.length() - 1);
+                tvStockQuantity.setText(sb.toString());
+                tvStockQuantity.setTextColor(0xFF555555);
             }
         }
     }
@@ -339,14 +527,352 @@ public class ProductDetailActivity extends AppCompatActivity {
         gd.setColor(colorVal);
         
         if (isSelected) {
-            gd.setStroke(6, Color.parseColor("#FF5722")); // Orange border for selected
+            gd.setStroke(6, Color.parseColor("#FF5722")); 
         } else {
             if (colorName.equalsIgnoreCase("trắng")) {
-                gd.setStroke(2, Color.parseColor("#CCCCCC")); // Light border for white color
+                gd.setStroke(2, Color.parseColor("#CCCCCC")); 
             } else {
                 gd.setStroke(0, Color.TRANSPARENT);
             }
         }
         return gd;
+    }
+
+    private void calculateShippingFeeForProduct(int districtId, String wardCode) {
+        TextView tvShippingFee = findViewById(R.id.tvShippingFee);
+        if (tvShippingFee == null) return;
+        
+        new Thread(() -> {
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put("service_type_id", 2);
+                payload.put("from_district_id", 1442);
+                payload.put("to_district_id", districtId);
+                payload.put("to_ward_code", wardCode);
+                payload.put("height", 10);
+                payload.put("length", 10);
+                payload.put("weight", 200);
+                payload.put("width", 10);
+                payload.put("insurance_value", 0);
+
+                java.net.URL url = new java.net.URL("https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee");
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                conn.setRequestProperty("Token", "ecefb2fb-7203-11f1-a973-aee5264794df");
+                conn.setRequestProperty("ShopId", "200902");
+                conn.setDoOutput(true);
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(15000);
+
+                try (java.io.OutputStream os = conn.getOutputStream()) {
+                    os.write(payload.toString().getBytes("UTF-8"));
+                }
+
+                if (conn.getResponseCode() == 200) {
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream(), "UTF-8"));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) sb.append(line);
+                    
+                    JSONObject responseJson = new JSONObject(sb.toString());
+                    if (responseJson.has("data")) {
+                        long fee = responseJson.getJSONObject("data").getLong("total");
+                        runOnUiThread(() -> {
+                            tvShippingFee.setText(String.format("%,dđ", fee).replace(",", "."));
+                        });
+                    }
+                } else {
+                    runOnUiThread(() -> tvShippingFee.setText("30.000đ"));
+                }
+            } catch (Exception e) {
+                runOnUiThread(() -> tvShippingFee.setText("30.000đ"));
+            }
+        }).start();
+    }
+    
+    private void loadDefaultShippingFee() {
+        TextView tvShippingFee = findViewById(R.id.tvShippingFee);
+        if (tvShippingFee == null) return;
+        
+        if (!SessionManager.getInstance().isLoggedIn()) {
+            tvShippingFee.setText("Vui lòng đăng nhập");
+            return;
+        }
+        
+        FirestoreHelper.loadAddresses(new FirestoreHelper.AddressesCallback() {
+            @Override
+            public void onLoaded(List<UserAddress> addresses) {
+                UserAddress defaultAddress = null;
+                for (UserAddress address : addresses) {
+                    if (address.isDefault()) {
+                        defaultAddress = address;
+                        break;
+                    }
+                }
+                if (defaultAddress == null && !addresses.isEmpty()) {
+                    defaultAddress = addresses.get(0);
+                }
+                
+                if (defaultAddress != null && defaultAddress.getDistrictId() != -1 && defaultAddress.getWardCode() != null && !defaultAddress.getWardCode().isEmpty()) {
+                    calculateShippingFeeForProduct(defaultAddress.getDistrictId(), defaultAddress.getWardCode());
+                } else {
+                    tvShippingFee.setText("30.000đ");
+                }
+            }
+            @Override
+            public void onFailure(String error) {
+                tvShippingFee.setText("30.000đ");
+            }
+        });
+    }
+
+    private void loadReviews(String productId) {
+        FirebaseFirestore.getInstance().collection("reviews")
+                .whereEqualTo("productId", productId)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        return;
+                    }
+                    if (value != null) {
+                        reviewList.clear();
+                        float totalRating = 0;
+                        for (QueryDocumentSnapshot doc : value) {
+                            ReviewItem item = doc.toObject(ReviewItem.class);
+                            item.setReviewId(doc.getId());
+                            reviewList.add(item);
+                            totalRating += item.getRating();
+                        }
+                        
+                        java.util.Collections.sort(reviewList, (r1, r2) -> Long.compare(r2.getCreatedAt(), r1.getCreatedAt()));
+
+                        reviewAdapter.notifyDataSetChanged();
+                        
+                        TextView tvAvgRating = findViewById(R.id.tvAvgRating);
+                        TextView tvTotalReviews = findViewById(R.id.tvTotalReviews);
+                        LinearLayout llStarContainer = findViewById(R.id.llStarContainer);
+
+                        if (reviewList.size() > 0) {
+                            float avgRating = totalRating / reviewList.size();
+                            
+                            if (tvAvgRating != null) {
+                                tvAvgRating.setText(String.format(java.util.Locale.getDefault(), "%.1f", avgRating));
+                            }
+                            if (tvTotalReviews != null) {
+                                tvTotalReviews.setText("Dựa trên " + reviewList.size() + " đánh giá");
+                            }
+                            if (llStarContainer != null) {
+                                int roundedRating = Math.round(avgRating);
+                                for (int i = 0; i < llStarContainer.getChildCount(); i++) {
+                                    android.widget.ImageView star = (android.widget.ImageView) llStarContainer.getChildAt(i);
+                                    if (i < roundedRating) {
+                                        star.setColorFilter(android.graphics.Color.parseColor("#FFC107"));
+                                    } else {
+                                        star.setColorFilter(android.graphics.Color.parseColor("#EEEEEE"));
+                                    }
+                                }
+                            }
+                        } else {
+                            if (tvAvgRating != null) tvAvgRating.setText("0.0");
+                            if (tvTotalReviews != null) tvTotalReviews.setText("Chưa có đánh giá nào");
+                            if (llStarContainer != null) {
+                                for (int i = 0; i < llStarContainer.getChildCount(); i++) {
+                                    ((android.widget.ImageView) llStarContainer.getChildAt(i)).setColorFilter(android.graphics.Color.parseColor("#EEEEEE"));
+                                }
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void showWriteReviewDialog(String productId) {
+        View view = getLayoutInflater().inflate(R.layout.dialog_write_review, null);
+        RatingBar ratingBar = view.findViewById(R.id.dialogRatingBar);
+        EditText etReviewContent = view.findViewById(R.id.etComment);
+
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+                .setTitle("Viết Đánh Giá")
+                .setView(view)
+                .setPositiveButton("Gửi", null) 
+                .setNegativeButton("Hủy", (d, w) -> d.dismiss())
+                .create();
+
+        dialog.setOnShowListener(dialogInterface -> {
+            Button button = dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(v -> {
+                float rating = ratingBar.getRating();
+                String content = etReviewContent.getText().toString().trim();
+
+                if (rating == 0) {
+                    Toast.makeText(this, "Vui lòng chọn số sao", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (content.isEmpty()) {
+                    Toast.makeText(this, "Vui lòng nhập nội dung đánh giá", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String userId = SessionManager.getInstance().getUserId();
+                button.setEnabled(false);
+                button.setText("Đang gửi...");
+
+                com.google.firebase.database.FirebaseDatabase.getInstance().getReference("users").child(userId)
+                        .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
+                            @Override
+                            public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+                                String userName = "Người dùng";
+                                String userAvatar = "";
+                                if (snapshot.exists()) {
+                                    if (snapshot.hasChild("fullName")) {
+                                        userName = snapshot.child("fullName").getValue(String.class);
+                                    } else if (snapshot.hasChild("name")) {
+                                        userName = snapshot.child("name").getValue(String.class);
+                                    }
+                                    if (snapshot.hasChild("avatar")) {
+                                        userAvatar = snapshot.child("avatar").getValue(String.class);
+                                    } else if (snapshot.hasChild("avatarUrl")) {
+                                        userAvatar = snapshot.child("avatarUrl").getValue(String.class);
+                                    }
+                                }
+
+                                ReviewItem newReview = new ReviewItem(
+                                        "", 
+                                        productId,
+                                        userId,
+                                        userName,
+                                        userAvatar,
+                                        rating,
+                                        content,
+                                        System.currentTimeMillis()
+                                );
+
+                                FirebaseFirestore.getInstance().collection("reviews")
+                                        .add(newReview)
+                                        .addOnSuccessListener(documentReference -> {
+                                            Toast.makeText(ProductDetailActivity.this, "Đã gửi đánh giá thành công", Toast.LENGTH_SHORT).show();
+                                            dialog.dismiss();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            button.setEnabled(true);
+                                            button.setText("Gửi");
+                                            Toast.makeText(ProductDetailActivity.this, "Lỗi khi gửi đánh giá: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        });
+                            }
+
+                            @Override
+                            public void onCancelled(com.google.firebase.database.DatabaseError error) {
+                                button.setEnabled(true);
+                                button.setText("Gửi");
+                                Toast.makeText(ProductDetailActivity.this, "Lỗi lấy thông tin user: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            });
+        });
+
+        dialog.show();
+    }
+
+    private void updateCartBadge() {
+        new CartManager().getCartCount(new CartManager.CartCountCallback() {
+            @Override
+            public void onCounted(int count) {
+                TextView tvBadgeCount = findViewById(R.id.tvCartBadgeCount);
+                if (tvBadgeCount != null) {
+                    if (count > 0) {
+                        tvBadgeCount.setVisibility(View.VISIBLE);
+                        tvBadgeCount.setText(String.valueOf(count));
+                        tvBadgeCount.setScaleX(0f);
+                        tvBadgeCount.setScaleY(0f);
+                        tvBadgeCount.animate().scaleX(1f).scaleY(1f).setDuration(300).setInterpolator(new android.view.animation.OvershootInterpolator()).start();
+                    } else {
+                        tvBadgeCount.setVisibility(View.GONE);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+                TextView tvBadgeCount = findViewById(R.id.tvCartBadgeCount);
+                if (tvBadgeCount != null) {
+                    tvBadgeCount.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
+    private void playAddToCartAnimation() {
+        ImageView ivProductImage = findViewById(R.id.ivProductImage);
+        ImageView ivCartTop = findViewById(R.id.ivCartTop);
+        if (ivProductImage == null || ivCartTop == null || ivProductImage.getDrawable() == null) {
+            updateCartBadge();
+            return;
+        }
+
+        final ImageView animImageView = new ImageView(this);
+        animImageView.setImageDrawable(ivProductImage.getDrawable());
+        animImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        int[] startLoc = new int[2];
+        ivProductImage.getLocationInWindow(startLoc);
+        int[] endLoc = new int[2];
+        ivCartTop.getLocationInWindow(endLoc);
+
+        ViewGroup root = (ViewGroup) getWindow().getDecorView();
+        android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
+                ivProductImage.getWidth(), ivProductImage.getHeight()
+        );
+        params.leftMargin = startLoc[0];
+        params.topMargin = startLoc[1];
+        animImageView.setLayoutParams(params);
+        root.addView(animImageView);
+
+        animImageView.setScaleX(1.0f);
+        animImageView.setScaleY(1.0f);
+        
+        float targetX = endLoc[0] + (ivCartTop.getWidth() - ivProductImage.getWidth()) / 2.0f - startLoc[0];
+        float targetY = endLoc[1] + (ivCartTop.getHeight() - ivProductImage.getHeight()) / 2.0f - startLoc[1];
+
+        animImageView.animate()
+                .scaleX(1.08f)
+                .scaleY(1.08f)
+                .setDuration(150)
+                .withEndAction(() -> {
+                    animImageView.animate()
+                            .translationX(targetX)
+                            .translationY(targetY)
+                            .scaleX(0.05f)
+                            .scaleY(0.05f)
+                            .alpha(0.2f)
+                            .setDuration(600)
+                            .setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator())
+                            .withEndAction(() -> {
+                                root.removeView(animImageView);
+                                
+                                ivCartTop.animate()
+                                        .scaleX(1.3f)
+                                        .scaleY(1.3f)
+                                        .setDuration(150)
+                                        .withEndAction(() -> {
+                                            ivCartTop.animate()
+                                                    .scaleX(1.0f)
+                                                    .scaleY(1.0f)
+                                                    .setDuration(150)
+                                                    .start();
+                                        }).start();
+                                
+                                updateCartBadge();
+                            }).start();
+                }).start();
+    }
+
+    private String formatPrice(String priceStr) {
+        if (priceStr == null || priceStr.isEmpty()) return "";
+        try {
+            String clean = priceStr.replace("đ", "").replace("₫", "").replace("VND", "").replaceAll("[^0-9.]", "");
+            double price = Double.parseDouble(clean);
+            return "đ" + String.format(java.util.Locale.US, "%,d", (long) price).replace(',', '.');
+        } catch (Exception e) {
+            return priceStr.startsWith("đ") || priceStr.startsWith("₫") ? priceStr : "đ" + priceStr;
+        }
     }
 }
