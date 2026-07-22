@@ -317,8 +317,70 @@ public class ProductDetailActivity extends AppCompatActivity {
         View btnBuyNow = findViewById(R.id.btnBuyNow);
         if (btnBuyNow != null) {
             btnBuyNow.setOnClickListener(v -> {
-                findViewById(R.id.btnAddToCart).performClick();
-                startActivity(new Intent(this, CartActivity.class));
+                // Check validation first
+                if (finalProductId == null) {
+                    Toast.makeText(this, "Lỗi sản phẩm", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!SessionManager.getInstance().isLoggedIn()) {
+                    Toast.makeText(this, "Vui lòng đăng nhập để mua hàng", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(this, LoginActivity.class));
+                    return;
+                }
+                if (productHasSizes && selectedSize.isEmpty()) {
+                    Toast.makeText(this, "Vui lòng chọn Kích cỡ", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (productHasColors && selectedColor.isEmpty()) {
+                    Toast.makeText(this, "Vui lòng chọn Màu sắc", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Check variant quantity
+                if (productDetail != null && productDetail.getVariants() != null && !productDetail.getVariants().isEmpty()) {
+                    boolean variantFound = false;
+                    for (ProductItem.Variant variant : productDetail.getVariants()) {
+                        boolean sizeMatch = !productHasSizes || selectedSize.equalsIgnoreCase(variant.getSize());
+                        boolean colorMatch = !productHasColors || selectedColor.equalsIgnoreCase(variant.getColor());
+                        if (sizeMatch && colorMatch) {
+                            variantFound = true;
+                            if (variant.getQuantity() <= 0) {
+                                Toast.makeText(this, "Sản phẩm phân loại này đã hết hàng!", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            break;
+                        }
+                    }
+                    if (!variantFound && (productHasSizes || productHasColors)) {
+                        Toast.makeText(this, "Phân loại được chọn hiện không tồn tại hoặc hết hàng", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                } else if (productDetail != null && productDetail.getQuantity() <= 0) {
+                    Toast.makeText(this, "Sản phẩm này đã hết hàng!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Create cartItemId
+                String cartItemId = finalProductId;
+                if (!selectedSize.isEmpty() || !selectedColor.isEmpty()) {
+                    cartItemId = finalProductId + "_" + selectedSize + "_" + selectedColor;
+                }
+
+                String cartItemPrice = (productDetail != null) ? productDetail.getDiscountedPrice() : finalProductPrice;
+                CartItem item = new CartItem(finalProductId, finalProductName, cartItemPrice, 1,
+                        finalImageUrl != null ? finalImageUrl : "", selectedSize, selectedColor, cartItemId);
+
+                new CartManager().addToCart(item, new CartManager.CartCallback() {
+                    @Override
+                    public void onSuccess() {
+                        playAddToCartAnimation();
+                        startActivity(new Intent(ProductDetailActivity.this, CartActivity.class));
+                    }
+                    @Override
+                    public void onFailure(String error) {
+                        Toast.makeText(ProductDetailActivity.this, "Lỗi: " + error, Toast.LENGTH_SHORT).show();
+                    }
+                });
             });
         }
 
