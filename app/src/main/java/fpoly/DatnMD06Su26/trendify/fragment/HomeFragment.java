@@ -50,6 +50,8 @@ public class HomeFragment extends Fragment {
         newArrivalsAdapter = new ProductAdapter(new ArrayList<>(), favoriteIds, this::handleFavoriteToggle);
         rvNewArrivals.setAdapter(newArrivalsAdapter);
 
+        // Old bindings commented out for new layout
+        /*
         // Bind and load Hero image
         ImageView ivHeroImage = view.findViewById(R.id.ivHeroImage);
         if (ivHeroImage != null) {
@@ -136,6 +138,7 @@ public class HomeFragment extends Fragment {
                 }
             });
         }
+        */
 
         loadCategories();
         loadFavoriteIds();

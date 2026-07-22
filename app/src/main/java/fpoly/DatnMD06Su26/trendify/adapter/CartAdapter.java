@@ -96,6 +96,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             });
         });
 
+        /*
         holder.btnDelete.setOnClickListener(v -> {
             cartManager.removeFromCart(item.getCartItemId(), new CartManager.CartCallback() {
                 @Override public void onSuccess() {
@@ -105,6 +106,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 @Override public void onFailure(String error) {}
             });
         });
+        */
     }
 
     @Override
@@ -113,7 +115,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     static class CartViewHolder extends RecyclerView.ViewHolder {
         TextView tvItemName, tvItemPrice, tvQuantity, tvItemVariant;
         TextView btnIncrease, btnDecrease;
-        ImageView btnDelete;
+        // ImageView btnDelete;
         ImageView ivItemImage;
 
         CartViewHolder(View view) {
@@ -124,7 +126,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             tvItemVariant = view.findViewById(R.id.tvItemVariant);
             btnIncrease = view.findViewById(R.id.btnIncrease);
             btnDecrease = view.findViewById(R.id.btnDecrease);
-            btnDelete   = view.findViewById(R.id.btnDelete);
+            // btnDelete   = view.findViewById(R.id.btnDelete);
             ivItemImage = view.findViewById(R.id.ivItemImage);
         }
     }
