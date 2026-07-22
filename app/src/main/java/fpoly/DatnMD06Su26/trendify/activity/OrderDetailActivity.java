@@ -111,7 +111,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                     String paymentStatus = doc.getString("paymentStatus");
                     Long total = doc.getLong("total");
                     Long shippingFee = doc.getLong("shippingFee");
-                    Long discount = doc.getLong("discount");
+                    Long discount = doc.getLong("discountAmount");
                     List<?> itemsData = (List<?>) doc.get("items");
 
                     if (date == null) {
