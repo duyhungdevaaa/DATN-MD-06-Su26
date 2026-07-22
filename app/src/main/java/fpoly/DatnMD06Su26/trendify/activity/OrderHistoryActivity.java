@@ -120,6 +120,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                         List<?> items = (List<?>) doc.get("items");
                         String productName = "Đơn hàng";
                         int totalQty = 0;
+                        String firstImageUrl = "";
                         if (items != null && !items.isEmpty()) {
                             for (Object itemObj : items) {
                                 if (itemObj instanceof Map) {
@@ -133,6 +134,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                             if (firstItemObj instanceof Map) {
                                 Map<?, ?> firstItemMap = (Map<?, ?>) firstItemObj;
                                 String firstName = firstItemMap.get("name") != null ? firstItemMap.get("name").toString() : "";
+                                firstImageUrl = firstItemMap.get("imageUrl") != null ? firstItemMap.get("imageUrl").toString() : "";
                                 if (!firstName.isEmpty()) {
                                     if (items.size() > 1) {
                                         productName = firstName + " và " + (items.size() - 1) + " sản phẩm khác";
@@ -145,7 +147,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                         orders.add(new OrderItem(
                                 orderId, status, date, productName, totalQty > 0 ? totalQty : 1,
                                 total != null ? String.format("%,dđ", total).replace(",", ".") : "0đ",
-                                0));
+                                firstImageUrl));
                     }
                     List<OrderItem> filteredOrders = new ArrayList<>();
                     if (statusFilter != null) {

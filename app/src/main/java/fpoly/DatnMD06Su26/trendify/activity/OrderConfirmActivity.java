@@ -135,6 +135,10 @@ public class OrderConfirmActivity extends AppCompatActivity {
 
         selectedItems = getIntent().getParcelableArrayListExtra("selected_items");
         if (selectedItems != null && !selectedItems.isEmpty()) {
+            Log.d("OrderConfirm", "Received selectedItems: " + selectedItems.size() + " items");
+            for (CartItem item : selectedItems) {
+                Log.d("OrderConfirm", "Item: " + item.getName() + ", Qty: " + item.getQuantity() + ", Selected: " + item.isSelected());
+            }
             calculateShippingFee(selectedItems, new Runnable() {
                 @Override
                 public void run() {
@@ -142,6 +146,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 }
             });
         } else {
+            Log.d("OrderConfirm", "No selectedItems received, loading full cart");
             loadOrderSummary();
         }
 
@@ -475,6 +480,11 @@ public class OrderConfirmActivity extends AppCompatActivity {
         String uid     = SessionManager.getInstance().getUserId();
         String orderId = "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         String date    = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(new Date());
+
+        Log.d("OrderConfirm", "Saving order with " + items.size() + " items");
+        for (CartItem item : items) {
+            Log.d("OrderConfirm", "Saving item: " + item.getName() + ", Qty: " + item.getQuantity());
+        }
 
         long subtotal = 0;
         for (CartItem item : items) {

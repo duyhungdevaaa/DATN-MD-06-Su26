@@ -254,12 +254,12 @@
                 android:textColor="@color/black"
                 android:layout_marginTop="16dp" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvOrderItems"
+            <LinearLayout
+                android:id="@+id/llOrderItems"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="false" />
+                android:orientation="vertical"
+                android:layout_marginTop="8dp" />
 
             <!-- Price Summary Card -->
             <androidx.cardview.widget.CardView
