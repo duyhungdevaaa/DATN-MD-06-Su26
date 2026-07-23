@@ -53,7 +53,7 @@ public class CartActivity extends AppCompatActivity {
         rvCartItems.setLayoutManager(new LinearLayoutManager(this));
         rvCartItems.setAdapter(adapter);
 
-        findViewById(R.id.ivCloseCart).setOnClickListener(v -> finish());
+        findViewById(R.id.ivBack).setOnClickListener(v -> finish());
 
         findViewById(R.id.btnCheckout).setOnClickListener(v -> {
             if (adapter.getItemCount() == 0) {
