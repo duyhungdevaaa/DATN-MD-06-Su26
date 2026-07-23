@@ -223,8 +223,7 @@
                 android:buttonTint="#EE4D2D"
                 android:text="Tất cả"
                 android:textColor="#757575"
-                android:textSize="13sp"
-                android:visibility="gone" />
+                android:textSize="13sp" />
 
             <LinearLayout
                 android:layout_width="0dp"

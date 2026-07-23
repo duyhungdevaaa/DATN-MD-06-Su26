@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +49,16 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
         holder.tvProductName.setText(order.getProductName());
         holder.tvProductQuantity.setText("SL: " + order.getQuantity());
         holder.tvProductPrice.setText(order.getPrice());
+
+        // Load product image using Glide
+        if (order.getImageUrl() != null && !order.getImageUrl().isEmpty()) {
+            Glide.with(holder.ivProductImage.getContext())
+                    .load(order.getImageUrl())
+                    .centerCrop()
+                    .into(holder.ivProductImage);
+        } else {
+            holder.ivProductImage.setImageResource(R.drawable.ic_shopping_bag);
+        }
         
         // Set status badge color based on status
         if (order.getStatus().equals("Đã giao")) {

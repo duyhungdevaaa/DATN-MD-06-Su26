@@ -9,16 +9,17 @@ import fpoly.DatnMD06Su26.trendify.model.*;
 import fpoly.DatnMD06Su26.trendify.helper.*;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -32,7 +33,7 @@ import android.widget.Toast;
 
 public class OrderDetailActivity extends AppCompatActivity {
 
-    private OrderDetailItemAdapter adapter;
+    private LinearLayout llOrderItems;
     private TextView tvOrderId;
     private TextView tvOrderStatus;
     private TextView tvOrderDate;
@@ -69,13 +70,9 @@ public class OrderDetailActivity extends AppCompatActivity {
         tvTotal = findViewById(R.id.tvTotal);
         tvPaymentStatus = findViewById(R.id.tvPaymentStatus);
         progressBar = findViewById(R.id.progressBar);
+        llOrderItems = findViewById(R.id.llOrderItems);
 
         ivBack.setOnClickListener(v -> finish());
-
-        RecyclerView rvItems = findViewById(R.id.rvOrderItems);
-        adapter = new OrderDetailItemAdapter();
-        rvItems.setLayoutManager(new LinearLayoutManager(this));
-        rvItems.setAdapter(adapter);
 
         loadOrderDetails();
     }
@@ -114,7 +111,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                     String paymentStatus = doc.getString("paymentStatus");
                     Long total = doc.getLong("total");
                     Long shippingFee = doc.getLong("shippingFee");
-                    Long discount = doc.getLong("discount");
+                    Long discount = doc.getLong("discountAmount");
                     List<?> itemsData = (List<?>) doc.get("items");
 
                     if (date == null) {
@@ -248,6 +245,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                     List<CartItem> items = new ArrayList<>();
                     long subtotal = 0;
                     if (itemsData != null && !itemsData.isEmpty()) {
+                        android.util.Log.d("OrderDetail", "Loading " + itemsData.size() + " items from Firestore");
                         for (var itemData : itemsData) {
                             if (itemData instanceof java.util.Map) {
                                 java.util.Map<?, ?> itemMap = (java.util.Map<?, ?>) itemData;
@@ -257,6 +255,8 @@ public class OrderDetailActivity extends AppCompatActivity {
                                 String imgUrl = itemMap.get("imageUrl") != null ? itemMap.get("imageUrl").toString() : "";
                                 String size = itemMap.get("size") != null ? itemMap.get("size").toString() : "";
                                 String color = itemMap.get("color") != null ? itemMap.get("color").toString() : "";
+
+                                android.util.Log.d("OrderDetail", "Item: " + name + ", Qty: " + qty + ", Price: " + price);
 
                                 try {
                                     long priceValue = Long.parseLong(price.replaceAll("[^0-9]", ""));
@@ -268,14 +268,60 @@ public class OrderDetailActivity extends AppCompatActivity {
                                 items.add(new CartItem("", name, price, qty.intValue(), imgUrl, size, color, ""));
                             }
                         }
+                    } else {
+                        android.util.Log.d("OrderDetail", "No items data found in Firestore");
                     }
 
+                    android.util.Log.d("OrderDetail", "Total items loaded: " + items.size());
                     tvSubtotal.setText(String.format("%,dđ", subtotal).replace(",", "."));
                     tvShippingFee.setText(shippingFee != null ? String.format("%,dđ", shippingFee).replace(",", ".") : "0đ");
                     tvDiscount.setText(discount != null && discount > 0 ? "-" + String.format("%,dđ", discount).replace(",", ".") : "0đ");
                     tvTotal.setText(total != null ? String.format("%,dđ", total).replace(",", ".") : "0đ");
 
-                    adapter.setItems(items);
+                    // Add items to LinearLayout
+                    llOrderItems.removeAllViews();
+                    LayoutInflater inflater = LayoutInflater.from(this);
+                    for (CartItem item : items) {
+                        View itemView = inflater.inflate(R.layout.item_order_detail_product, llOrderItems, false);
+                        TextView tvName = itemView.findViewById(R.id.tvProductName);
+                        TextView tvPrice = itemView.findViewById(R.id.tvProductPrice);
+                        TextView tvQuantity = itemView.findViewById(R.id.tvQuantity);
+                        TextView tvVariant = itemView.findViewById(R.id.tvVariant);
+                        ImageView ivImage = itemView.findViewById(R.id.ivProductImage);
+
+                        tvName.setText(item.getName());
+                        tvPrice.setText(item.getPrice());
+                        tvQuantity.setText("x" + item.getQuantity());
+
+                        if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+                            Glide.with(this)
+                                    .load(item.getImageUrl())
+                                    .centerCrop()
+                                    .into(ivImage);
+                        } else {
+                            ivImage.setImageResource(R.drawable.ic_shopping_bag);
+                        }
+
+                        StringBuilder variantInfo = new StringBuilder();
+                        if (item.getSize() != null && !item.getSize().isEmpty()) {
+                            variantInfo.append("Size: ").append(item.getSize());
+                        }
+                        if (item.getColor() != null && !item.getColor().isEmpty()) {
+                            if (variantInfo.length() > 0) {
+                                variantInfo.append(" | ");
+                            }
+                            variantInfo.append("Màu: ").append(item.getColor());
+                        }
+
+                        if (variantInfo.length() > 0) {
+                            tvVariant.setText(variantInfo.toString());
+                            tvVariant.setVisibility(View.VISIBLE);
+                        } else {
+                            tvVariant.setVisibility(View.GONE);
+                        }
+
+                        llOrderItems.addView(itemView);
+                    }
                 })
                 .addOnFailureListener(e -> {
                     if (progressBar != null) progressBar.setVisibility(View.GONE);
