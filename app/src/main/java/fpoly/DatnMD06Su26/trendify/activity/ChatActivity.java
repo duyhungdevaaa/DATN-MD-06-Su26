@@ -165,37 +165,19 @@ public class ChatActivity extends AppCompatActivity {
     private void callGeminiAPI(String prompt) {
         try {
             JSONObject jsonBody = new JSONObject();
-
-            // 1. Set system instruction with system prompt & product context
-            JSONObject systemInstructionObj = new JSONObject();
-            JSONArray systemParts = new JSONArray();
-            JSONObject systemPart = new JSONObject();
-            systemPart.put("text", "Bạn là một trợ lý ảo tư vấn bán hàng thời trang cho ứng dụng Trendify. Hãy tư vấn nhiệt tình, thân thiện dựa vào dữ liệu sản phẩm có sẵn.\n" +
-                                   "--- DỮ LIỆU SẢN PHẨM ---\n" +
-                                   productContext + "\n" +
-                                   "------------------------");
-            systemParts.put(systemPart);
-            systemInstructionObj.put("parts", systemParts);
-            jsonBody.put("systemInstruction", systemInstructionObj);
-
-            // 2. Set contents array with the entire message history (excluding typing status)
             JSONArray contents = new JSONArray();
-            for (ChatMessage msg : messageList) {
-                if (msg.getType() == ChatMessage.TYPE_BOT_TYPING) {
-                    continue;
-                }
-                JSONObject contentObj = new JSONObject();
-                String role = (msg.getType() == ChatMessage.TYPE_USER) ? "user" : "model";
-                contentObj.put("role", role);
+            JSONObject content = new JSONObject();
+            JSONArray parts = new JSONArray();
+            JSONObject part = new JSONObject();
 
-                JSONArray parts = new JSONArray();
-                JSONObject part = new JSONObject();
-                part.put("text", msg.getText());
-                parts.put(part);
-
-                contentObj.put("parts", parts);
-                contents.put(contentObj);
-            }
+            part.put("text", "Bạn là một trợ lý ảo tư vấn bán hàng thời trang cho ứng dụng Trendify. Hãy tư vấn nhiệt tình, thân thiện dựa vào dữ liệu sản phẩm có sẵn.\n" +
+                             "--- DỮ LIỆU SẢN PHẨM ---\n" +
+                             productContext + "\n" +
+                             "------------------------\n" +
+                             "Khách hàng hỏi: " + prompt);
+            parts.put(part);
+            content.put("parts", parts);
+            contents.put(content);
             jsonBody.put("contents", contents);
 
             RequestBody body = RequestBody.create(jsonBody.toString(), MediaType.parse("application/json; charset=utf-8"));

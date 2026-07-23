@@ -1,6 +1,7 @@
 package fpoly.DatnMD06Su26.trendify.activity;
 
 import fpoly.DatnMD06Su26.trendify.R;
+
 import fpoly.DatnMD06Su26.trendify.activity.*;
 import fpoly.DatnMD06Su26.trendify.fragment.*;
 import fpoly.DatnMD06Su26.trendify.adapter.*;
@@ -11,30 +12,45 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class AddressManagementActivity extends AppCompatActivity {
 
     private ImageView ivBack;
     private MaterialButton btnAddAddress;
-    private LinearLayout addressContainer;
-    private List<UserAddress> addressesList = new ArrayList<>();
-    private int tempDistrictId = -1;
-    private String tempWardCode = "";
+    private MaterialButton btnEditHome;
+    private MaterialButton btnDeleteHome;
+    private MaterialButton btnEditOffice;
+    private MaterialButton btnDeleteOffice;
+    private MaterialButton btnSetOfficeDefault;
+    private MaterialButton btnEditFamily;
+    private MaterialButton btnDeleteFamily;
+    private MaterialButton btnSetFamilyDefault;
+    private MaterialCardView cardHomeAddress;
+    private MaterialCardView cardOfficeAddress;
+    private MaterialCardView cardFamilyAddress;
+    private TextView tvHomeName;
+    private TextView tvHomePhone;
+    private TextView tvHomeDetail;
+    private TextView tvOfficeName;
+    private TextView tvOfficePhone;
+    private TextView tvOfficeDetail;
+    private TextView tvFamilyName;
+    private TextView tvFamilyPhone;
+    private TextView tvFamilyDetail;
+    private UserAddress homeAddress;
+    private UserAddress officeAddress;
+    private UserAddress familyAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +59,7 @@ public class AddressManagementActivity extends AppCompatActivity {
 
         initViews();
         setupToolbar();
+        setupAddressActions();
         setupPrimaryAction();
         loadAddresses();
     }
@@ -50,23 +67,74 @@ public class AddressManagementActivity extends AppCompatActivity {
     private void initViews() {
         ivBack = findViewById(R.id.ivBack);
         btnAddAddress = findViewById(R.id.btnAddAddress);
-        addressContainer = findViewById(R.id.addressContainer);
+        btnEditHome = findViewById(R.id.btnEditHome);
+        btnDeleteHome = findViewById(R.id.btnDeleteHome);
+        btnEditOffice = findViewById(R.id.btnEditOffice);
+        btnDeleteOffice = findViewById(R.id.btnDeleteOffice);
+        btnSetOfficeDefault = findViewById(R.id.btnSetOfficeDefault);
+        btnEditFamily = findViewById(R.id.btnEditFamily);
+        btnDeleteFamily = findViewById(R.id.btnDeleteFamily);
+        btnSetFamilyDefault = findViewById(R.id.btnSetFamilyDefault);
+        cardHomeAddress = findViewById(R.id.cardHomeAddress);
+        cardOfficeAddress = findViewById(R.id.cardOfficeAddress);
+        cardFamilyAddress = findViewById(R.id.cardFamilyAddress);
+        tvHomeName = findViewById(R.id.tvHomeName);
+        tvHomePhone = findViewById(R.id.tvHomePhone);
+        tvHomeDetail = findViewById(R.id.tvHomeDetail);
+        tvOfficeName = findViewById(R.id.tvOfficeName);
+        tvOfficePhone = findViewById(R.id.tvOfficePhone);
+        tvOfficeDetail = findViewById(R.id.tvOfficeDetail);
+        tvFamilyName = findViewById(R.id.tvFamilyName);
+        tvFamilyPhone = findViewById(R.id.tvFamilyPhone);
+        tvFamilyDetail = findViewById(R.id.tvFamilyDetail);
     }
 
     private void setupToolbar() {
         ivBack.setOnClickListener(v -> finish());
     }
 
+    private void setupAddressActions() {
+        cardHomeAddress.setOnClickListener(v -> showMessage("Địa chỉ mặc định của bạn"));
+        cardOfficeAddress.setOnClickListener(v -> showMessage("Địa chỉ văn phòng"));
+        cardFamilyAddress.setOnClickListener(v -> showMessage("Địa chỉ gia đình"));
+
+        btnEditHome.setOnClickListener(v -> showAddressForm("home", homeAddress));
+        btnDeleteHome.setOnClickListener(v -> showMessage("Không thể xóa địa chỉ mặc định"));
+
+        btnEditOffice.setOnClickListener(v -> showAddressForm("office", officeAddress));
+        btnDeleteOffice.setOnClickListener(v -> deleteAddress("office"));
+        btnSetOfficeDefault.setOnClickListener(v -> setDefaultAddress("office"));
+
+        btnEditFamily.setOnClickListener(v -> showAddressForm("family", familyAddress));
+        btnDeleteFamily.setOnClickListener(v -> deleteAddress("family"));
+        btnSetFamilyDefault.setOnClickListener(v -> setDefaultAddress("family"));
+    }
+
     private void setupPrimaryAction() {
-        btnAddAddress.setOnClickListener(v -> showAddressForm(null));
+        btnAddAddress.setOnClickListener(v -> showAddressTypeSelector());
     }
 
     private void loadAddresses() {
         FirestoreHelper.loadAddresses(new FirestoreHelper.AddressesCallback() {
             @Override
             public void onLoaded(List<UserAddress> addresses) {
-                addressesList.clear();
-                addressesList.addAll(addresses);
+                homeAddress = null;
+                officeAddress = null;
+                familyAddress = null;
+                for (UserAddress address : addresses) {
+                    if (address.getType() == null) continue;
+                    switch (address.getType()) {
+                        case "home":
+                            homeAddress = address;
+                            break;
+                        case "office":
+                            officeAddress = address;
+                            break;
+                        case "family":
+                            familyAddress = address;
+                            break;
+                    }
+                }
                 refreshAddressViews();
             }
 
@@ -78,153 +146,63 @@ public class AddressManagementActivity extends AppCompatActivity {
     }
 
     private void refreshAddressViews() {
-        addressContainer.removeAllViews();
-
-        if (addressesList.isEmpty()) {
-            TextView tvEmpty = new TextView(this);
-            tvEmpty.setText("Chưa có địa chỉ giao hàng nào");
-            tvEmpty.setTextSize(14);
-            tvEmpty.setTextColor(getColor(R.color.trend_muted));
-            tvEmpty.setPadding(0, 40, 0, 40);
-            tvEmpty.setGravity(android.view.Gravity.CENTER);
-            addressContainer.addView(tvEmpty);
-            return;
+        if (homeAddress != null) {
+            tvHomeName.setText(homeAddress.getName());
+            tvHomePhone.setText(homeAddress.getPhone());
+            tvHomeDetail.setText(homeAddress.getAddress());
+        } else {
+            tvHomeName.setText("Chưa có địa chỉ");
+            tvHomePhone.setText("Chưa có số điện thoại");
+            tvHomeDetail.setText("Chưa có địa chỉ nhà riêng");
         }
 
-        for (UserAddress address : addressesList) {
-            View itemView = LayoutInflater.from(this).inflate(R.layout.item_address_management, addressContainer, false);
-            TextView tvName = itemView.findViewById(R.id.tvAddressName);
-            TextView tvPhone = itemView.findViewById(R.id.tvAddressPhone);
-            TextView tvDetail = itemView.findViewById(R.id.tvAddressDetail);
-            TextView tvDefaultBadge = itemView.findViewById(R.id.tvDefaultBadge);
-            MaterialButton btnEdit = itemView.findViewById(R.id.btnEditAddress);
-            MaterialButton btnSetDefault = itemView.findViewById(R.id.btnSetDefault);
-            MaterialButton btnDelete = itemView.findViewById(R.id.btnDeleteAddress);
+        if (officeAddress != null) {
+            tvOfficeName.setText(officeAddress.getName());
+            tvOfficePhone.setText(officeAddress.getPhone());
+            tvOfficeDetail.setText(officeAddress.getAddress());
+        } else {
+            tvOfficeName.setText("Chưa có địa chỉ");
+            tvOfficePhone.setText("Chưa có số điện thoại");
+            tvOfficeDetail.setText("Chưa có địa chỉ văn phòng");
+        }
 
-            tvName.setText(address.getName());
-            tvPhone.setText(address.getPhone());
-            tvDetail.setText(address.getAddress());
-
-            if (address.isDefault()) {
-                tvDefaultBadge.setVisibility(View.VISIBLE);
-                btnSetDefault.setVisibility(View.GONE);
-            } else {
-                tvDefaultBadge.setVisibility(View.GONE);
-                btnSetDefault.setVisibility(View.VISIBLE);
-            }
-
-            btnEdit.setOnClickListener(v -> showAddressForm(address));
-            btnDelete.setOnClickListener(v -> deleteAddress(address));
-            btnSetDefault.setOnClickListener(v -> setDefaultAddress(address));
-
-            addressContainer.addView(itemView);
+        if (familyAddress != null) {
+            tvFamilyName.setText(familyAddress.getName());
+            tvFamilyPhone.setText(familyAddress.getPhone());
+            tvFamilyDetail.setText(familyAddress.getAddress());
+        } else {
+            tvFamilyName.setText("Chưa có địa chỉ");
+            tvFamilyPhone.setText("Chưa có số điện thoại");
+            tvFamilyDetail.setText("Chưa có địa chỉ gia đình");
         }
     }
 
-    private void showAddressForm(UserAddress existingAddress) {
+    private void showAddressTypeSelector() {
+        String[] types = {"Nhà riêng", "Văn phòng", "Gia đình"};
+        new AlertDialog.Builder(this)
+                .setTitle("Chọn loại địa chỉ")
+                .setItems(types, (dialog, which) -> {
+                    if (which == 0) {
+                        showAddressForm("home", homeAddress);
+                    } else if (which == 1) {
+                        showAddressForm("office", officeAddress);
+                    } else {
+                        showAddressForm("family", familyAddress);
+                    }
+                })
+                .show();
+    }
+
+    private void showAddressForm(String type, UserAddress existingAddress) {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_address_form, null);
         TextInputEditText etName = dialogView.findViewById(R.id.etAddressName);
         TextInputEditText etPhone = dialogView.findViewById(R.id.etAddressPhone);
         TextInputEditText etAddress = dialogView.findViewById(R.id.etAddressDetail);
 
-        Spinner spinnerProvince = dialogView.findViewById(R.id.spinnerProvince);
-        Spinner spinnerDistrict = dialogView.findViewById(R.id.spinnerDistrict);
-        Spinner spinnerWard = dialogView.findViewById(R.id.spinnerWard);
-
-        ArrayAdapter<GHNLocationHelper.Province> provinceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
-        provinceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerProvince.setAdapter(provinceAdapter);
-
-        ArrayAdapter<GHNLocationHelper.District> districtAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
-        districtAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerDistrict.setAdapter(districtAdapter);
-
-        ArrayAdapter<GHNLocationHelper.Ward> wardAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
-        wardAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerWard.setAdapter(wardAdapter);
-
-        tempDistrictId = -1;
-        tempWardCode = "";
-
-        GHNLocationHelper.getProvinces(new GHNLocationHelper.LocationCallback<GHNLocationHelper.Province>() {
-            @Override
-            public void onSuccess(List<GHNLocationHelper.Province> items) {
-                provinceAdapter.clear();
-                provinceAdapter.addAll(items);
-            }
-            @Override
-            public void onFailure(String error) { showMessage(error); }
-        });
-
-        spinnerProvince.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                GHNLocationHelper.Province p = provinceAdapter.getItem(position);
-                if (p != null) {
-                    GHNLocationHelper.getDistricts(p.id, new GHNLocationHelper.LocationCallback<GHNLocationHelper.District>() {
-                        @Override
-                        public void onSuccess(List<GHNLocationHelper.District> items) {
-                            districtAdapter.clear();
-                            districtAdapter.addAll(items);
-                            wardAdapter.clear();
-                            tempDistrictId = -1;
-                            tempWardCode = "";
-                        }
-                        @Override
-                        public void onFailure(String error) { showMessage(error); }
-                    });
-                }
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        spinnerDistrict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                GHNLocationHelper.District d = districtAdapter.getItem(position);
-                if (d != null) {
-                    tempDistrictId = d.id;
-                    GHNLocationHelper.getWards(d.id, new GHNLocationHelper.LocationCallback<GHNLocationHelper.Ward>() {
-                        @Override
-                        public void onSuccess(List<GHNLocationHelper.Ward> items) {
-                            wardAdapter.clear();
-                            wardAdapter.addAll(items);
-                            tempWardCode = "";
-                        }
-                        @Override
-                        public void onFailure(String error) { showMessage(error); }
-                    });
-                }
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        spinnerWard.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                GHNLocationHelper.Ward w = wardAdapter.getItem(position);
-                if (w != null) {
-                    tempWardCode = w.code;
-                }
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
         if (existingAddress != null) {
             etName.setText(existingAddress.getName());
             etPhone.setText(existingAddress.getPhone());
-            String existingAddrText = existingAddress.getAddress();
-            if (existingAddrText != null && existingAddrText.contains(", ")) {
-                 String[] parts = existingAddrText.split(", ");
-                 etAddress.setText(parts[0]);
-            } else {
-                 etAddress.setText(existingAddress.getAddress());
-            }
-            tempDistrictId = existingAddress.getDistrictId();
-            tempWardCode = existingAddress.getWardCode();
+            etAddress.setText(existingAddress.getAddress());
         }
 
         new AlertDialog.Builder(this)
@@ -235,32 +213,15 @@ public class AddressManagementActivity extends AppCompatActivity {
                     String phone = etPhone.getText() != null ? etPhone.getText().toString().trim() : "";
                     String addressText = etAddress.getText() != null ? etAddress.getText().toString().trim() : "";
                     if (name.isEmpty() || phone.isEmpty() || addressText.isEmpty()) {
-                        showMessage("Vui lòng nhập đầy đủ thông tin địa chỉ");
+                        showMessage("Vui lòng nhập đủ thông tin địa chỉ");
                         return;
                     }
-                    if (tempDistrictId == -1 || tempWardCode.isEmpty()) {
-                        showMessage("Vui lòng chọn Tỉnh/Huyện/Xã");
-                        return;
-                    }
-
-                    String fullAddress = addressText;
-                    if (spinnerWard.getSelectedItem() != null && spinnerDistrict.getSelectedItem() != null && spinnerProvince.getSelectedItem() != null) {
-                         fullAddress = addressText + ", " + spinnerWard.getSelectedItem().toString() + ", " + spinnerDistrict.getSelectedItem().toString() + ", " + spinnerProvince.getSelectedItem().toString();
-                    }
-
                     UserAddress address = existingAddress != null ? existingAddress : new UserAddress();
-                    address.setType("address");
-                    address.setLabel("Địa chỉ");
+                    address.setType(type);
+                    address.setLabel(type);
                     address.setName(name);
                     address.setPhone(phone);
-                    address.setAddress(fullAddress);
-                    address.setDistrictId(tempDistrictId);
-                    address.setWardCode(tempWardCode);
-
-                    if (existingAddress == null && addressesList.isEmpty()) {
-                        address.setDefault(true);
-                    }
-
+                    address.setAddress(addressText);
                     FirestoreHelper.saveAddress(address, new FirestoreHelper.SimpleCallback() {
                         @Override
                         public void onSuccess() {
@@ -278,9 +239,10 @@ public class AddressManagementActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void deleteAddress(UserAddress address) {
-        if (address.isDefault()) {
-            showMessage("Không thể xóa địa chỉ mặc định");
+    private void deleteAddress(String type) {
+        UserAddress address = type.equals("office") ? officeAddress : familyAddress;
+        if (address == null || address.getId() == null) {
+            showMessage("Không có địa chỉ để xóa");
             return;
         }
         FirestoreHelper.deleteAddress(address.getId(), new FirestoreHelper.SimpleCallback() {
@@ -297,21 +259,19 @@ public class AddressManagementActivity extends AppCompatActivity {
         });
     }
 
-    private void setDefaultAddress(UserAddress targetAddress) {
-        // Clear other defaults
-        for (UserAddress addr : addressesList) {
-            if (addr.isDefault() && !addr.getId().equals(targetAddress.getId())) {
-                addr.setDefault(false);
-                FirestoreHelper.saveAddress(addr, new FirestoreHelper.SimpleCallback() {
-                    @Override public void onSuccess() {}
-                    @Override public void onFailure(String err) {}
-                });
-            }
+    private void setDefaultAddress(String type) {
+        UserAddress address;
+        if (type.equals("office")) {
+            address = officeAddress;
+        } else {
+            address = familyAddress;
         }
-
-        // Set target default
-        targetAddress.setDefault(true);
-        FirestoreHelper.saveAddress(targetAddress, new FirestoreHelper.SimpleCallback() {
+        if (address == null || address.getId() == null) {
+            showMessage("Chọn địa chỉ để đặt mặc định");
+            return;
+        }
+        address.setDefault(true);
+        FirestoreHelper.saveAddress(address, new FirestoreHelper.SimpleCallback() {
             @Override
             public void onSuccess() {
                 showMessage("Đã đặt địa chỉ này làm mặc định");

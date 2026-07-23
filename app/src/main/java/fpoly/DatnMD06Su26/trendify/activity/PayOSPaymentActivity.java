@@ -32,7 +32,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import com.google.firebase.firestore.FirebaseFirestore;
+
 public class PayOSPaymentActivity extends AppCompatActivity {
 
     private static final String TAG = "PayOSPayment";
@@ -55,7 +55,6 @@ public class PayOSPaymentActivity extends AppCompatActivity {
     private String accountName;
     private String description;
     private String bin;
-    private String shippingAddress;
 
     private CartManager cartManager;
     private final Handler pollHandler = new Handler(Looper.getMainLooper());
@@ -96,7 +95,6 @@ public class PayOSPaymentActivity extends AppCompatActivity {
         accountName = intent.getStringExtra("accountName");
         description = intent.getStringExtra("description");
         bin = intent.getStringExtra("bin");
-        shippingAddress = intent.getStringExtra("shipping_address");
 
         Log.d(TAG, "onCreate: orderCode=" + orderCode + ", amount=" + amount + ", bin=" + bin);
 
@@ -108,10 +106,13 @@ public class PayOSPaymentActivity extends AppCompatActivity {
         tvAccountNumber = findViewById(R.id.tvAccountNumber);
         tvAmount = findViewById(R.id.tvAmount);
         tvDescription = findViewById(R.id.tvDescription);
+        tvWarningNoteBottom = findViewById(R.id.tvWarningNoteBottom);
         btnCopyAccountNumber = findViewById(R.id.btnCopyAccountNumber);
+        btnCopyAmount = findViewById(R.id.btnCopyAmount);
         btnCopyDescription = findViewById(R.id.btnCopyDescription);
         btnConfirmPayment = findViewById(R.id.btnConfirmPayment);
         btnCancel = findViewById(R.id.btnCancel);
+        pollingStatusLayout = findViewById(R.id.pollingStatusLayout);
 
         // Set UI Data
         displayPaymentDetails();
@@ -154,11 +155,13 @@ public class PayOSPaymentActivity extends AppCompatActivity {
         tvAmount.setText(formatCurrency(amount));
         tvDescription.setText(description != null ? description : "");
 
-
+        String rawWarning = "Lưu ý : Nhập chính xác số tiền " + formatCurrency(amount) + ", nội dung " + (description != null ? description : "") + " khi chuyển khoản";
+        tvWarningNoteBottom.setText(rawWarning);
     }
 
     private void setupCopyListeners() {
         btnCopyAccountNumber.setOnClickListener(v -> copyToClipboard("Số tài khoản", accountNumber));
+        btnCopyAmount.setOnClickListener(v -> copyToClipboard("Số tiền", String.valueOf(amount)));
         btnCopyDescription.setOnClickListener(v -> copyToClipboard("Nội dung chuyển khoản", description));
     }
 
@@ -176,7 +179,9 @@ public class PayOSPaymentActivity extends AppCompatActivity {
         if (isCheckingStatus || isPaymentCompleted) return;
 
         isCheckingStatus = true;
-
+        if (showToastOnFailure) {
+            pollingStatusLayout.setVisibility(View.VISIBLE);
+        }
 
         new Thread(() -> {
             try {
@@ -238,36 +243,23 @@ public class PayOSPaymentActivity extends AppCompatActivity {
         pollHandler.removeCallbacks(pollRunnable);
         Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
 
-        // Update order status in Firestore
-        FirebaseFirestore.getInstance().collection("orders").document(orderId)
-            .update("status", "Đang xử lý", "paymentStatus", "PAID")
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.d(TAG, "Order status updated to PAID in Firestore");
-                } else {
-                    Log.e(TAG, "Failed to update order status in Firestore", task.getException());
-                }
-                
-                // Clear cart and redirect
-                cartManager.clearCart(new CartManager.CartCallback() {
-                    @Override
-                    public void onSuccess() {
-                        navigateToSuccess();
-                    }
+        // Clear cart and redirect
+        cartManager.clearCart(new CartManager.CartCallback() {
+            @Override
+            public void onSuccess() {
+                navigateToSuccess();
+            }
 
-                    @Override
-                    public void onFailure(String error) {
-                        navigateToSuccess(); // Transition even if cart clear fails to prevent stuck user
-                    }
-                });
-            });
+            @Override
+            public void onFailure(String error) {
+                navigateToSuccess(); // Transition even if cart clear fails to prevent stuck user
+            }
+        });
     }
 
     private void navigateToSuccess() {
         Intent intent = new Intent(PayOSPaymentActivity.this, OrderSuccessActivity.class);
         intent.putExtra("order_id", orderId);
-        intent.putExtra("shipping_address", shippingAddress);
-        intent.putExtra("payment_method", "PayOS");
         startActivity(intent);
         finish();
     }

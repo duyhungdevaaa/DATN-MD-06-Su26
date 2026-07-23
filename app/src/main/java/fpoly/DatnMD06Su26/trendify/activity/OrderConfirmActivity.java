@@ -13,8 +13,6 @@ import fpoly.DatnMD06Su26.trendify.helper.*;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.LayoutInflater;
-import android.widget.LinearLayout;
 import android.net.Uri;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -46,7 +44,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.util.Log;
-import com.bumptech.glide.Glide;
 
 public class OrderConfirmActivity extends AppCompatActivity {
 
@@ -63,8 +60,8 @@ public class OrderConfirmActivity extends AppCompatActivity {
     private TextView tvDiscount;
     private TextView tvTotal;
     private TextView tvPaymentMethod;
-    private android.widget.EditText etVoucherCode;
-    private TextView btnApplyVoucher;
+    private TextInputEditText etVoucherCode;
+    private MaterialButton btnApplyVoucher;
     private TextView tvVoucherMessage;
     private Voucher appliedVoucher;
     private long appliedDiscount;
@@ -98,10 +95,6 @@ public class OrderConfirmActivity extends AppCompatActivity {
         etVoucherCode = findViewById(R.id.etVoucherCode);
         btnApplyVoucher = findViewById(R.id.btnApplyVoucher);
         tvVoucherMessage = findViewById(R.id.tvVoucherMessage);
-        
-        tvDetailSubtotal = findViewById(R.id.tvDetailSubtotal);
-        tvDetailShipping = findViewById(R.id.tvDetailShipping);
-        tvDetailTotal = findViewById(R.id.tvDetailTotal);
 
         btnApplyVoucher.setOnClickListener(v -> applyVoucherCode());
 
@@ -150,30 +143,8 @@ public class OrderConfirmActivity extends AppCompatActivity {
             loadOrderSummary();
         }
 
-        View btnSelectVoucher = findViewById(R.id.btnSelectVoucher);
-        if (btnSelectVoucher != null) {
-            btnSelectVoucher.setOnClickListener(v -> {
-                android.content.Intent intent = new android.content.Intent(this, VoucherListActivity.class);
-                startActivityForResult(intent, 2002);
-            });
-        }
-
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
         findViewById(R.id.btnPlaceOrder).setOnClickListener(v -> placeOrder());
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 2002 && resultCode == RESULT_OK && data != null) {
-            String code = data.getStringExtra("selected_voucher_code");
-            if (code != null && !code.isEmpty()) {
-                if (etVoucherCode != null) {
-                    etVoucherCode.setText(code);
-                    applyVoucherCode();
-                }
-            }
-        }
     }
 
     private void loadOrderSummary() {
@@ -360,72 +331,6 @@ public class OrderConfirmActivity extends AppCompatActivity {
         if (tvTotal != null) {
             tvTotal.setText(formatCurrency(total));
         }
-        
-        // Update Chi tiết thanh toán block
-        if (tvDetailSubtotal != null) {
-            tvDetailSubtotal.setText(formatCurrency(subtotal));
-        }
-        if (tvDetailShipping != null) {
-            tvDetailShipping.setText(formatCurrency(shippingFee));
-        }
-        if (tvDetailTotal != null) {
-            tvDetailTotal.setText(formatCurrency(total));
-        }
-
-        // Render dynamic product items
-        LinearLayout container = findViewById(R.id.llProductContainer);
-        if (container != null) {
-            container.removeAllViews();
-            LayoutInflater inflater = LayoutInflater.from(this);
-            for (CartItem item : items) {
-                View itemView = inflater.inflate(R.layout.item_checkout_product, container, false);
-                
-                ImageView ivProductImage = itemView.findViewById(R.id.ivProductImage);
-                TextView tvProductName = itemView.findViewById(R.id.tvProductName);
-                TextView tvProductVariant = itemView.findViewById(R.id.tvProductVariant);
-                TextView tvProductPrice = itemView.findViewById(R.id.tvProductPrice);
-                TextView tvProductQuantity = itemView.findViewById(R.id.tvProductQuantity);
-                
-                if (tvProductName != null) tvProductName.setText(item.getName());
-                
-                if (tvProductVariant != null) {
-                    StringBuilder variant = new StringBuilder("Phân loại hàng: ");
-                    boolean hasVariant = false;
-                    if (item.getSize() != null && !item.getSize().isEmpty()) {
-                        variant.append(item.getSize());
-                        hasVariant = true;
-                    }
-                    if (item.getColor() != null && !item.getColor().isEmpty()) {
-                        if (hasVariant) variant.append(", ");
-                        variant.append(item.getColor());
-                        hasVariant = true;
-                    }
-                    if (hasVariant) {
-                        tvProductVariant.setVisibility(View.VISIBLE);
-                        tvProductVariant.setText(variant.toString());
-                    } else {
-                        tvProductVariant.setVisibility(View.GONE);
-                    }
-                }
-                
-                if (tvProductPrice != null) {
-                    tvProductPrice.setText(formatCurrency(item.getPriceAsLong()));
-                }
-                
-                if (tvProductQuantity != null) {
-                    tvProductQuantity.setText("x" + item.getQuantity());
-                }
-                
-                if (ivProductImage != null && item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
-                    Glide.with(this)
-                            .load(item.getImageUrl())
-                            .centerCrop()
-                            .into(ivProductImage);
-                }
-                
-                container.addView(itemView);
-            }
-        }
     }
 
     private void placeOrder() {
@@ -525,15 +430,12 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 .document(orderId)
                 .set(order)
                 .addOnSuccessListener(v -> {
-                    deductProductStock(items);
                     // Xóa giỏ hàng sau khi đặt thành công
                     cartManager.clearCart(new CartManager.CartCallback() {
                         @Override public void onSuccess() {
                             if (progressBar != null) progressBar.setVisibility(View.GONE);
                             Intent intent = new Intent(OrderConfirmActivity.this, OrderSuccessActivity.class);
                             intent.putExtra("order_id", orderId);
-                            intent.putExtra("shipping_address", shippingAddress);
-                            intent.putExtra("payment_method", paymentMethod);
                             startActivity(intent);
                             finish();
                         }
@@ -542,8 +444,6 @@ public class OrderConfirmActivity extends AppCompatActivity {
                             if (progressBar != null) progressBar.setVisibility(View.GONE);
                             Intent intent = new Intent(OrderConfirmActivity.this, OrderSuccessActivity.class);
                             intent.putExtra("order_id", orderId);
-                            intent.putExtra("shipping_address", shippingAddress);
-                            intent.putExtra("payment_method", paymentMethod);
                             startActivity(intent);
                             finish();
                         }
@@ -605,7 +505,6 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 .document(orderId)
                 .set(order)
                 .addOnSuccessListener(v -> {
-                    deductProductStock(items);
                     if (progressBar != null) progressBar.setVisibility(View.GONE);
                     
                     Intent paymentIntent = new Intent(OrderConfirmActivity.this, PayOSPaymentActivity.class);
@@ -618,7 +517,6 @@ public class OrderConfirmActivity extends AppCompatActivity {
                     paymentIntent.putExtra("accountName", accountName);
                     paymentIntent.putExtra("description", description);
                     paymentIntent.putExtra("bin", bin);
-                    paymentIntent.putExtra("shipping_address", shippingAddress);
                     
                     startActivity(paymentIntent);
                     finish();
@@ -755,53 +653,6 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 });
             }
         }).start();
-    }
-
-    private void deductProductStock(List<CartItem> items) {
-        if (items == null || items.isEmpty()) return;
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        for (CartItem item : items) {
-            String prodId = item.getProductId();
-            if (prodId == null || prodId.isEmpty()) continue;
-            
-            db.collection("products").document(prodId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (!documentSnapshot.exists()) return;
-                    
-                    ProductItem product = documentSnapshot.toObject(ProductItem.class);
-                    if (product == null) return;
-                    
-                    // Deduct overall quantity
-                    int newQty = Math.max(0, product.getQuantity() - item.getQuantity());
-                    product.setQuantity(newQty);
-                    
-                    // Deduct variant quantity
-                    List<ProductItem.Variant> variants = product.getVariants();
-                    if (variants != null && !variants.isEmpty()) {
-                        String selectedSz = item.getSize();
-                        String selectedCl = item.getColor();
-                        if (selectedSz != null && selectedCl != null) {
-                            for (ProductItem.Variant var : variants) {
-                                if (var.getSize().equalsIgnoreCase(selectedSz) && var.getColor().equalsIgnoreCase(selectedCl)) {
-                                    int varQty = Math.max(0, var.getQuantity() - item.getQuantity());
-                                    var.setQuantity(varQty);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    
-                    int newSold = product.getSold() + item.getQuantity();
-                    
-                    documentSnapshot.getReference().update(
-                        "quantity", newQty,
-                        "variants", variants,
-                        "sold", newSold
-                    )
-                        .addOnSuccessListener(aVoid -> Log.d("StockUpdate", "Deducted stock for " + prodId + " successfully"))
-                        .addOnFailureListener(e -> Log.e("StockUpdate", "Failed to write back stock for " + prodId + ": " + e.getMessage()));
-                });
-        }
     }
 
     private String formatCurrency(long value) {

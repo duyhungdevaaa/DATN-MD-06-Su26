@@ -146,7 +146,7 @@ export const DEFAULT_ORDERS: Order[] = [
     total: 16850000,
     paymentMethod: "Visa Thẻ tín dụng",
     paymentEndingCard: "(*4421) Stripe Integration",
-    status: OrderStatus.AWAITING_CONFIRMATION,
+    status: OrderStatus.PENDING,
     date: "24/10/2023",
     time: "14:30",
     items: [
@@ -188,7 +188,7 @@ export const DEFAULT_ORDERS: Order[] = [
     total: 4500000,
     paymentMethod: "Thẻ Visa",
     paymentEndingCard: "Visa 2034",
-    status: OrderStatus.AWAITING_CONFIRMATION,
+    status: OrderStatus.PENDING,
     date: "12/05/2024",
     time: "09:15",
     items: [
@@ -320,7 +320,7 @@ export const DEFAULT_ORDERS: Order[] = [
     total: 15000000,
     paymentMethod: "Stripe Business",
     paymentEndingCard: "Amex Premium *1007",
-    status: OrderStatus.AWAITING_CONFIRMATION,
+    status: OrderStatus.PENDING,
     date: "10/05/2024",
     time: "11:30",
     items: [

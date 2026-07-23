@@ -12,8 +12,6 @@ import fpoly.DatnMD06Su26.trendify.helper.*;
 
 import android.os.Bundle;
 import android.view.View;
-import java.util.Locale;
-import java.util.Map;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,7 +32,6 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
     private OrderHistoryAdapter adapter;
     private ProgressBar progressBar;
-    private String statusFilter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,33 +50,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
         RecyclerView rv = findViewById(R.id.rvOrders);
         adapter = new OrderHistoryAdapter();
         rv.setLayoutManager(new LinearLayoutManager(this));
-        rv.setAdapter(rv.getAdapter() == null ? adapter : rv.getAdapter());
-
-        statusFilter = getIntent().getStringExtra("ORDER_STATUS_FILTER");
-        android.widget.TextView tvTitle = findViewById(R.id.tvTitle);
-        if (tvTitle != null && statusFilter != null) {
-            if (statusFilter.equals("CHO_XAC_NHAN")) {
-                tvTitle.setText("Đơn Chờ Xác Nhận");
-            } else if (statusFilter.equals("CHO_LAY_HANG")) {
-                tvTitle.setText("Đơn Chờ Lấy Hàng");
-            } else if (statusFilter.equals("DANG_GIAO")) {
-                tvTitle.setText("Đơn Đang Giao");
-            } else if (statusFilter.equals("DANH_GIAO")) {
-                tvTitle.setText("Đơn Chờ Đánh Giá");
-            } else if (statusFilter.equals("CHO_THANH_TOAN")) {
-                tvTitle.setText("Đơn Chờ Thanh Toán");
-            } else if (statusFilter.equals("DANG_XU_LY")) {
-                tvTitle.setText("Đơn Đang Xử Lý");
-            } else if (statusFilter.equals("DANG_VAN_CHUYEN")) {
-                tvTitle.setText("Đơn Đang Vận Chuyển");
-            } else if (statusFilter.equals("DA_GIAO")) {
-                tvTitle.setText("Đơn Đã Giao");
-            } else if (statusFilter.equals("DA_HUY")) {
-                tvTitle.setText("Đơn Đã Hủy");
-            } else if (statusFilter.equals("TRA_HANG_HOAN_TIEN")) {
-                tvTitle.setText("Đơn Trả Hàng / Hoàn Tiền");
-            }
-        }
+        rv.setAdapter(adapter);
 
         loadOrders();
     }
@@ -117,6 +88,9 @@ public class OrderHistoryActivity extends AppCompatActivity {
                             }
                         }
                         Long total         = doc.getLong("total");
+                        List<?> items      = (List<?>) doc.get("items");
+                        String productName = items != null && !items.isEmpty()
+                                ? "Đơn hàng " + orderId : "Đơn hàng";
                         List<?> items = (List<?>) doc.get("items");
                         String productName = "Đơn hàng";
                         int totalQty = 0;
@@ -145,62 +119,11 @@ public class OrderHistoryActivity extends AppCompatActivity {
                             }
                         }
                         orders.add(new OrderItem(
-                                orderId, status, date, productName, totalQty > 0 ? totalQty : 1,
+                                orderId, status, date, productName, 1,
                                 total != null ? String.format("%,dđ", total).replace(",", ".") : "0đ",
                                 firstImageUrl));
                     }
-                    List<OrderItem> filteredOrders = new ArrayList<>();
-                    if (statusFilter != null) {
-                        for (OrderItem order : orders) {
-                            String st = order.getStatus();
-                            if (st != null) {
-                                if (statusFilter.equals("CHO_XAC_NHAN")) {
-                                    if (st.equals("Chờ xác nhận") || st.equals("Chờ xử lý") || st.contains("xử lý") || st.contains("thanh toán") || st.contains("Xác nhận") || st.contains("xác nhận") || st.contains("xu ly") || st.contains("thanh toan")) {
-                                        filteredOrders.add(order);
-                                    }
-                                } else if (statusFilter.equals("CHO_LAY_HANG")) {
-                                    if (st.equals("Đang xử lý") || st.contains("chuẩn bị") || st.contains("lấy hàng") || st.contains("chờ lấy") || st.contains("Chờ lấy") || st.contains("chuan bi") || st.contains("lay hang")) {
-                                        filteredOrders.add(order);
-                                    }
-                                } else if (statusFilter.equals("DANG_GIAO")) {
-                                    if (st.equals("Đang vận chuyển") || st.equals("Đang giao") || st.contains("vận chuyển") || st.contains("đang giao") || st.contains("Đang giao") || st.contains("van chuyen") || st.contains("dang giao")) {
-                                        filteredOrders.add(order);
-                                    }
-                                } else if (statusFilter.equals("DANH_GIAO")) {
-                                    if (st.equals("Đã giao") || st.contains("đã giao") || st.contains("Đã giao") || st.contains("thành công") || st.contains("Thành công") || st.contains("hoàn thành") || st.contains("Hoàn thành") || st.contains("da giao") || st.contains("thanh cong") || st.contains("hoan thanh")) {
-                                        filteredOrders.add(order);
-                                    }
-                                } else if (statusFilter.equals("CHO_THANH_TOAN")) {
-                                    if (st.equals("Chờ thanh toán")) {
-                                        filteredOrders.add(order);
-                                    }
-                                } else if (statusFilter.equals("DANG_XU_LY")) {
-                                    if (st.equals("Đang xử lý")) {
-                                        filteredOrders.add(order);
-                                    }
-                                } else if (statusFilter.equals("DANG_VAN_CHUYEN")) {
-                                    if (st.equals("Đang vận chuyển") || st.equals("Đang giao")) {
-                                        filteredOrders.add(order);
-                                    }
-                                } else if (statusFilter.equals("DA_GIAO")) {
-                                    if (st.equals("Đã giao")) {
-                                        filteredOrders.add(order);
-                                    }
-                                } else if (statusFilter.equals("DA_HUY")) {
-                                    if (st.equals("Đã hủy")) {
-                                        filteredOrders.add(order);
-                                    }
-                                } else if (statusFilter.equals("TRA_HANG_HOAN_TIEN")) {
-                                    if (st.equals("Trả hàng/Hoàn tiền") || st.equals("Trả hàng/Hoàn đơn")) {
-                                        filteredOrders.add(order);
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        filteredOrders.addAll(orders);
-                    }
-                    adapter.setOrderList(filteredOrders);
+                    adapter.setOrderList(orders);
                 })
                 .addOnFailureListener(e -> {
                     if (progressBar != null) progressBar.setVisibility(View.GONE);

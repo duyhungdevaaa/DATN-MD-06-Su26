@@ -13,9 +13,12 @@ public class CartItem implements Parcelable {
     private String size = "";
     private String color = "";
     private String cartItemId = "";
+    
+    @Exclude
+    private boolean selected = true;
     private boolean selected = false;
 
-    public CartItem() {} // bắt buộc cho Firestore
+    public CartItem() {}
 
     protected CartItem(Parcel in) {
         productId = in.readString();
@@ -87,12 +90,17 @@ public class CartItem implements Parcelable {
     }
     public void setCartItemId(String cartItemId) { this.cartItemId = cartItemId; }
 
+    @Exclude
+    public boolean isSelected() { return selected; }
+    @Exclude
+    public void setSelected(boolean selected) { this.selected = selected; }
+
+    public void setPriceAsLong(long priceAsLong) { }
     public boolean isSelected() { return selected; }
     public void setSelected(boolean selected) { this.selected = selected; }
 
     public void setPriceAsLong(long priceAsLong) { /* Ignore - required to prevent Firestore mapping warnings */ }
 
-    // Tính giá số để cộng tổng (bỏ "đ" và dấu chấm)
     @Exclude
     public long getPriceAsLong() {
         try {

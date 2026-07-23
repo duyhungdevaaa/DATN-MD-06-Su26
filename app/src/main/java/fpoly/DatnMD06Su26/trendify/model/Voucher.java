@@ -71,16 +71,6 @@ public class Voucher {
         if (expiration == null) {
             return false;
         }
-        
-        // Set expiration time to 23:59:59.999 of that day so it's valid throughout the day
-        java.util.Calendar cal = java.util.Calendar.getInstance();
-        cal.setTime(expiration);
-        cal.set(java.util.Calendar.HOUR_OF_DAY, 23);
-        cal.set(java.util.Calendar.MINUTE, 59);
-        cal.set(java.util.Calendar.SECOND, 59);
-        cal.set(java.util.Calendar.MILLISECOND, 999);
-        expiration = cal.getTime();
-
         Date today = new Date();
         return expiration.before(today);
     }
@@ -92,7 +82,7 @@ public class Voucher {
         if (maximumDiscount > 0 && discount > maximumDiscount) {
             discount = maximumDiscount;
         }
-        return Math.min(subtotal, Math.max(0, discount));
+        return Math.max(0, discount);
     }
 
     @NonNull

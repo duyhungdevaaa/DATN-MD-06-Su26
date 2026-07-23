@@ -2,7 +2,6 @@ package fpoly.DatnMD06Su26.trendify.helper;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,10 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class GHNLocationHelper {
@@ -68,11 +65,13 @@ public class GHNLocationHelper {
                 try {
                     String body = response.body().string();
                     JSONObject jsonObject = new JSONObject(body);
-                    JSONArray data = jsonObject.getJSONArray("data");
+                    JSONArray data = jsonObject.optJSONArray("data");
                     List<Province> list = new ArrayList<>();
-                    for (int i = 0; i < data.length(); i++) {
-                        JSONObject item = data.getJSONObject(i);
-                        list.add(new Province(item.getInt("ProvinceID"), item.getString("ProvinceName")));
+                    if (data != null) {
+                        for (int i = 0; i < data.length(); i++) {
+                            JSONObject item = data.getJSONObject(i);
+                            list.add(new Province(item.getInt("ProvinceID"), item.getString("ProvinceName")));
+                        }
                     }
                     mainHandler.post(() -> callback.onSuccess(list));
                 } catch (JSONException e) {
@@ -83,11 +82,9 @@ public class GHNLocationHelper {
     }
 
     public static void getDistricts(int provinceId, LocationCallback<District> callback) {
-        RequestBody reqBody = RequestBody.create(String.format("{\"province_id\":%d}", provinceId), MediaType.parse("application/json"));
         Request request = new Request.Builder()
-                .url(BASE_URL + "district")
+                .url(BASE_URL + "district?province_id=" + provinceId)
                 .header("Token", TOKEN)
-                .post(reqBody)
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -102,11 +99,13 @@ public class GHNLocationHelper {
                 try {
                     String body = response.body().string();
                     JSONObject jsonObject = new JSONObject(body);
-                    JSONArray data = jsonObject.getJSONArray("data");
+                    JSONArray data = jsonObject.optJSONArray("data");
                     List<District> list = new ArrayList<>();
-                    for (int i = 0; i < data.length(); i++) {
-                        JSONObject item = data.getJSONObject(i);
-                        list.add(new District(item.getInt("DistrictID"), item.getString("DistrictName")));
+                    if (data != null) {
+                        for (int i = 0; i < data.length(); i++) {
+                            JSONObject item = data.getJSONObject(i);
+                            list.add(new District(item.getInt("DistrictID"), item.getString("DistrictName")));
+                        }
                     }
                     mainHandler.post(() -> callback.onSuccess(list));
                 } catch (JSONException e) {
@@ -134,11 +133,13 @@ public class GHNLocationHelper {
                 try {
                     String body = response.body().string();
                     JSONObject jsonObject = new JSONObject(body);
-                    JSONArray data = jsonObject.getJSONArray("data");
+                    JSONArray data = jsonObject.optJSONArray("data");
                     List<Ward> list = new ArrayList<>();
-                    for (int i = 0; i < data.length(); i++) {
-                        JSONObject item = data.getJSONObject(i);
-                        list.add(new Ward(item.getString("WardCode"), item.getString("WardName")));
+                    if (data != null) {
+                        for (int i = 0; i < data.length(); i++) {
+                            JSONObject item = data.getJSONObject(i);
+                            list.add(new Ward(item.getString("WardCode"), item.getString("WardName")));
+                        }
                     }
                     mainHandler.post(() -> callback.onSuccess(list));
                 } catch (JSONException e) {
@@ -148,4 +149,3 @@ public class GHNLocationHelper {
         });
     }
 }
-

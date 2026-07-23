@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { ActiveTab, Product, Category, User, Order, ProductStatus, UserTier, OrderStatus, Voucher } from "./types";
+import { ActiveTab, Product, Category, User, Order, ProductStatus, UserTier, OrderStatus } from "./types";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { DashboardView } from "./components/DashboardView";
@@ -15,12 +15,8 @@ import { CategoryFormView } from "./components/CategoryFormView";
 import { UserListView } from "./components/UserListView";
 import { OrderListView } from "./components/OrderListView";
 import { OrderDetailView } from "./components/OrderDetailView";
-import { VoucherListView } from "./components/VoucherListView";
-import { VoucherFormView } from "./components/VoucherFormView";
-import { NotificationsView } from "./components/NotificationsView";
-import { BannersView } from "./components/BannersView";
 
-import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc, increment, getDoc } from "firebase/firestore";
+import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { db, storage, auth } from "./firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
@@ -51,33 +47,15 @@ export default function App() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<User[]>(DEFAULT_USERS); // Mocked for now
-  const [vouchers, setVouchers] = useState<Voucher[]>([]);
 
   // Focus and Active detail states
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null);
 
   // Form rendering states (controls creation or update redirection)
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
-  const [isAddingVoucher, setIsAddingVoucher] = useState(false);
-
-  // Dynamically resolve customer details for orders using loaded users database
-  const resolvedOrders = React.useMemo(() => {
-    return orders.map(order => {
-      // Find the user whose ID matches the order's customerName (which holds the raw userId UID)
-      const user = users.find(u => u.id === order.customerName);
-      return {
-        ...order,
-        customerName: user ? user.name : order.customerName,
-        customerAvatar: user ? user.avatar : order.customerAvatar,
-        email: user ? user.email : order.email,
-        phone: user?.phone || order.phone || "09x-xxxx-xxx"
-      };
-    });
-  }, [orders, users]);
 
   // Authentication listener
   useEffect(() => {
@@ -96,7 +74,7 @@ export default function App() {
       const loadedProds: Product[] = snapshot.docs.map(docSnap => {
         const data = docSnap.data();
         const quantity = data.quantity || 0;
-        const status = (data.status as ProductStatus) || ProductStatus.ACTIVE;
+        const status = ProductStatus.ACTIVE;
         
         return {
           id: docSnap.id,
@@ -105,14 +83,10 @@ export default function App() {
           description: data.tags ? data.tags.join(', ') : "",
           categoryName: data.categoryId || "Apparel",
           price: data.price || 0,
-          discount: data.discount || 0,
           stock: quantity,
           status,
           imageUrl: data.imageUrl || "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600",
-          lastModified: data.uploadedAt ? new Date(data.uploadedAt.seconds * 1000).toLocaleDateString() : "Vừa xong",
-          sizes: data.sizes || [],
-          colors: data.colors || [],
-          variants: data.variants || []
+          lastModified: data.uploadedAt ? new Date(data.uploadedAt.seconds * 1000).toLocaleDateString() : "Vừa xong"
         };
       });
       setProducts(loadedProds);
@@ -137,42 +111,14 @@ export default function App() {
     });
 
     const unsubOrders = onSnapshot(collection(db, "orders"), (snapshot) => {
-      const sortedDocs = [...snapshot.docs].sort((a, b) => {
-        const timeA = a.data().createdAt?.seconds || 0;
-        const timeB = b.data().createdAt?.seconds || 0;
-        return timeB - timeA;
-      });
-
-      const loadedOrders: Order[] = sortedDocs.map(docSnap => {
+      const loadedOrders: Order[] = snapshot.docs.map(docSnap => {
         const data = docSnap.data();
         const createdDate = data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date();
         
-        let status = OrderStatus.AWAITING_PAYMENT;
-        if (data.status === "Đã giao" || data.status === "Da giao") {
-          status = OrderStatus.DELIVERED;
-        } else if (data.status === "Đang vận chuyển" || data.status === "Dang van chuyen") {
-          status = OrderStatus.SHIPPING;
-        } else if (data.status === "Đang chuẩn bị hàng" || data.status === "Đang xử lý" || data.status === "Dang xu ly") {
-          status = OrderStatus.PREPARING;
-        } else if (data.status === "Giao hàng thất bại") {
-          status = OrderStatus.FAILED_DELIVERY;
-        } else if (data.status === "Đang chuyển hoàn") {
-          status = OrderStatus.RETURNING;
-        } else if (data.status === "Đã chuyển hoàn") {
-          status = OrderStatus.RETURNED;
-        } else if (data.status === "Đã hủy" || data.status === "Da huy") {
-          status = OrderStatus.CANCELLED;
-        } else if (data.status === "Yêu cầu Trả hàng/Hoàn tiền" || data.status === "Trả hàng/Hoàn tiền" || data.status === "Tra hang/Hoan tien" || data.status === "Trả hàng/Hoàn đơn") {
-          status = OrderStatus.REFUNDED;
-        } else if (data.status === "Đã hoàn tiền") {
-          status = OrderStatus.REFUND_APPROVED;
-        } else if (data.status === "Từ chối trả hàng") {
-          status = OrderStatus.REFUND_REJECTED;
-        } else if (data.status === "Chờ xác nhận" || data.status === "Cho xac nhan") {
-          status = OrderStatus.AWAITING_CONFIRMATION;
-        } else if (data.status === "Chờ thanh toán" || data.status === "Cho thanh toan") {
-          status = OrderStatus.AWAITING_PAYMENT;
-        }
+        let status = OrderStatus.PENDING;
+        if (data.status === "Đã giao") status = OrderStatus.DELIVERED;
+        else if (data.status === "Đang xử lý") status = OrderStatus.SHIPPING;
+        else if (data.status === "Đã hủy") status = OrderStatus.CANCELLED;
 
         return {
           id: docSnap.id,
@@ -190,14 +136,11 @@ export default function App() {
           date: createdDate.toLocaleDateString(),
           time: createdDate.toLocaleTimeString(),
           items: data.items || [],
-          returnReason: data.returnReason || "",
-          returnDescription: data.returnDescription || "",
-          returnImages: data.returnImages || [],
           timeline: {
             confirmed: { active: true, time: createdDate.toLocaleString() },
-            packing: { active: status !== OrderStatus.AWAITING_PAYMENT && status !== OrderStatus.CANCELLED, time: "" },
-            shipping: { active: status === OrderStatus.SHIPPING || status === OrderStatus.DELIVERED || status === OrderStatus.REFUNDED, time: "" },
-            delivered: { active: status === OrderStatus.DELIVERED || status === OrderStatus.REFUNDED, time: "" }
+            packing: { active: status !== OrderStatus.PENDING, time: "" },
+            shipping: { active: status === OrderStatus.SHIPPING || status === OrderStatus.DELIVERED, time: "" },
+            delivered: { active: status === OrderStatus.DELIVERED, time: "" }
           }
         };
       });
@@ -216,10 +159,9 @@ export default function App() {
 
         return {
           id: docSnap.id,
-          name: data.fullName || data.name || data.displayName || data.email?.split('@')[0] || "Khách hàng",
+          name: data.name || data.displayName || data.email?.split('@')[0] || "Khách hàng",
           email: data.email || "Chưa cập nhật",
           avatar: data.photoURL || data.avatarUrl || data.avatar || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
-          phone: data.phone || data.phoneNumber || "",
           tier: tierValue,
           joinedDate: joinedDate
         };
@@ -233,27 +175,11 @@ export default function App() {
       console.warn("Could not load users collection, falling back.", error);
     });
 
-    const unsubVouchers = onSnapshot(collection(db, "vouchers"), (snapshot) => {
-      const loadedVouchers: Voucher[] = snapshot.docs.map(docSnap => {
-        const data = docSnap.data();
-        return {
-          id: docSnap.id,
-          code: data.code || "",
-          discountAmount: data.discountAmount || 0,
-          discountRate: data.discountRate || 0,
-          maximumDiscount: data.maximumDiscount || 0,
-          expirationDate: data.expirationDate || ""
-        };
-      });
-      setVouchers(loadedVouchers);
-    });
-
     return () => {
       unsubProducts();
       unsubCategories();
       unsubOrders();
       unsubUsers();
-      unsubVouchers();
     };
   }, [authUser]);
 
@@ -277,16 +203,10 @@ export default function App() {
       const docData: any = {
         name: payload.name,
         price: payload.price,
-        discount: payload.discount || 0,
         categoryId: payload.categoryName,
         quantity: payload.stock,
-        description: payload.description || "",
         tags: payload.description ? [payload.description] : [],
-        status: payload.status || ProductStatus.ACTIVE,
-        uploadedAt: new Date(),
-        sizes: payload.sizes || [],
-        colors: payload.colors || [],
-        variants: payload.variants || []
+        uploadedAt: new Date()
       };
       
       if (finalImageUrl) docData.imageUrl = finalImageUrl;
@@ -357,62 +277,6 @@ export default function App() {
     }
   };
 
-  // --- CRUD Actions for Vouchers ---
-  const handleSaveVoucher = async (payload: Partial<Voucher>) => {
-    const newCode = payload.code?.trim().toUpperCase();
-    if (!newCode) return;
-
-    // Check if the voucher code already exists
-    // If editing (payload.id exists): check other vouchers (v.id !== payload.id)
-    // If adding (payload.id is undefined): check all vouchers
-    const isDuplicate = vouchers.some(v => 
-      v.code && v.code.toUpperCase() === newCode && (!payload.id || v.id !== payload.id)
-    );
-
-    if (isDuplicate) {
-      alert(`Mã voucher "${newCode}" đã tồn tại! Vui lòng chọn mã khác.`);
-      return;
-    }
-
-    try {
-      const docData = {
-        code: newCode,
-        discountAmount: payload.discountAmount || 0,
-        discountRate: payload.discountRate || 0,
-        maximumDiscount: payload.maximumDiscount || 0,
-        expirationDate: payload.expirationDate
-      };
-
-      if (payload.id) {
-        // If the code (which is also the document ID) is changing:
-        // We delete the old document and create a new one with the new code as the ID.
-        if (payload.id !== newCode) {
-          await deleteDoc(doc(db, "vouchers", payload.id));
-        }
-        await setDoc(doc(db, "vouchers", newCode), docData);
-      } else {
-        // Add new voucher: use code as the document ID
-        await setDoc(doc(db, "vouchers", newCode), docData);
-      }
-    } catch (e) {
-      console.error("Error saving voucher:", e);
-      alert("Lỗi khi lưu voucher: " + (e as Error).message);
-      return;
-    }
-
-    setEditingVoucher(null);
-    setIsAddingVoucher(false);
-    setActiveTab(ActiveTab.VOUCHERS);
-  };
-
-  const handleDeleteVoucher = async (voucherId: string) => {
-    try {
-      await deleteDoc(doc(db, "vouchers", voucherId));
-    } catch (e) {
-      console.error("Error deleting voucher:", e);
-    }
-  };
-
   const handleToggleLiveCategory = async (categoryId: string) => {
     const cat = categories.find(c => c.id === categoryId);
     if (cat) {
@@ -438,100 +302,15 @@ export default function App() {
   // --- Order Operations ---
   const handleUpdateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     try {
-      await updateDoc(doc(db, "orders", orderId), { status: newStatus });
+      let fbStatus = "Đang xử lý";
+      if (newStatus === OrderStatus.DELIVERED) fbStatus = "Đã giao";
+      else if (newStatus === OrderStatus.CANCELLED) fbStatus = "Đã hủy";
+
+      await updateDoc(doc(db, "orders", orderId), { status: fbStatus });
       
       // Update selected order view dynamically
       if (selectedOrder && selectedOrder.id === orderId) {
         setSelectedOrder({ ...selectedOrder, status: newStatus });
-      }
-
-      // Send status notification targeted to the specific user
-      const targetOrder = orders.find(o => o.id === orderId);
-      if (targetOrder) {
-        const userId = targetOrder.customerName; // customerName maps from data.userId
-        if (userId && userId !== "Khách hàng") {
-          await addDoc(collection(db, "notifications"), {
-            title: `Cập nhật đơn hàng #${orderId}`,
-            body: `Đơn hàng của bạn đã chuyển sang trạng thái: "${newStatus}"`,
-            userId: userId,
-            createdAt: new Date()
-          });
-        }
-
-        // Adjust stock if status changes to/from Cancelled/Returned/Refunded/Failed Delivery
-        const oldStatus = targetOrder.status;
-        const isOldCancelled = oldStatus === OrderStatus.CANCELLED || oldStatus === OrderStatus.RETURNED || oldStatus === OrderStatus.REFUND_APPROVED || oldStatus === OrderStatus.FAILED_DELIVERY;
-        const isNewCancelled = newStatus === OrderStatus.CANCELLED || newStatus === OrderStatus.RETURNED || newStatus === OrderStatus.REFUND_APPROVED || newStatus === OrderStatus.FAILED_DELIVERY;
-
-        if (!isOldCancelled && isNewCancelled) {
-          // Restore stock (add back)
-          for (const item of targetOrder.items) {
-            const prodId = (item as any).productId || item.id;
-            if (prodId) {
-              try {
-                const prodRef = doc(db, "products", prodId);
-                const prodSnap = await getDoc(prodRef);
-                if (prodSnap.exists()) {
-                  const productData = prodSnap.data();
-                  const currentQuantity = productData.quantity || 0;
-                  const newQuantity = currentQuantity + item.quantity;
-                  
-                  // Update variants
-                  let variants = productData.variants || [];
-                  if (variants.length > 0) {
-                    variants = variants.map((v: any) => {
-                      if (v.size?.toLowerCase() === item.size?.toLowerCase() && v.color?.toLowerCase() === item.color?.toLowerCase()) {
-                        return { ...v, quantity: (v.quantity || 0) + item.quantity };
-                      }
-                      return v;
-                    });
-                  }
-                  
-                  await updateDoc(prodRef, {
-                    quantity: newQuantity,
-                    variants: variants
-                  });
-                }
-              } catch (err) {
-                console.error(`Failed to restore stock for product ${prodId}:`, err);
-              }
-            }
-          }
-        } else if (isOldCancelled && !isNewCancelled) {
-          // Deduct stock (since order is active again)
-          for (const item of targetOrder.items) {
-            const prodId = (item as any).productId || item.id;
-            if (prodId) {
-              try {
-                const prodRef = doc(db, "products", prodId);
-                const prodSnap = await getDoc(prodRef);
-                if (prodSnap.exists()) {
-                  const productData = prodSnap.data();
-                  const currentQuantity = productData.quantity || 0;
-                  const newQuantity = Math.max(0, currentQuantity - item.quantity);
-                  
-                  // Update variants
-                  let variants = productData.variants || [];
-                  if (variants.length > 0) {
-                    variants = variants.map((v: any) => {
-                      if (v.size?.toLowerCase() === item.size?.toLowerCase() && v.color?.toLowerCase() === item.color?.toLowerCase()) {
-                        return { ...v, quantity: Math.max(0, (v.quantity || 0) - item.quantity) };
-                      }
-                      return v;
-                    });
-                  }
-                  
-                  await updateDoc(prodRef, {
-                    quantity: newQuantity,
-                    variants: variants
-                  });
-                }
-              } catch (err) {
-                console.error(`Failed to deduct stock for product ${prodId}:`, err);
-              }
-            }
-          }
-        }
       }
     } catch (e) {
       console.error("Error updating order status:", e);
@@ -546,7 +325,7 @@ export default function App() {
         return (
           <DashboardView
             products={products}
-            orders={resolvedOrders}
+            orders={orders}
             users={users}
             onNavigateToTab={(tab) => {
               setActiveTab(tab);
@@ -622,10 +401,9 @@ export default function App() {
 
       case ActiveTab.ORDERS:
         if (selectedOrder) {
-          const resolvedSelectedOrder = resolvedOrders.find(o => o.id === selectedOrder.id) || selectedOrder;
           return (
             <OrderDetailView
-              order={resolvedSelectedOrder}
+              order={selectedOrder}
               onUpdateOrderStatus={handleUpdateOrderStatus}
               onCancel={() => setSelectedOrder(null)}
             />
@@ -633,46 +411,17 @@ export default function App() {
         }
         return (
           <OrderListView
-            orders={resolvedOrders}
+            orders={orders}
             searchText={searchText}
             onSelectOrder={(order) => setSelectedOrder(order)}
           />
         );
 
-      case ActiveTab.VOUCHERS:
-        if (isAddingVoucher || editingVoucher) {
-          return (
-            <VoucherFormView
-              editingVoucher={editingVoucher}
-              onSaveVoucher={handleSaveVoucher}
-              onCancel={() => {
-                setEditingVoucher(null);
-                setIsAddingVoucher(false);
-              }}
-            />
-          );
-        }
-        return (
-          <VoucherListView
-            vouchers={vouchers}
-            searchText={searchText}
-            onAddVoucherClick={() => setIsAddingVoucher(true)}
-            onEditVoucherClick={(voucher) => setEditingVoucher(voucher)}
-            onDeleteVoucher={handleDeleteVoucher}
-          />
-        );
-
-      case ActiveTab.NOTIFICATIONS:
-        return <NotificationsView />;
-
-      case ActiveTab.BANNERS:
-        return <BannersView />;
-
       default:
         return (
-          <div className="bg-white rounded-2xl border border-zinc-200/50 p-16 text-center shadow-sm font-sans">
-            <h3 className="font-serif text-xl font-bold text-zinc-950">Cài đặt phân quyền hệ thống</h3>
-            <p className="text-xs text-zinc-500 mt-2 font-medium">
+          <div className="bg-white rounded-xl border border-[#cfc4c5]/40 p-16 text-center custom-shadow font-sans">
+            <h3 className="font-serif text-xl font-bold text-neutral-800">Cài đặt phân quyền hệ thống</h3>
+            <p className="text-xs text-neutral-500 mt-2">
               Các thông số và tài khoản quản trị hoạt động ở chế độ khép kín.
             </p>
           </div>
@@ -690,10 +439,10 @@ export default function App() {
 
   if (isAuthChecking) {
     return (
-      <div className="min-h-screen bg-zinc-50 flex items-center justify-center font-sans">
+      <div className="min-h-screen bg-[#fbf9f9] flex items-center justify-center font-sans">
         <div className="animate-pulse flex flex-col items-center">
-          <div className="w-8 h-8 border-4 border-[#8c7623] border-t-transparent rounded-full animate-spin mb-4" />
-          <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold">Đang kết nối hệ thống...</p>
+          <div className="w-8 h-8 border-4 border-[#6c5e06] border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-xs text-neutral-500 uppercase tracking-widest font-bold">Đang kết nối hệ thống...</p>
         </div>
       </div>
     );
@@ -704,7 +453,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex bg-zinc-50 min-h-screen text-zinc-900 font-sans selection:bg-zinc-200 selection:text-zinc-900">
+    <div className="flex bg-[#fbf9f9] min-h-screen text-[#1b1c1c] font-sans selection:bg-neutral-200">
       
       {/* 1. Permanent Left Sidebar */}
       <Sidebar 
@@ -715,13 +464,11 @@ export default function App() {
           setSelectedOrder(null);
           setEditingProduct(null);
           setEditingCategory(null);
-          setEditingVoucher(null);
           setIsAddingProduct(false);
           setIsAddingCategory(false);
-          setIsAddingVoucher(false);
         }}
         productCount={products.length}
-        orderCount={orders.filter(o => o.status === OrderStatus.AWAITING_PAYMENT || o.status === OrderStatus.PROCESSING).length}
+        orderCount={orders.filter(o => o.status === OrderStatus.PENDING).length}
         onLogout={handleLogout}
       />
 

@@ -32,9 +32,4 @@
     <string name="forgot_subtitle">Nhập email của bạn để nhận liên kết đặt lại mật khẩu</string>
     <string name="send_link">Gửi Liên Kết</string>
     <string name="remember_password">Đã nhớ mật khẩu?</string>
-
-    <!-- Facebook Login configuration -->
-    <string name="facebook_app_id">2435725810289987</string>
-    <string name="fb_login_protocol_scheme">fb2435725810289987</string>
-    <string name="facebook_client_token">b7f6303e58862aac0841ee3a1a33ac2a</string>
 </resources>

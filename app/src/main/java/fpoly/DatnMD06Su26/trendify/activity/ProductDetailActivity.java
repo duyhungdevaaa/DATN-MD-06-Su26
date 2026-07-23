@@ -30,6 +30,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -107,9 +108,8 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         ivFavorite = findViewById(R.id.ivFavorite);
         if (ivFavorite != null) {
-            ivFavorite.setColorFilter(Color.WHITE); // Default
+            ivFavorite.setColorFilter(Color.WHITE); 
             
-            // Check if product is in favorites
             if (SessionManager.getInstance().isLoggedIn() && finalProductId != null) {
                 FirestoreHelper.loadFavoriteIds(new FirestoreHelper.FavoriteIdsCallback() {
                     @Override
@@ -137,7 +137,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                 if (finalProductId == null) return;
                 
                 if (isFavorite) {
-                    // Remove from favorites
                     FirestoreHelper.removeFavoriteProduct(finalProductId, new FirestoreHelper.SimpleCallback() {
                         @Override
                         public void onSuccess() {
@@ -152,7 +151,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                         }
                     });
                 } else {
-                    // Add to favorites
                     ProductItem itemToFav = productDetail;
                     if (itemToFav == null) {
                         itemToFav = new ProductItem(finalProductId, "", finalProductName, finalProductPrice, finalImageUrl);
@@ -184,14 +182,12 @@ public class ProductDetailActivity extends AppCompatActivity {
             FirebaseFirestore.getInstance().collection("products").document(finalProductId)
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
-                        android.util.Log.d("ProductDetailActivity", "Firestore doc snapshot exists: " + documentSnapshot.exists());
                         if (documentSnapshot.exists()) {
                             productDetail = documentSnapshot.toObject(ProductItem.class);
                             if (productDetail != null) {
                                 productDetail.setId(documentSnapshot.getId());
                                 List<String> loadedSizes = productDetail.getSizes();
                                 List<String> loadedColors = productDetail.getColors();
-                                android.util.Log.d("ProductDetailActivity", "Loaded sizes: " + loadedSizes + ", colors: " + loadedColors);
                                 setupSizesAndColors(productDetail, layoutSizes, layoutColors);
 
                                 TextView tvProductDescription = findViewById(R.id.tvProductDescription);
@@ -204,7 +200,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                                     }
                                 }
 
-                                // Update real prices from Firestore
                                 TextView tvDetailPrice = findViewById(R.id.tvProductPrice);
                                 TextView tvDetailOriginalPrice = findViewById(R.id.tvProductOriginalPrice);
                                 if (tvDetailPrice != null) {
@@ -223,21 +218,18 @@ public class ProductDetailActivity extends AppCompatActivity {
                                     }
                                 }
                             } else {
-                                Toast.makeText(this, "Lỗi: Dữ liệu sản phẩm rỗng!", Toast.LENGTH_LONG).show();
+                                Toast.makeText(this, "Lỗi dữ liệu sản phẩm!", Toast.LENGTH_LONG).show();
                             }
                         } else {
-                            Toast.makeText(this, "Lỗi: Sản phẩm không tồn tại trên hệ thống! (ID: " + finalProductId + ")", Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, "Sản phẩm không tồn tại trên hệ thống!", Toast.LENGTH_LONG).show();
                         }
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(this, "Không thể tải chi tiết sản phẩm: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     });
-        } else {
-            Toast.makeText(this, "Lỗi: PRODUCT_ID bị null!", Toast.LENGTH_LONG).show();
         }
 
         findViewById(R.id.btnAddToCart).setOnClickListener(v -> {
-            // Hiệu ứng nhún nhảy (Bounce) thuần Android
             android.animation.ObjectAnimator scaleX = android.animation.ObjectAnimator.ofFloat(v, "scaleX", 1f, 0.9f, 1f);
             android.animation.ObjectAnimator scaleY = android.animation.ObjectAnimator.ofFloat(v, "scaleY", 1f, 0.9f, 1f);
             scaleX.setDuration(200);
@@ -265,7 +257,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                 return;
             }
             
-            // Check variant quantity
             if (productDetail != null && productDetail.getVariants() != null && !productDetail.getVariants().isEmpty()) {
                 boolean variantFound = false;
                 for (ProductItem.Variant variant : productDetail.getVariants()) {
@@ -289,7 +280,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                 return;
             }
 
-            // Create cartItemId using productId + selected variant details to make distinct cart items
             String cartItemId = finalProductId;
             if (!selectedSize.isEmpty() || !selectedColor.isEmpty()) {
                 cartItemId = finalProductId + "_" + selectedSize + "_" + selectedColor;
@@ -311,7 +301,6 @@ public class ProductDetailActivity extends AppCompatActivity {
             });
         });
         
-        // Gọi lần đầu để load số lượng giỏ hàng hiện tại khi mở màn hình
         updateCartBadge();
 
         View btnBuyNow = findViewById(R.id.btnBuyNow);
@@ -407,9 +396,38 @@ public class ProductDetailActivity extends AppCompatActivity {
                     startActivity(new Intent(this, LoginActivity.class));
                     return;
                 }
-                if (finalProductId != null) {
-                    showWriteReviewDialog(finalProductId);
-                }
+                
+                if (finalProductId == null) return;
+
+                FirebaseFirestore.getInstance().collection("orders")
+                        .whereEqualTo("userId", SessionManager.getInstance().getUserId())
+                        .whereIn("status", java.util.Arrays.asList("Đã giao", "Hoàn thành", "completed"))
+                        .get()
+                        .addOnSuccessListener(queryDocumentSnapshots -> {
+                            boolean purchased = false;
+                            for (com.google.firebase.firestore.QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                                List<Map<String, Object>> items = (List<Map<String, Object>>) doc.get("items");
+                                if (items != null) {
+                                    for (Map<String, Object> item : items) {
+                                        Object pidObj = item.get("productId");
+                                        if (pidObj != null && finalProductId.equals(pidObj.toString())) {
+                                            purchased = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (purchased) break;
+                            }
+
+                            if (purchased) {
+                                showWriteReviewDialog(finalProductId);
+                            } else {
+                                Toast.makeText(this, "Bạn phải mua và nhận sản phẩm này mới có thể đánh giá", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(this, "Lỗi kiểm tra thông tin mua hàng", Toast.LENGTH_SHORT).show();
+                        });
             });
         }
         
@@ -513,7 +531,6 @@ public class ProductDetailActivity extends AppCompatActivity {
         }
 
         if (!selectedColor.isEmpty()) {
-            // Both size and color selected
             int qty = 0;
             boolean found = false;
             for (ProductItem.Variant var : variants) {
@@ -536,7 +553,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                 tvStockQuantity.setTextColor(Color.RED);
             }
         } else {
-            // Only size selected: list quantities for each color of this size
             StringBuilder sb = new StringBuilder();
             sb.append("Số lượng cho cỡ ").append(selectedSize).append(":\n");
             int totalForSize = 0;
@@ -573,10 +589,10 @@ public class ProductDetailActivity extends AppCompatActivity {
         gd.setColor(colorVal);
         
         if (isSelected) {
-            gd.setStroke(6, Color.parseColor("#FF5722")); // Orange border for selected
+            gd.setStroke(6, Color.parseColor("#FF5722")); 
         } else {
             if (colorName.equalsIgnoreCase("trắng")) {
-                gd.setStroke(2, Color.parseColor("#CCCCCC")); // Light border for white color
+                gd.setStroke(2, Color.parseColor("#CCCCCC")); 
             } else {
                 gd.setStroke(0, Color.TRANSPARENT);
             }
@@ -678,7 +694,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                 .whereEqualTo("productId", productId)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        android.util.Log.e("ProductDetailActivity", "Listen failed.", error);
                         return;
                     }
                     if (value != null) {
@@ -691,12 +706,10 @@ public class ProductDetailActivity extends AppCompatActivity {
                             totalRating += item.getRating();
                         }
                         
-                        // Sort locally to avoid composite index requirement
                         java.util.Collections.sort(reviewList, (r1, r2) -> Long.compare(r2.getCreatedAt(), r1.getCreatedAt()));
 
                         reviewAdapter.notifyDataSetChanged();
                         
-                        // Update summary
                         TextView tvAvgRating = findViewById(R.id.tvAvgRating);
                         TextView tvTotalReviews = findViewById(R.id.tvTotalReviews);
                         LinearLayout llStarContainer = findViewById(R.id.llStarContainer);
@@ -742,7 +755,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
                 .setTitle("Viết Đánh Giá")
                 .setView(view)
-                .setPositiveButton("Gửi", null) // Set null here to override default dismiss behavior
+                .setPositiveButton("Gửi", null) 
                 .setNegativeButton("Hủy", (d, w) -> d.dismiss())
                 .create();
 
@@ -765,7 +778,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                 button.setEnabled(false);
                 button.setText("Đang gửi...");
 
-                // Lấy thông tin user từ Realtime Database
                 com.google.firebase.database.FirebaseDatabase.getInstance().getReference("users").child(userId)
                         .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
                             @Override
@@ -786,7 +798,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                                 }
 
                                 ReviewItem newReview = new ReviewItem(
-                                        "", // reviewId
+                                        "", 
                                         productId,
                                         userId,
                                         userName,
@@ -831,7 +843,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                     if (count > 0) {
                         tvBadgeCount.setVisibility(View.VISIBLE);
                         tvBadgeCount.setText(String.valueOf(count));
-                        // Hiệu ứng pop-up
                         tvBadgeCount.setScaleX(0f);
                         tvBadgeCount.setScaleY(0f);
                         tvBadgeCount.animate().scaleX(1f).scaleY(1f).setDuration(300).setInterpolator(new android.view.animation.OvershootInterpolator()).start();
@@ -843,7 +854,6 @@ public class ProductDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(String error) {
-                // Không cần báo lỗi nếu chưa đăng nhập, cứ ẩn badge đi
                 TextView tvBadgeCount = findViewById(R.id.tvCartBadgeCount);
                 if (tvBadgeCount != null) {
                     tvBadgeCount.setVisibility(View.GONE);
@@ -860,18 +870,15 @@ public class ProductDetailActivity extends AppCompatActivity {
             return;
         }
 
-        // 1. Create a copy of the product image
         final ImageView animImageView = new ImageView(this);
         animImageView.setImageDrawable(ivProductImage.getDrawable());
         animImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-        // 2. Get screen locations
         int[] startLoc = new int[2];
         ivProductImage.getLocationInWindow(startLoc);
         int[] endLoc = new int[2];
         ivCartTop.getLocationInWindow(endLoc);
 
-        // 3. Set layout parameters on DecorView
         ViewGroup root = (ViewGroup) getWindow().getDecorView();
         android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
                 ivProductImage.getWidth(), ivProductImage.getHeight()
@@ -881,21 +888,17 @@ public class ProductDetailActivity extends AppCompatActivity {
         animImageView.setLayoutParams(params);
         root.addView(animImageView);
 
-        // 4. Animate!
         animImageView.setScaleX(1.0f);
         animImageView.setScaleY(1.0f);
         
-        // Target translations to move the center of product image to the center of cart icon
         float targetX = endLoc[0] + (ivCartTop.getWidth() - ivProductImage.getWidth()) / 2.0f - startLoc[0];
         float targetY = endLoc[1] + (ivCartTop.getHeight() - ivProductImage.getHeight()) / 2.0f - startLoc[1];
 
-        // Animate scale up first (screenshot flash effect)
         animImageView.animate()
                 .scaleX(1.08f)
                 .scaleY(1.08f)
                 .setDuration(150)
                 .withEndAction(() -> {
-                    // Step 4b: Fly and shrink quickly into the cart icon
                     animImageView.animate()
                             .translationX(targetX)
                             .translationY(targetY)
@@ -905,10 +908,8 @@ public class ProductDetailActivity extends AppCompatActivity {
                             .setDuration(600)
                             .setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator())
                             .withEndAction(() -> {
-                                // Step 4c: Clean up and play cart bounce animation
                                 root.removeView(animImageView);
                                 
-                                // Bounce cart icon
                                 ivCartTop.animate()
                                         .scaleX(1.3f)
                                         .scaleY(1.3f)
@@ -921,7 +922,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                                                     .start();
                                         }).start();
                                 
-                                // Update cart badge
                                 updateCartBadge();
                             }).start();
                 }).start();
