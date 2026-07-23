@@ -29,7 +29,15 @@ public class OrderDetailItemAdapter extends RecyclerView.Adapter<OrderDetailItem
 
     public void setItems(List<CartItem> items) {
         this.items = items != null ? items : new ArrayList<>();
+        android.util.Log.d("OrderDetailAdapter", "setItems called with " + this.items.size() + " items");
         notifyDataSetChanged();
+    }
+
+    @Override
+    public int getItemCount() {
+        int count = items.size();
+        android.util.Log.d("OrderDetailAdapter", "getItemCount: " + count);
+        return count;
     }
 
     @NonNull
@@ -42,6 +50,7 @@ public class OrderDetailItemAdapter extends RecyclerView.Adapter<OrderDetailItem
     @Override
     public void onBindViewHolder(@NonNull OrderDetailViewHolder holder, int position) {
         CartItem item = items.get(position);
+        android.util.Log.d("OrderDetailAdapter", "onBindViewHolder position: " + position + ", item: " + item.getName());
         holder.tvProductName.setText(item.getName());
         holder.tvProductPrice.setText(item.getPrice());
         holder.tvQuantity.setText("x" + item.getQuantity());
@@ -74,11 +83,6 @@ public class OrderDetailItemAdapter extends RecyclerView.Adapter<OrderDetailItem
         } else {
             holder.tvVariant.setVisibility(View.GONE);
         }
-    }
-
-    @Override
-    public int getItemCount() {
-        return items.size();
     }
 
     static class OrderDetailViewHolder extends RecyclerView.ViewHolder {

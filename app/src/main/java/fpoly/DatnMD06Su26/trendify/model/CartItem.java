@@ -1,8 +1,10 @@
 package fpoly.DatnMD06Su26.trendify.model;
 
 import com.google.firebase.firestore.Exclude;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class CartItem {
+public class CartItem implements Parcelable {
     private String productId;
     private String name;
     private String price;
@@ -14,8 +16,33 @@ public class CartItem {
     
     @Exclude
     private boolean selected = true;
+    private boolean selected = false;
 
     public CartItem() {}
+
+    protected CartItem(Parcel in) {
+        productId = in.readString();
+        name = in.readString();
+        price = in.readString();
+        quantity = in.readInt();
+        imageUrl = in.readString();
+        size = in.readString();
+        color = in.readString();
+        cartItemId = in.readString();
+        selected = in.readByte() != 0;
+    }
+
+    public static final Creator<CartItem> CREATOR = new Creator<CartItem>() {
+        @Override
+        public CartItem createFromParcel(Parcel in) {
+            return new CartItem(in);
+        }
+
+        @Override
+        public CartItem[] newArray(int size) {
+            return new CartItem[size];
+        }
+    };
 
     public CartItem(String productId, String name, String price, int quantity, String imageUrl) {
         this.productId = productId;
@@ -69,6 +96,10 @@ public class CartItem {
     public void setSelected(boolean selected) { this.selected = selected; }
 
     public void setPriceAsLong(long priceAsLong) { }
+    public boolean isSelected() { return selected; }
+    public void setSelected(boolean selected) { this.selected = selected; }
+
+    public void setPriceAsLong(long priceAsLong) { /* Ignore - required to prevent Firestore mapping warnings */ }
 
     @Exclude
     public long getPriceAsLong() {
@@ -77,5 +108,23 @@ public class CartItem {
         } catch (Exception e) {
             return 0;
         }
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(productId);
+        dest.writeString(name);
+        dest.writeString(price);
+        dest.writeInt(quantity);
+        dest.writeString(imageUrl);
+        dest.writeString(size);
+        dest.writeString(color);
+        dest.writeString(cartItemId);
+        dest.writeByte((byte) (selected ? 1 : 0));
     }
 }

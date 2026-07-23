@@ -26,10 +26,19 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         void onQuantityChanged();
         void onSelectionChanged();
     }
+    private OnSelectionChangedListener selectionChangedListener;
 
     public CartAdapter(CartManager cartManager, OnCartChangeListener listener) {
         this.cartManager = cartManager;
         this.listener = listener;
+    }
+
+    public interface OnSelectionChangedListener {
+        void onSelectionChanged(int selectedCount, long totalPrice);
+    }
+
+    public void setOnSelectionChangedListener(OnSelectionChangedListener listener) {
+        this.selectionChangedListener = listener;
     }
 
     public void setItems(List<CartItem> items) {
@@ -63,6 +72,14 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             if (!item.getColor().isEmpty()) {
                 if (!item.getSize().isEmpty()) variantText.append(", ");
                 variantText.append(item.getColor());
+        if ((item.getSize() != null && !item.getSize().isEmpty()) || (item.getColor() != null && !item.getColor().isEmpty())) {
+            StringBuilder variantText = new StringBuilder();
+            if (item.getSize() != null && !item.getSize().isEmpty()) {
+                variantText.append("Size: ").append(item.getSize());
+            }
+            if (item.getColor() != null && !item.getColor().isEmpty()) {
+                if (variantText.length() > 0) variantText.append(" | ");
+                variantText.append("Màu: ").append(item.getColor());
             }
             holder.tvItemVariant.setText(variantText.toString());
             holder.layoutVariant.setVisibility(View.VISIBLE);
@@ -81,6 +98,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         holder.cbSelect.setOnCheckedChangeListener((buttonView, isChecked) -> {
             item.setSelected(isChecked);
             if (listener != null) listener.onSelectionChanged();
+        holder.cbSelect.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            item.setSelected(isChecked);
+            notifySelectionChanged();
         });
 
         holder.btnIncrease.setOnClickListener(v -> {
@@ -90,6 +110,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                     item.setQuantity(newQty);
                     notifyItemChanged(position);
                     if (listener != null) listener.onQuantityChanged();
+                    if (item.isSelected()) {
+                        notifySelectionChanged();
+                    }
                 }
                 @Override public void onFailure(String error) {}
             });
@@ -117,13 +140,69 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                     @Override public void onFailure(String error) {}
                 });
             }
+                        notifySelectionChanged();
+                    } else {
+                        item.setQuantity(newQty);
+                        notifyItemChanged(position);
+                        if (item.isSelected()) {
+                            notifySelectionChanged();
+                        }
+                    }
+                }
+                @Override public void onFailure(String error) {}
+            });
         });
+
+        /*
+        holder.btnDelete.setOnClickListener(v -> {
+            cartManager.removeFromCart(item.getCartItemId(), new CartManager.CartCallback() {
+                @Override public void onSuccess() {
+                    items.remove(position);
+                    notifyItemRemoved(position);
+                    notifySelectionChanged();
+                }
+                @Override public void onFailure(String error) {}
+            });
+        });
+    }
+
+    private void notifySelectionChanged() {
+        if (selectionChangedListener != null) {
+            int selectedCount = 0;
+            long totalPrice = 0;
+            for (CartItem item : items) {
+                if (item.isSelected()) {
+                    selectedCount += item.getQuantity();
+                    totalPrice += item.getPriceAsLong() * item.getQuantity();
+                }
+            }
+            selectionChangedListener.onSelectionChanged(selectedCount, totalPrice);
+        }
+    }
+
+    public void selectAll(boolean select) {
+        for (CartItem item : items) {
+            item.setSelected(select);
+        }
+        notifyDataSetChanged();
+        notifySelectionChanged();
+    }
+
+    public List<CartItem> getSelectedItems() {
+        List<CartItem> selected = new ArrayList<>();
+        for (CartItem item : items) {
+            if (item.isSelected()) {
+                selected.add(item);
+            }
+        }
+        return selected;
     }
 
     @Override
     public int getItemCount() { return items.size(); }
 
     static class CartViewHolder extends RecyclerView.ViewHolder {
+        CheckBox cbSelect;
         TextView tvItemName, tvItemPrice, tvQuantity, tvItemVariant;
         TextView btnIncrease, btnDecrease;
         ImageView ivItemImage;
@@ -132,6 +211,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
         CartViewHolder(View view) {
             super(view);
+            cbSelect = view.findViewById(R.id.cbSelect);
             tvItemName  = view.findViewById(R.id.tvItemName);
             tvItemPrice = view.findViewById(R.id.tvItemPrice);
             tvQuantity  = view.findViewById(R.id.tvQuantity);

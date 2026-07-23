@@ -16,12 +16,15 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.util.ArrayList;
+
 public class PaymentMethodActivity extends AppCompatActivity {
 
     private View cardBankTransfer, cardCod;
     private View selectedCard = null;
     private String shippingAddress;
     private String paymentMethod = "Chuyển khoản ngân hàng";
+    private ArrayList<CartItem> selectedItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +49,7 @@ public class PaymentMethodActivity extends AppCompatActivity {
         cardCod.setOnClickListener(v -> selectCard(cardCod));
 
         shippingAddress = getIntent().getStringExtra("shipping_address");
+        selectedItems = getIntent().getParcelableArrayListExtra("selected_items");
 
         // Tiếp Tục → màn 19 Xác nhận đơn
         findViewById(R.id.btnContinue).setOnClickListener(v -> {
@@ -54,6 +58,9 @@ public class PaymentMethodActivity extends AppCompatActivity {
                 intent.putExtra("shipping_address", shippingAddress);
             }
             intent.putExtra("payment_method", paymentMethod);
+            if (selectedItems != null) {
+                intent.putParcelableArrayListExtra("selected_items", selectedItems);
+            }
             startActivity(intent);
         });
     }

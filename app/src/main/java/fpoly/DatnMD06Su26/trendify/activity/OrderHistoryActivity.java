@@ -91,10 +91,37 @@ public class OrderHistoryActivity extends AppCompatActivity {
                         List<?> items      = (List<?>) doc.get("items");
                         String productName = items != null && !items.isEmpty()
                                 ? "Đơn hàng " + orderId : "Đơn hàng";
+                        List<?> items = (List<?>) doc.get("items");
+                        String productName = "Đơn hàng";
+                        int totalQty = 0;
+                        String firstImageUrl = "";
+                        if (items != null && !items.isEmpty()) {
+                            for (Object itemObj : items) {
+                                if (itemObj instanceof Map) {
+                                    Map<?, ?> itemMap = (Map<?, ?>) itemObj;
+                                    Long qty = itemMap.get("quantity") instanceof Long ? (Long) itemMap.get("quantity") : 1;
+                                    totalQty += qty.intValue();
+                                }
+                            }
+                            
+                            Object firstItemObj = items.get(0);
+                            if (firstItemObj instanceof Map) {
+                                Map<?, ?> firstItemMap = (Map<?, ?>) firstItemObj;
+                                String firstName = firstItemMap.get("name") != null ? firstItemMap.get("name").toString() : "";
+                                firstImageUrl = firstItemMap.get("imageUrl") != null ? firstItemMap.get("imageUrl").toString() : "";
+                                if (!firstName.isEmpty()) {
+                                    if (items.size() > 1) {
+                                        productName = firstName + " và " + (items.size() - 1) + " sản phẩm khác";
+                                    } else {
+                                        productName = firstName;
+                                    }
+                                }
+                            }
+                        }
                         orders.add(new OrderItem(
                                 orderId, status, date, productName, 1,
                                 total != null ? String.format("%,dđ", total).replace(",", ".") : "0đ",
-                                0));
+                                firstImageUrl));
                     }
                     adapter.setOrderList(orders);
                 })

@@ -20,6 +20,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class CartActivity extends AppCompatActivity implements CartAdapter.OnCartChangeListener {
@@ -57,6 +59,10 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
         btnCheckout = findViewById(R.id.btnCheckout);
 
         adapter = new CartAdapter(cartManager, this);
+        adapter = new CartAdapter(cartManager);
+        adapter.setOnSelectionChangedListener((selectedCount, totalPrice) -> {
+            updateCheckoutButton(selectedCount, totalPrice);
+        });
         rvCartItems.setLayoutManager(new LinearLayoutManager(this));
         rvCartItems.setAdapter(adapter);
 
@@ -82,9 +88,30 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
             
             if (!hasSelection) {
                 Toast.makeText(this, "Vui lòng chọn ít nhất 1 sản phẩm", Toast.LENGTH_SHORT).show();
+        cbSelectAll = findViewById(R.id.cbSelectAll);
+        cbSelectAll.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            adapter.selectAll(isChecked);
+        });
+
+        View btnShopNow = findViewById(R.id.btnShopNow);
+        if (btnShopNow != null) {
+            btnShopNow.setOnClickListener(v -> {
+                Intent intent = new Intent(CartActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            });
+        }
+
+        findViewById(R.id.btnCheckout).setOnClickListener(v -> {
+            List<CartItem> selectedItems = adapter.getSelectedItems();
+            if (selectedItems.isEmpty()) {
+                Toast.makeText(this, "Vui lòng chọn sản phẩm để mua", Toast.LENGTH_SHORT).show();
                 return;
             }
-            startActivity(new Intent(this, ShippingAddressActivity.class));
+            Intent intent = new Intent(this, ShippingAddressActivity.class);
+            intent.putParcelableArrayListExtra("selected_items", new ArrayList<>(selectedItems));
+            startActivity(intent);
         });
 
         loadCart();
@@ -149,5 +176,16 @@ public class CartActivity extends AppCompatActivity implements CartAdapter.OnCar
     @Override
     public void onSelectionChanged() {
         updateTotal(adapter.getItems());
+    }
+}
+
+    private void updateCheckoutButton(int selectedCount, long totalPrice) {
+        TextView btnCheckout = findViewById(R.id.btnCheckout);
+        if (btnCheckout != null) {
+            btnCheckout.setText("Mua Hàng (" + selectedCount + ")");
+        }
+        if (tvTotal != null) {
+            tvTotal.setText(String.format("%,dđ", totalPrice).replace(",", "."));
+        }
     }
 }
