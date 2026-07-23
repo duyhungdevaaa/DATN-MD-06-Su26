@@ -84,24 +84,24 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in text-left font-sans">
       
       {/* Search and control filter line */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-[#cfc4c5]/30 custom-shadow">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-zinc-200/60 shadow-sm">
         
         {/* Horizontal filter options */}
         <div className="flex flex-wrap items-center gap-4">
           
           {/* Active status tab selector */}
-          <div className="flex bg-neutral-100 p-1 rounded-lg border border-neutral-200">
+          <div className="flex bg-zinc-100 p-1 rounded-xl border border-zinc-200/40">
             {Object.values(ProductStatus).map((status) => (
               <button
                 key={status}
                 onClick={() => setStatusTab(status)}
-                className={`text-[10px] uppercase font-semibold font-sans tracking-wider px-4 py-1.5 rounded-md transition-all duration-200 ${
+                className={`text-[10px] uppercase font-bold tracking-wider px-4.5 py-1.5 rounded-lg transition-all duration-200 ${
                   statusTab === status 
-                    ? "bg-white text-neutral-900 shadow-sm font-bold" 
-                    : "text-neutral-500 hover:text-neutral-900"
+                    ? "bg-white text-zinc-900 shadow-sm" 
+                    : "text-zinc-500 hover:text-zinc-900"
                 }`}
               >
                 {status === ProductStatus.ACTIVE ? "Đang bán" : status === ProductStatus.DRAFT ? "Lưu nháp" : "Lưu trữ"}
@@ -109,15 +109,15 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
             ))}
           </div>
 
-          <div className="h-6 w-[1.5px] bg-neutral-200 hidden sm:block" />
+          <div className="h-6 w-[1px] bg-zinc-250 hidden sm:block" />
 
           {/* Category Filter */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest">Danh mục:</span>
+            <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest font-bold">Danh mục:</span>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#6c5e06] focus:outline-none focus:bg-white font-sans text-neutral-700"
+              className="bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none focus:bg-white font-sans text-zinc-700 font-medium"
             >
               {availableCategories.map(cat => (
                 <option key={cat} value={cat}>{cat === "All" ? "Tất cả danh mục" : cat}</option>
@@ -127,11 +127,11 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
 
           {/* Stock Filter */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest">Trong kho:</span>
+            <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest font-bold">Trong kho:</span>
             <select
               value={stockFilter}
               onChange={(e) => setStockFilter(e.target.value)}
-              className="bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#6c5e06] focus:outline-none focus:bg-white font-sans text-neutral-700"
+              className="bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none focus:bg-white font-sans text-zinc-700 font-medium"
             >
               <option value="All">Tất cả số lượng</option>
               <option value="in_stock">Còn hàng (≥ 5)</option>
@@ -145,7 +145,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
         {/* Master Addition Button */}
         <button
           onClick={onAddProductClick}
-          className="flex items-center justify-center gap-2 bg-[#1b1c1c] text-white hover:bg-[#6c5e06] px-5 py-2.5 rounded-lg text-xs font-semibold tracking-wider uppercase font-sans transition-all duration-300 shadow-md whitespace-nowrap"
+          className="flex items-center justify-center gap-2 bg-zinc-900 text-white hover:bg-[#8c7623] px-5 py-3 rounded-xl text-xs font-bold tracking-wider uppercase font-sans transition-all duration-200 shadow-md shadow-zinc-900/5 whitespace-nowrap"
         >
           <Plus className="h-4 w-4" />
           Khai báo sản phẩm mới
@@ -154,12 +154,12 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
 
       {/* Product List Display */}
       {filteredProducts.length === 0 ? (
-        <div className="bg-white rounded-xl border border-[#cfc4c5]/30 p-16 text-center custom-shadow">
-          <div className="mx-auto w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center mb-4">
-            <Search className="h-6 w-6 text-neutral-400" />
+        <div className="bg-white rounded-2xl border border-zinc-200/60 p-16 text-center shadow-sm">
+          <div className="mx-auto w-12 h-12 rounded-full bg-zinc-50 border border-zinc-150 flex items-center justify-center mb-4">
+            <Search className="h-5 w-5 text-zinc-400" />
           </div>
-          <h3 className="font-serif text-lg text-neutral-800 font-medium">Không tìm thấy sản phẩm nào</h3>
-          <p className="font-sans text-xs text-neutral-500 mt-2 max-w-sm mx-auto">
+          <h3 className="font-serif text-lg text-zinc-800 font-medium">Không tìm thấy sản phẩm nào</h3>
+          <p className="font-sans text-xs text-zinc-500 mt-2 max-w-sm mx-auto leading-relaxed">
             Vui lòng thay đổi từ khóa tìm kiếm hoặc đặt lại các bộ lọc danh mục/trạng thái hàng hóa.
           </p>
           <button 
@@ -168,7 +168,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
               setStockFilter("All");
               setStatusTab(ProductStatus.ACTIVE);
             }} 
-            className="mt-6 text-xs text-[#6c5e06] font-semibold tracking-wider uppercase hover:underline"
+            className="mt-6 text-xs text-[#8c7623] font-bold tracking-wider uppercase hover:underline"
           >
             Reset bộ lọc
           </button>
@@ -177,16 +177,16 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product) => {
             // Determine stock pill styles
-            let stockPillStyle = "bg-green-50 text-green-700 border-green-200/50";
+            let stockPillStyle = "bg-emerald-50 text-emerald-700 border-emerald-100";
             let stockLabel = `Còn hàng: ${product.stock}`;
             let StockIcon = CheckCircle2;
 
             if (product.stock === 0) {
-              stockPillStyle = "bg-rose-50 text-rose-700 border-rose-200/50";
+              stockPillStyle = "bg-rose-50 text-rose-700 border-rose-100";
               stockLabel = "Hết hàng hoàn toàn";
               StockIcon = PackageX;
             } else if (product.stock < 5) {
-              stockPillStyle = "bg-amber-50 text-amber-700 border-amber-200/50";
+              stockPillStyle = "bg-amber-50 text-amber-700 border-amber-100";
               stockLabel = `Sắp hết hàng: còn ${product.stock}`;
               StockIcon = AlertTriangle;
             }
@@ -194,27 +194,26 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
             return (
               <div 
                 key={product.id}
-                className="bg-white rounded-xl border border-[#cfc4c5]/30 custom-shadow overflow-hidden flex flex-col justify-between group hover:border-[#6c5e06]/55 transition-all duration-300"
+                className="bg-white rounded-2xl border border-zinc-200/50 shadow-sm overflow-hidden flex flex-col justify-between group hover:border-[#8c7623]/40 hover:shadow-md transition-all duration-350"
               >
                 {/* Product Frame and Image with direct preview link */}
-                <div className="relative aspect-[4/5] bg-neutral-100 overflow-hidden border-b border-[#cfc4c5]/20">
+                <div className="relative aspect-[4/5] bg-zinc-50 overflow-hidden border-b border-zinc-100">
                   <img
                     src={product.imageUrl}
                     alt={product.name}
-                    className="w-full h-full object-cover editorial-img group-hover:scale-105"
+                    className="w-full h-full object-cover editorial-img group-hover:scale-102"
                     referrerPolicy="no-referrer"
                     onError={(e) => {
-                      // Fallback image in case the remote resource is broken
                       (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=600";
                     }}
                   />
                   {/* Category overlay */}
-                  <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm shadow-sm border border-neutral-100 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-[#6c5e06] font-mono">
+                  <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm shadow-sm border border-zinc-100 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-[#8c7623] font-mono">
                     {product.categoryName}
                   </span>
 
                   {/* SKU overlay */}
-                  <span className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-sm text-white px-2 py-0.5 rounded text-[8px] font-mono tracking-widest uppercase">
+                  <span className="absolute bottom-3 left-3 bg-zinc-900/80 backdrop-blur-sm text-white px-2 py-0.5 rounded text-[8px] font-mono tracking-widest uppercase">
                     SKU: {product.sku}
                   </span>
                 </div>
@@ -222,38 +221,38 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                 {/* Body Meta curation details */}
                 <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                   <div className="space-y-1.5">
-                    <h4 className="font-serif text-base text-[#1b1c1c] font-medium tracking-tight line-clamp-1">
+                    <h4 className="font-serif text-base text-zinc-900 font-bold tracking-tight line-clamp-1">
                       {product.name}
                     </h4>
-                    <p className="font-sans text-[11px] text-neutral-400 line-clamp-2 leading-relaxed">
+                    <p className="font-sans text-xs text-zinc-400 line-clamp-2 leading-relaxed">
                       {product.description}
                     </p>
                   </div>
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="font-sans text-xs text-neutral-400 text-[10px] uppercase font-semibold">Bán giá gốc</span>
-                      <strong className="font-serif text-lg text-neutral-900 font-bold">
+                      <span className="font-sans text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Bán giá gốc</span>
+                      <strong className="font-mono text-base text-zinc-950 font-bold">
                         {formatPrice(product.price)}
                       </strong>
                     </div>
 
                     <div className="flex items-center gap-1.5">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-medium font-sans ${stockPillStyle}`}>
-                        <StockIcon className="h-3 w-3" />
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-bold font-sans ${stockPillStyle}`}>
+                        <StockIcon className="h-3 w-3 shrink-0" />
                         {stockLabel}
                       </span>
                     </div>
 
                     {/* Interactive Action Ribbon */}
-                    <div className="flex items-center justify-between pt-3 border-t border-neutral-100">
-                      <span className="font-mono text-[9px] text-neutral-400">
+                    <div className="flex items-center justify-between pt-3.5 border-t border-zinc-100">
+                      <span className="font-mono text-[9px] text-zinc-400">
                         {product.lastModified || "Mới tạo"}
                       </span>
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => onEditProductClick(product)}
-                          className="p-1 px-2.5 bg-neutral-150 hover:bg-[#6c5e06]/10 text-neutral-600 hover:text-[#6c5e06] text-[10px] uppercase font-bold tracking-wider font-sans rounded border border-neutral-200 transition-colors duration-200 flex items-center gap-1"
+                          className="p-1 px-2.5 bg-zinc-50 hover:bg-[#8c7623]/10 text-zinc-650 hover:text-[#8c7623] text-[10px] uppercase font-bold tracking-wider font-sans rounded-lg border border-zinc-200/80 transition-colors duration-200 flex items-center gap-1"
                           title="Chỉnh sửa chi tiết"
                         >
                           <Edit3 className="h-3 w-3" />
@@ -261,7 +260,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                         </button>
                         <button
                           onClick={() => handleDeleteCheck(product.id, product.name)}
-                          className="p-1 px-2.5 bg-neutral-100 hover:bg-rose-50 text-neutral-400 hover:text-rose-600 text-[10px] uppercase font-bold tracking-wider font-sans rounded border border-neutral-200 transition-colors duration-200 flex items-center gap-1"
+                          className="p-1 px-2.5 bg-zinc-50 hover:bg-rose-50 text-zinc-400 hover:text-rose-600 text-[10px] uppercase font-bold tracking-wider font-sans rounded-lg border border-zinc-200/80 transition-colors duration-200 flex items-center gap-1"
                           title="Xóa khỏi hệ thống"
                         >
                           <Trash2 className="h-3 w-3" />
