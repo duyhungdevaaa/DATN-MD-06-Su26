@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/trend_bg"
+    android:background="@color/background"
     android:padding="28dp"
     tools:context=".activity.RegisterActivity">
 
@@ -14,10 +14,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Trendify"
-        android:textColor="@color/trend_text"
+        android:textColor="@color/primary"
         android:textSize="36sp"
         android:textStyle="bold"
-        android:fontFamily="serif"
+        android:fontFamily="sans-serif-black"
         android:layout_marginTop="56dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -28,7 +28,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Tạo tài khoản để bắt đầu hành trình của bạn."
-        android:textColor="@color/trend_muted"
+        android:textColor="@color/text_secondary"
         android:textSize="15sp"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/tvBrand"
@@ -49,9 +49,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="HỌ VÀ TÊN"
-            android:textColor="@color/trend_muted"
-            android:textSize="11sp"
-            android:letterSpacing="0.15"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:letterSpacing="0.05"
             android:fontFamily="sans-serif-medium" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -66,14 +66,14 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etFullName"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_input_underline"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_input_field"
                 android:inputType="textPersonName"
-                android:textColor="@color/trend_text"
+                android:textColor="@color/text_primary"
                 android:textSize="15sp"
+                android:paddingHorizontal="16dp"
                 android:hint="Ví dụ: Eleanor Vance"
-                android:textColorHint="#CFC4C5"
-                android:paddingBottom="8dp" />
+                android:textColorHint="@color/text_hint" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Email Field -->
@@ -81,9 +81,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="ĐỊA CHỈ EMAIL"
-            android:textColor="@color/trend_muted"
-            android:textSize="11sp"
-            android:letterSpacing="0.15"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:letterSpacing="0.05"
             android:fontFamily="sans-serif-medium" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -98,14 +98,14 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_input_underline"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_input_field"
                 android:inputType="textEmailAddress"
-                android:textColor="@color/trend_text"
+                android:textColor="@color/text_primary"
                 android:textSize="15sp"
+                android:paddingHorizontal="16dp"
                 android:hint="Ví dụ: eleanor@trendify.com"
-                android:textColorHint="#CFC4C5"
-                android:paddingBottom="8dp" />
+                android:textColorHint="@color/text_hint" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Password Field -->
@@ -113,9 +113,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="MẬT KHẨU"
-            android:textColor="@color/trend_muted"
-            android:textSize="11sp"
-            android:letterSpacing="0.15"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:letterSpacing="0.05"
             android:fontFamily="sans-serif-medium" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -126,19 +126,19 @@
             app:hintEnabled="false"
             app:boxBackgroundMode="none"
             app:endIconMode="password_toggle"
-            app:endIconTint="@color/trend_text">
+            app:endIconTint="@color/text_secondary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@drawable/bg_input_underline"
+                android:layout_height="52dp"
+                android:background="@drawable/bg_input_field"
                 android:inputType="textPassword"
-                android:textColor="@color/trend_text"
+                android:textColor="@color/text_primary"
                 android:textSize="15sp"
+                android:paddingHorizontal="16dp"
                 android:hint="••••••••"
-                android:textColorHint="#CFC4C5"
-                android:paddingBottom="8dp" />
+                android:textColorHint="@color/text_hint" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Loading Indicator -->
@@ -148,7 +148,7 @@
             android:layout_height="32dp"
             android:layout_gravity="center"
             android:layout_marginTop="20dp"
-            android:indeterminateTint="@color/trend_text"
+            android:indeterminateTint="@color/primary"
             android:visibility="gone" />
 
         <!-- Register Button -->
@@ -160,10 +160,10 @@
             android:text="TẠO TÀI KHOẢN"
             android:textColor="@color/white"
             android:textSize="14sp"
-            android:letterSpacing="0.1"
+            android:letterSpacing="0.05"
             android:textStyle="bold"
-            app:backgroundTint="@color/black"
-            app:cornerRadius="2dp"
+            app:backgroundTint="@color/primary"
+            app:cornerRadius="14dp"
             app:icon="@drawable/ic_chevron_right"
             app:iconGravity="end"
             app:iconSize="18dp" />
@@ -186,7 +186,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Đã có tài khoản? "
-            android:textColor="@color/trend_muted"
+            android:textColor="@color/text_secondary"
             android:textSize="14sp" />
 
         <TextView
@@ -194,7 +194,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Đăng nhập"
-            android:textColor="@color/trend_text"
+            android:textColor="@color/primary"
             android:textSize="14sp"
             android:textStyle="bold"
             android:padding="4dp"
