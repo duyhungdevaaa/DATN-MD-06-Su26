@@ -325,7 +325,7 @@ export default function App() {
         return (
           <DashboardView
             products={products}
-            orders={resolvedOrders}
+            orders={orders}
             users={users}
             onNavigateToTab={(tab) => {
               setActiveTab(tab);
@@ -401,10 +401,9 @@ export default function App() {
 
       case ActiveTab.ORDERS:
         if (selectedOrder) {
-          const resolvedSelectedOrder = resolvedOrders.find(o => o.id === selectedOrder.id) || selectedOrder;
           return (
             <OrderDetailView
-              order={resolvedSelectedOrder}
+              order={selectedOrder}
               onUpdateOrderStatus={handleUpdateOrderStatus}
               onCancel={() => setSelectedOrder(null)}
             />
@@ -412,7 +411,7 @@ export default function App() {
         }
         return (
           <OrderListView
-            orders={resolvedOrders}
+            orders={orders}
             searchText={searchText}
             onSelectOrder={(order) => setSelectedOrder(order)}
           />
