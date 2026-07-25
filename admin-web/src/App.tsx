@@ -16,7 +16,7 @@ import { UserListView } from "./components/UserListView";
 import { OrderListView } from "./components/OrderListView";
 import { OrderDetailView } from "./components/OrderDetailView";
 
-import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc, getDoc } from "firebase/firestore";
+import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { db, storage, auth } from "./firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
@@ -57,6 +57,21 @@ export default function App() {
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
 
+  // Dynamically resolve customer details for orders using loaded users database
+  const resolvedOrders = React.useMemo(() => {
+    return orders.map(order => {
+      // Find the user whose ID matches the order's customerName (which holds the raw userId UID)
+      const user = users.find(u => u.id === order.customerName);
+      return {
+        ...order,
+        customerName: user ? user.name : order.customerName,
+        customerAvatar: user ? user.avatar : order.customerAvatar,
+        email: user ? user.email : order.email,
+        phone: user?.phone || order.phone || "09x-xxxx-xxx"
+      };
+    });
+  }, [orders, users]);
+
   // Authentication listener
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, (user) => {
@@ -74,7 +89,7 @@ export default function App() {
       const loadedProds: Product[] = snapshot.docs.map(docSnap => {
         const data = docSnap.data();
         const quantity = data.quantity || 0;
-        const status = ProductStatus.ACTIVE;
+        const status = (data.status as ProductStatus) || ProductStatus.ACTIVE;
         
         return {
           id: docSnap.id,
@@ -86,7 +101,10 @@ export default function App() {
           stock: quantity,
           status,
           imageUrl: data.imageUrl || "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600",
-          lastModified: data.uploadedAt ? new Date(data.uploadedAt.seconds * 1000).toLocaleDateString() : "Vừa xong"
+          lastModified: data.uploadedAt ? new Date(data.uploadedAt.seconds * 1000).toLocaleDateString() : "Vừa xong",
+          sizes: data.sizes || [],
+          colors: data.colors || [],
+          variants: data.variants || []
         };
       });
       setProducts(loadedProds);
@@ -115,10 +133,20 @@ export default function App() {
         const data = docSnap.data();
         const createdDate = data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date();
         
-        let status = OrderStatus.PENDING;
-        if (data.status === "Đã giao") status = OrderStatus.DELIVERED;
-        else if (data.status === "Đang xử lý") status = OrderStatus.SHIPPING;
-        else if (data.status === "Đã hủy") status = OrderStatus.CANCELLED;
+        let status = OrderStatus.AWAITING_PAYMENT;
+        if (data.status === "Đã giao" || data.status === "Da giao") {
+          status = OrderStatus.DELIVERED;
+        } else if (data.status === "Đang vận chuyển" || data.status === "Dang van chuyen") {
+          status = OrderStatus.SHIPPING;
+        } else if (data.status === "Đang xử lý" || data.status === "Dang xu ly") {
+          status = OrderStatus.PROCESSING;
+        } else if (data.status === "Đã hủy" || data.status === "Da huy") {
+          status = OrderStatus.CANCELLED;
+        } else if (data.status === "Trả hàng/Hoàn tiền" || data.status === "Tra hang/Hoan tien" || data.status === "Trả hàng/Hoàn đơn") {
+          status = OrderStatus.REFUNDED;
+        } else if (data.status === "Chờ thanh toán" || data.status === "Cho thanh toan" || data.status === "Chờ xác nhận" || data.status === "Cho xac nhan") {
+          status = OrderStatus.AWAITING_PAYMENT;
+        }
 
         return {
           id: docSnap.id,
@@ -138,9 +166,9 @@ export default function App() {
           items: data.items || [],
           timeline: {
             confirmed: { active: true, time: createdDate.toLocaleString() },
-            packing: { active: status !== OrderStatus.PENDING, time: "" },
-            shipping: { active: status === OrderStatus.SHIPPING || status === OrderStatus.DELIVERED, time: "" },
-            delivered: { active: status === OrderStatus.DELIVERED, time: "" }
+            packing: { active: status !== OrderStatus.AWAITING_PAYMENT && status !== OrderStatus.CANCELLED, time: "" },
+            shipping: { active: status === OrderStatus.SHIPPING || status === OrderStatus.DELIVERED || status === OrderStatus.REFUNDED, time: "" },
+            delivered: { active: status === OrderStatus.DELIVERED || status === OrderStatus.REFUNDED, time: "" }
           }
         };
       });
@@ -162,6 +190,7 @@ export default function App() {
           name: data.name || data.displayName || data.email?.split('@')[0] || "Khách hàng",
           email: data.email || "Chưa cập nhật",
           avatar: data.photoURL || data.avatarUrl || data.avatar || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
+          phone: data.phone || data.phoneNumber || "",
           tier: tierValue,
           joinedDate: joinedDate
         };
@@ -206,7 +235,11 @@ export default function App() {
         categoryId: payload.categoryName,
         quantity: payload.stock,
         tags: payload.description ? [payload.description] : [],
-        uploadedAt: new Date()
+        status: payload.status || ProductStatus.ACTIVE,
+        uploadedAt: new Date(),
+        sizes: payload.sizes || [],
+        colors: payload.colors || [],
+        variants: payload.variants || []
       };
       
       if (finalImageUrl) docData.imageUrl = finalImageUrl;
@@ -302,40 +335,6 @@ export default function App() {
   // --- Order Operations ---
   const handleUpdateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     try {
-      // Find the order to retrieve its items
-      const targetOrder = orders.find(o => o.id === orderId);
-      
-      // Auto-restore stock if cancelling an order that wasn't already cancelled
-      if (newStatus === OrderStatus.CANCELLED && targetOrder && targetOrder.status !== OrderStatus.CANCELLED) {
-        for (const item of targetOrder.items) {
-          if (item.id) {
-            const productRef = doc(db, "products", item.id);
-            const productSnap = await getDoc(productRef);
-            if (productSnap.exists()) {
-              const currentQty = productSnap.data().quantity || 0;
-              const currentVariants = productSnap.data().variants || [];
-              
-              // Restore overall stock quantity
-              const newQty = currentQty + item.quantity;
-              const updates: any = { quantity: newQty };
-              
-              // If product has size & color variants, restore variant-specific quantity as well!
-              if (item.size && item.color && currentVariants.length > 0) {
-                const updatedVariants = currentVariants.map((v: any) => {
-                  if (v.size === item.size && v.color === item.color) {
-                    return { ...v, quantity: (v.quantity || 0) + item.quantity };
-                  }
-                  return v;
-                });
-                updates.variants = updatedVariants;
-              }
-              
-              await updateDoc(productRef, updates);
-            }
-          }
-        }
-      }
-
       await updateDoc(doc(db, "orders", orderId), { status: newStatus });
       
       // Update selected order view dynamically
@@ -450,9 +449,9 @@ export default function App() {
 
       default:
         return (
-          <div className="bg-white rounded-xl border border-[#cfc4c5]/40 p-16 text-center custom-shadow font-sans">
-            <h3 className="font-serif text-xl font-bold text-neutral-800">Cài đặt phân quyền hệ thống</h3>
-            <p className="text-xs text-neutral-500 mt-2">
+          <div className="bg-white rounded-2xl border border-zinc-200/50 p-16 text-center shadow-sm font-sans">
+            <h3 className="font-serif text-xl font-bold text-zinc-950">Cài đặt phân quyền hệ thống</h3>
+            <p className="text-xs text-zinc-500 mt-2 font-medium">
               Các thông số và tài khoản quản trị hoạt động ở chế độ khép kín.
             </p>
           </div>
@@ -470,10 +469,10 @@ export default function App() {
 
   if (isAuthChecking) {
     return (
-      <div className="min-h-screen bg-[#fbf9f9] flex items-center justify-center font-sans">
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center font-sans">
         <div className="animate-pulse flex flex-col items-center">
-          <div className="w-8 h-8 border-4 border-[#6c5e06] border-t-transparent rounded-full animate-spin mb-4" />
-          <p className="text-xs text-neutral-500 uppercase tracking-widest font-bold">Đang kết nối hệ thống...</p>
+          <div className="w-8 h-8 border-4 border-[#8c7623] border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold">Đang kết nối hệ thống...</p>
         </div>
       </div>
     );
@@ -484,7 +483,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex bg-[#fbf9f9] min-h-screen text-[#1b1c1c] font-sans selection:bg-neutral-200">
+    <div className="flex bg-zinc-50 min-h-screen text-zinc-900 font-sans selection:bg-zinc-200 selection:text-zinc-900">
       
       {/* 1. Permanent Left Sidebar */}
       <Sidebar 
@@ -499,7 +498,7 @@ export default function App() {
           setIsAddingCategory(false);
         }}
         productCount={products.length}
-        orderCount={orders.filter(o => o.status === OrderStatus.PENDING).length}
+        orderCount={orders.filter(o => o.status === OrderStatus.AWAITING_PAYMENT || o.status === OrderStatus.PROCESSING).length}
         onLogout={handleLogout}
       />
 
