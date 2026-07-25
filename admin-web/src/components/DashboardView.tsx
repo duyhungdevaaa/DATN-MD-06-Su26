@@ -187,47 +187,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         
         {/* Brand Editorial Statement Card (Left Panel) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-8 rounded-2xl border border-zinc-200/50 shadow-sm relative overflow-hidden flex flex-col justify-between h-[360px] hover:shadow-md transition-shadow duration-300">
-            <div className="absolute right-0 bottom-0 top-0 w-1/3 bg-zinc-50/50 flex items-center justify-center p-4 border-l border-zinc-150/70">
-              <img 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoLklNtWvITwVOoqtdsbjlVD-5T_fe1UPOoZEHsS2slRQuueWeZFhXFFCmEsQ2bViK0YXPWacCXVV1W6zRtD-qU8Lp0vCDk15RxppF3PoayJfv-aJzyssg5s0od8gcCMGu6AyXLdpxsut1SpLsk6FMtWOD2L6oBOcxhrbFeGF92EvZXx6GkZh_vkp9Y1UfiC0gvdKyNOiSe7stievshgk_pNhudW6WZ1kJuAb2cwN6AZjD-euYfrauA9SndEId8EFpChzPln9Fm4Y" 
-                alt="Luxury Fabric Curation" 
-                className="w-full h-full object-cover rounded-xl editorial-img hover:scale-102"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-            
-            <div className="w-2/3 pr-8 space-y-4 text-left">
-              <div className="flex items-center gap-2">
-                <span className="text-[9px] text-[#8c7623] font-bold tracking-widest font-mono uppercase">
-                  Philosophy & Craft
-                </span>
-              </div>
-              <h3 className="font-serif text-2xl tracking-tight text-zinc-955 leading-snug font-medium">
-                “Sự cân bằng của sự hoàn hảo nằm ở tâm huyết trong từng đường may sợi chỉ.”
-              </h3>
-              <p className="font-sans text-xs text-zinc-500 leading-relaxed">
-                Tại Trendify, chúng tôi định nghĩa trải nghiệm thượng lưu qua tính nguyên bản và độ tinh xảo của sản phẩm. 
-                Từng chiếc áo Silk, từng đôi giày Terra Chelsea đều trải qua hàng trăm công đoạn thủ công trước khi xuất hiện trên sảnh trưng bày.
-              </p>
-              
-              <div className="flex items-center gap-6 pt-2 border-t border-zinc-100">
-                <div>
-                  <p className="font-mono text-xs font-bold text-zinc-800">420 chiếc</p>
-                  <p className="font-sans text-[10px] text-zinc-400">Sản xuất giới hạn</p>
-                </div>
-                <div>
-                  <p className="font-mono text-xs font-bold text-zinc-800">100%</p>
-                  <p className="font-sans text-[10px] text-zinc-400">Premium Silk & Leather</p>
-                </div>
-                <div>
-                  <p className="font-mono text-xs font-bold text-zinc-800">Cơ sở</p>
-                  <p className="font-sans text-[10px] text-zinc-400">Quận 1, TP. HCM</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Performance Flow */}
           <div className="bg-white p-6 rounded-2xl border border-zinc-200/50 shadow-sm text-left hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center justify-between mb-6">
