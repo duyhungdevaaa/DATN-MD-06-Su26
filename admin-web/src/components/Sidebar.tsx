@@ -141,35 +141,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Footer System Meta */}
       <div className="p-6 border-t border-zinc-100 bg-zinc-50/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-white rounded-lg border border-zinc-200/50">
-              <Globe className="h-4 w-4 text-[#8c7623]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                <p className="font-sans text-[10px] font-bold text-zinc-700 uppercase tracking-widest">
-                  Production Live
-                </p>
-              </div>
-              <p className="font-mono text-[9px] text-zinc-400">
-                v1.0.4 • TLS Secured
-              </p>
-            </div>
-          </div>
-          
-          {/* Logout Button */}
-          {onLogout && (
-            <button
-              onClick={onLogout}
-              className="p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors border border-rose-100"
-              title="Đăng xuất khỏi hệ thống"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
-          )}
-        </div>
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            className="w-full flex items-center justify-center gap-2 p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors border border-rose-100"
+            title="Đăng xuất khỏi hệ thống"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="text-xs font-bold uppercase tracking-wider font-sans">Đăng xuất</span>
+          </button>
+        )}
       </div>
     </aside>
   );

@@ -121,25 +121,21 @@ public class ShippingAddressActivity extends AppCompatActivity {
 
         for (UserAddress address : addresses) {
             View itemView = LayoutInflater.from(this).inflate(R.layout.item_shipping_address, addressContainer, false);
-            MaterialCardView card = (MaterialCardView) itemView;
-            TextView tvLabel = itemView.findViewById(R.id.tvAddressLabel);
             TextView tvDefaultBadge = itemView.findViewById(R.id.tvDefaultBadge);
-            TextView tvName = itemView.findViewById(R.id.tvAddressName);
-            TextView tvPhone = itemView.findViewById(R.id.tvAddressPhone);
-            TextView tvDetail = itemView.findViewById(R.id.tvAddressDetail);
+            TextView tvName = itemView.findViewById(R.id.tvName);
+            TextView tvPhone = itemView.findViewById(R.id.tvPhone);
+            TextView tvDetail = itemView.findViewById(R.id.tvAddress);
 
-            tvLabel.setText(address.getLabel() != null ? address.getLabel() : "Địa chỉ");
             tvDefaultBadge.setVisibility(address.isDefault() ? View.VISIBLE : View.GONE);
             tvName.setText(address.getName());
             tvPhone.setText(address.getPhone());
             tvDetail.setText(address.getAddress());
 
             boolean isSelected = selectedAddress != null && selectedAddress.getId() != null && selectedAddress.getId().equals(address.getId());
-            card.setStrokeWidth(isSelected ? 4 : 1);
-            card.setStrokeColor(getColor(isSelected ? R.color.trend_text : R.color.trend_border));
+            itemView.setBackgroundColor(getColor(isSelected ? R.color.trend_bg : R.color.white));
 
-            card.setOnClickListener(v -> selectAddress(address));
-            addressContainer.addView(card);
+            itemView.setOnClickListener(v -> selectAddress(address));
+            addressContainer.addView(itemView);
         }
     }
 
