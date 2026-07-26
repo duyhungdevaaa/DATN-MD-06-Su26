@@ -36,8 +36,8 @@ public class PaymentMethodActivity extends AppCompatActivity {
 
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
 
-        cardBankTransfer = findViewById(R.id.cardBankTransfer);
-        cardCod    = findViewById(R.id.cardCod);
+        cardBankTransfer = findViewById(R.id.layoutBankTransfer);
+        cardCod    = findViewById(R.id.layoutCod);
 
         // Mặc định chọn chuyển khoản ngân hàng
         selectCard(cardBankTransfer);
@@ -48,7 +48,7 @@ public class PaymentMethodActivity extends AppCompatActivity {
         shippingAddress = getIntent().getStringExtra("shipping_address");
 
         // Tiếp Tục → màn 19 Xác nhận đơn
-        findViewById(R.id.btnContinue).setOnClickListener(v -> {
+        findViewById(R.id.btnConfirm).setOnClickListener(v -> {
             Intent intent = new Intent(this, OrderConfirmActivity.class);
             if (shippingAddress != null) {
                 intent.putExtra("shipping_address", shippingAddress);
@@ -59,27 +59,18 @@ public class PaymentMethodActivity extends AppCompatActivity {
     }
 
     private void selectCard(View card) {
-        // Reset tất cả về border mờ
-        setSelected(cardBankTransfer, false);
-        setSelected(cardCod,    false);
-        // Highlight card được chọn
-        setSelected(card, true);
-        selectedCard = card;
+        // Hide all checkmarks
+        findViewById(R.id.checkBankTransfer).setVisibility(View.INVISIBLE);
+        findViewById(R.id.checkCod).setVisibility(View.INVISIBLE);
+        
+        // Show checkmark for selected card
         if (card == cardBankTransfer) {
+            findViewById(R.id.checkBankTransfer).setVisibility(View.VISIBLE);
             paymentMethod = "Chuyển khoản ngân hàng";
         } else if (card == cardCod) {
+            findViewById(R.id.checkCod).setVisibility(View.VISIBLE);
             paymentMethod = "COD";
         }
-    }
-
-    private void setSelected(View card, boolean selected) {
-        if (card == null) return;
-        com.google.android.material.card.MaterialCardView cv =
-                (com.google.android.material.card.MaterialCardView) card;
-        cv.setStrokeWidth(selected ? 4 : 2);
-        int color = selected
-                ? getColor(R.color.trend_text)
-                : getColor(R.color.trend_border);
-        cv.setStrokeColor(color);
+        selectedCard = card;
     }
 }

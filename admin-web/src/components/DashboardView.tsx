@@ -107,6 +107,44 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       };
     });
 
+  const daysOfWeek = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+  const revenueByDay = [0, 0, 0, 0, 0, 0, 0];
+
+  orders.filter(o => o.status !== "Đã hủy").forEach(o => {
+    try {
+      const datePart = o.date.split(" ")[0];
+      const [day, month, year] = datePart.split("/");
+      if (day && month && year) {
+        const dateObj = new Date(`${year}-${month}-${day}`);
+        if (!isNaN(dateObj.getTime())) {
+          revenueByDay[dateObj.getDay()] += o.total;
+        }
+      }
+    } catch (e) {}
+  });
+
+  const chartData = [
+    { label: "T2", value: revenueByDay[1] },
+    { label: "T3", value: revenueByDay[2] },
+    { label: "T4", value: revenueByDay[3] },
+    { label: "T5", value: revenueByDay[4] },
+    { label: "T6", value: revenueByDay[5] },
+    { label: "T7", value: revenueByDay[6] },
+    { label: "CN", value: revenueByDay[0] },
+  ];
+
+  const maxChartValue = Math.max(...chartData.map(d => d.value), 1000000);
+  const formatShortValue = (val: number) => {
+    if (val >= 1000000) return (val / 1000000).toFixed(1).replace(".0", "") + "M";
+    if (val >= 1000) return (val / 1000).toFixed(0) + "K";
+    return val.toString();
+  };
+
+  const chartHeight = 120;
+  const chartYOffset = 10;
+  const barWidth = 24;
+  const xPositions = [45, 125, 205, 285, 365, 445, 525]; // 7 points
+
   return (
     <div className="space-y-8 animate-fade-in font-sans">
       {/* Editorial Greetings Banner */}
@@ -187,47 +225,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         
         {/* Brand Editorial Statement Card (Left Panel) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-8 rounded-2xl border border-zinc-200/50 shadow-sm relative overflow-hidden flex flex-col justify-between h-[360px] hover:shadow-md transition-shadow duration-300">
-            <div className="absolute right-0 bottom-0 top-0 w-1/3 bg-zinc-50/50 flex items-center justify-center p-4 border-l border-zinc-150/70">
-              <img 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoLklNtWvITwVOoqtdsbjlVD-5T_fe1UPOoZEHsS2slRQuueWeZFhXFFCmEsQ2bViK0YXPWacCXVV1W6zRtD-qU8Lp0vCDk15RxppF3PoayJfv-aJzyssg5s0od8gcCMGu6AyXLdpxsut1SpLsk6FMtWOD2L6oBOcxhrbFeGF92EvZXx6GkZh_vkp9Y1UfiC0gvdKyNOiSe7stievshgk_pNhudW6WZ1kJuAb2cwN6AZjD-euYfrauA9SndEId8EFpChzPln9Fm4Y" 
-                alt="Luxury Fabric Curation" 
-                className="w-full h-full object-cover rounded-xl editorial-img hover:scale-102"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-            
-            <div className="w-2/3 pr-8 space-y-4 text-left">
-              <div className="flex items-center gap-2">
-                <span className="text-[9px] text-[#8c7623] font-bold tracking-widest font-mono uppercase">
-                  Philosophy & Craft
-                </span>
-              </div>
-              <h3 className="font-serif text-2xl tracking-tight text-zinc-955 leading-snug font-medium">
-                “Sự cân bằng của sự hoàn hảo nằm ở tâm huyết trong từng đường may sợi chỉ.”
-              </h3>
-              <p className="font-sans text-xs text-zinc-500 leading-relaxed">
-                Tại Trendify, chúng tôi định nghĩa trải nghiệm thượng lưu qua tính nguyên bản và độ tinh xảo của sản phẩm. 
-                Từng chiếc áo Silk, từng đôi giày Terra Chelsea đều trải qua hàng trăm công đoạn thủ công trước khi xuất hiện trên sảnh trưng bày.
-              </p>
-              
-              <div className="flex items-center gap-6 pt-2 border-t border-zinc-100">
-                <div>
-                  <p className="font-mono text-xs font-bold text-zinc-800">420 chiếc</p>
-                  <p className="font-sans text-[10px] text-zinc-400">Sản xuất giới hạn</p>
-                </div>
-                <div>
-                  <p className="font-mono text-xs font-bold text-zinc-800">100%</p>
-                  <p className="font-sans text-[10px] text-zinc-400">Premium Silk & Leather</p>
-                </div>
-                <div>
-                  <p className="font-mono text-xs font-bold text-zinc-800">Cơ sở</p>
-                  <p className="font-sans text-[10px] text-zinc-400">Quận 1, TP. HCM</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Performance Flow */}
           <div className="bg-white p-6 rounded-2xl border border-zinc-200/50 shadow-sm text-left hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center justify-between mb-6">
@@ -236,75 +233,67 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   Hiệu suất dòng tiền giao dịch
                 </h4>
                 <p className="font-sans text-[10px] text-zinc-400 mt-0.5">
-                  Thống kê doanh số bán ra theo tuần của kỳ hiện hành (triệu VNĐ)
+                  Thống kê doanh số bán ra theo thứ trong tuần (VNĐ)
                 </p>
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#8c7623]" />
+                  <span className="w-2 h-2 rounded-sm bg-[#8c7623]" />
                   <span className="text-[10px] font-sans text-zinc-500 font-semibold">Doanh số thực</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-zinc-200" />
-                  <span className="text-[10px] font-sans text-zinc-500 font-semibold">Dự kiến bám đuổi</span>
                 </div>
               </div>
             </div>
 
-            {/* Custom SVG Line Chart */}
+            {/* Custom SVG Bar Chart */}
             <div className="h-44 w-full">
-              <svg viewBox="0 0 600 160" className="w-full h-full overflow-visible">
+              <svg viewBox="0 0 570 160" className="w-full h-full overflow-visible">
                 {/* Grid Lines */}
-                <line x1="30" y1="10" x2="580" y2="10" stroke="#f4f4f5" strokeWidth="1" strokeDasharray="3,3" />
-                <line x1="30" y1="50" x2="580" y2="50" stroke="#f4f4f5" strokeWidth="1" strokeDasharray="3,3" />
-                <line x1="30" y1="90" x2="580" y2="90" stroke="#f4f4f5" strokeWidth="1" strokeDasharray="3,3" />
-                <line x1="30" y1="130" x2="580" y2="130" stroke="#e4e4e7" strokeWidth="1" />
+                <line x1="30" y1="10" x2="570" y2="10" stroke="#f4f4f5" strokeWidth="1" strokeDasharray="3,3" />
+                <line x1="30" y1="50" x2="570" y2="50" stroke="#f4f4f5" strokeWidth="1" strokeDasharray="3,3" />
+                <line x1="30" y1="90" x2="570" y2="90" stroke="#f4f4f5" strokeWidth="1" strokeDasharray="3,3" />
+                <line x1="30" y1="130" x2="570" y2="130" stroke="#e4e4e7" strokeWidth="1" />
 
-                {/* Simulated Target Flow Area */}
-                <path 
-                  d="M 30,120 Q 120,90 210,105 T 390,40 T 580,15 L 580,130 L 30,130 Z" 
-                  fill="url(#goldGradient)" 
-                  opacity="0.06" 
-                />
-
-                {/* Target Guide line */}
-                <path 
-                  d="M 30,120 Q 120,90 210,105 T 390,40 T 580,15" 
-                  fill="none" 
-                  stroke="#8c7623" 
-                  strokeWidth="2.5" 
-                  strokeLinecap="round"
-                />
-
-                {/* Data points */}
-                <circle cx="30" cy="120" r="4.5" fill="#ffffff" stroke="#8c7623" strokeWidth="2.5" />
-                <circle cx="120" cy="95" r="4.5" fill="#ffffff" stroke="#8c7623" strokeWidth="2.5" />
-                <circle cx="210" cy="105" r="4.5" fill="#ffffff" stroke="#8c7623" strokeWidth="2.5" />
-                <circle cx="300" cy="70" r="4.5" fill="#ffffff" stroke="#8c7623" strokeWidth="2.5" />
-                <circle cx="390" cy="40" r="4.5" fill="#ffffff" stroke="#8c7623" strokeWidth="2.5" />
-                <circle cx="480" cy="30" r="4.5" fill="#ffffff" stroke="url(#goldGradient)" strokeWidth="2.5" />
-                <circle cx="580" cy="15" r="4.5" fill="#ffffff" stroke="#8c7623" strokeWidth="2.5" />
+                {/* Bars */}
+                {chartData.map((data, index) => {
+                  const barH = (data.value / maxChartValue) * chartHeight;
+                  const xPos = xPositions[index];
+                  const yPos = chartYOffset + chartHeight - barH;
+                  return (
+                    <g key={index}>
+                      {barH > 0 && (
+                        <rect 
+                          x={xPos - barWidth/2} 
+                          y={yPos} 
+                          width={barWidth} 
+                          height={barH} 
+                          fill="url(#goldGradient)" 
+                          rx="4" 
+                          ry="4"
+                          className="hover:opacity-80 transition-opacity"
+                        />
+                      )}
+                      <text x={xPos} y="148" textAnchor="middle" className="font-mono text-[9px] fill-zinc-400 font-bold">{data.label}</text>
+                      {barH > 0 && (
+                        <text x={xPos} y={yPos - 5} textAnchor="middle" className="font-mono text-[8px] fill-zinc-500 font-bold">
+                          {formatShortValue(data.value)}
+                        </text>
+                      )}
+                    </g>
+                  );
+                })}
 
                 {/* Gradients */}
                 <defs>
                   <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#8c7623" />
-                    <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                    <stop offset="100%" stopColor="#d4af37" />
                   </linearGradient>
                 </defs>
 
-                {/* Labels */}
-                <text x="30" y="148" textAnchor="middle" className="font-mono text-[9px] fill-zinc-400 font-bold">T2</text>
-                <text x="120" y="148" textAnchor="middle" className="font-mono text-[9px] fill-zinc-400 font-bold">T3</text>
-                <text x="210" y="148" textAnchor="middle" className="font-mono text-[9px] fill-zinc-400 font-bold">T4</text>
-                <text x="300" y="148" textAnchor="middle" className="font-mono text-[9px] fill-zinc-400 font-bold">T5</text>
-                <text x="390" y="148" textAnchor="middle" className="font-mono text-[9px] fill-zinc-400 font-bold">T6</text>
-                <text x="480" y="148" textAnchor="middle" className="font-mono text-[9px] fill-zinc-400 font-bold">T7</text>
-                <text x="580" y="148" textAnchor="middle" className="font-mono text-[9px] fill-zinc-400 font-bold">CN</text>
-
-                <text x="15" y="12" textAnchor="middle" className="font-mono text-[8px] fill-zinc-300 font-bold">20M</text>
-                <text x="15" y="52" textAnchor="middle" className="font-mono text-[8px] fill-zinc-300 font-bold">10M</text>
-                <text x="15" y="92" textAnchor="middle" className="font-mono text-[8px] fill-zinc-300 font-bold">5M</text>
+                {/* Y-axis Labels */}
+                <text x="15" y="12" textAnchor="middle" className="font-mono text-[8px] fill-zinc-300 font-bold">{formatShortValue(maxChartValue)}</text>
+                <text x="15" y="52" textAnchor="middle" className="font-mono text-[8px] fill-zinc-300 font-bold">{formatShortValue(maxChartValue * 2 / 3)}</text>
+                <text x="15" y="92" textAnchor="middle" className="font-mono text-[8px] fill-zinc-300 font-bold">{formatShortValue(maxChartValue / 3)}</text>
                 <text x="15" y="133" textAnchor="middle" className="font-mono text-[8px] fill-zinc-300 font-bold">0</text>
               </svg>
             </div>

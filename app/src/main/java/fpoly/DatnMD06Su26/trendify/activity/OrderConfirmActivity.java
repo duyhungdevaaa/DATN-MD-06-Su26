@@ -59,8 +59,8 @@ public class OrderConfirmActivity extends AppCompatActivity {
     private TextView tvDiscount;
     private TextView tvTotal;
     private TextView tvPaymentMethod;
-    private TextInputEditText etVoucherCode;
-    private MaterialButton btnApplyVoucher;
+    private android.widget.EditText etVoucherCode;
+    private TextView btnApplyVoucher;
     private TextView tvVoucherMessage;
     private Voucher appliedVoucher;
     private long appliedDiscount;
@@ -87,7 +87,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
         tvPaymentMethod = findViewById(R.id.tvPaymentMethod);
         etVoucherCode = findViewById(R.id.etVoucherCode);
         btnApplyVoucher = findViewById(R.id.btnApplyVoucher);
-        tvVoucherMessage = findViewById(R.id.tvVoucherMessage);
+        tvVoucherMessage = null;
 
         btnApplyVoucher.setOnClickListener(v -> applyVoucherCode());
 

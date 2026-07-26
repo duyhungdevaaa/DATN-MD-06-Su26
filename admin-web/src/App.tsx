@@ -187,7 +187,7 @@ export default function App() {
 
         return {
           id: docSnap.id,
-          name: data.name || data.displayName || data.email?.split('@')[0] || "Khách hàng",
+          name: data.fullName || data.name || data.displayName || data.email?.split('@')[0] || "Khách hàng",
           email: data.email || "Chưa cập nhật",
           avatar: data.photoURL || data.avatarUrl || data.avatar || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
           phone: data.phone || data.phoneNumber || "",
