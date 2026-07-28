@@ -25,10 +25,12 @@ export enum UserTier {
 }
 
 export enum OrderStatus {
-  PENDING = "Đang xử lý",
+  AWAITING_PAYMENT = "Chờ thanh toán",
+  PROCESSING = "Đang xử lý",
   SHIPPING = "Đang vận chuyển",
   DELIVERED = "Đã giao",
   CANCELLED = "Đã hủy",
+  REFUNDED = "Trả hàng/Hoàn tiền",
 }
 
 export interface Product {
@@ -42,6 +44,9 @@ export interface Product {
   status: ProductStatus;
   imageUrl: string;
   lastModified: string;
+  sizes?: string[];
+  colors?: string[];
+  variants?: Array<{ size: string; color: string; quantity: number }>;
 }
 
 export interface Category {
@@ -97,5 +102,6 @@ export interface User {
   avatar: string;
   tier: UserTier;
   email: string;
+  phone?: string;
   joinedDate: string;
 }

@@ -136,6 +136,36 @@ public class CartManager {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
+    public interface CartCountCallback {
+        void onCounted(int count);
+        void onFailure(String error);
+    }
+
+    // Đếm tổng số lượng (quantity) của các món hàng trong giỏ
+    public void getCartCount(CartCountCallback callback) {
+        if (userId == null) {
+            if (callback != null) callback.onFailure("Vui lòng đăng nhập");
+            return;
+        }
+        db.collection(COLLECTION_USERS)
+                .document(userId)
+                .collection(COLLECTION_CART)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    int totalCount = 0;
+                    for (var doc : snapshot.getDocuments()) {
+                        Long qty = doc.getLong("quantity");
+                        if (qty != null) {
+                            totalCount += qty.intValue();
+                        }
+                    }
+                    if (callback != null) callback.onCounted(totalCount);
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) callback.onFailure(e.getMessage());
+                });
+    }
+
     // Xóa toàn bộ giỏ sau khi đặt hàng thành công
     public void clearCart(CartCallback callback) {
         if (!ensureAuthenticated(callback)) return;

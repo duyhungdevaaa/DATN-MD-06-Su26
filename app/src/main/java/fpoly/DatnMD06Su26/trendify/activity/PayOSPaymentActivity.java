@@ -106,13 +106,10 @@ public class PayOSPaymentActivity extends AppCompatActivity {
         tvAccountNumber = findViewById(R.id.tvAccountNumber);
         tvAmount = findViewById(R.id.tvAmount);
         tvDescription = findViewById(R.id.tvDescription);
-        tvWarningNoteBottom = findViewById(R.id.tvWarningNoteBottom);
         btnCopyAccountNumber = findViewById(R.id.btnCopyAccountNumber);
-        btnCopyAmount = findViewById(R.id.btnCopyAmount);
         btnCopyDescription = findViewById(R.id.btnCopyDescription);
         btnConfirmPayment = findViewById(R.id.btnConfirmPayment);
         btnCancel = findViewById(R.id.btnCancel);
-        pollingStatusLayout = findViewById(R.id.pollingStatusLayout);
 
         // Set UI Data
         displayPaymentDetails();
@@ -155,13 +152,11 @@ public class PayOSPaymentActivity extends AppCompatActivity {
         tvAmount.setText(formatCurrency(amount));
         tvDescription.setText(description != null ? description : "");
 
-        String rawWarning = "Lưu ý : Nhập chính xác số tiền " + formatCurrency(amount) + ", nội dung " + (description != null ? description : "") + " khi chuyển khoản";
-        tvWarningNoteBottom.setText(rawWarning);
+
     }
 
     private void setupCopyListeners() {
         btnCopyAccountNumber.setOnClickListener(v -> copyToClipboard("Số tài khoản", accountNumber));
-        btnCopyAmount.setOnClickListener(v -> copyToClipboard("Số tiền", String.valueOf(amount)));
         btnCopyDescription.setOnClickListener(v -> copyToClipboard("Nội dung chuyển khoản", description));
     }
 
@@ -179,9 +174,7 @@ public class PayOSPaymentActivity extends AppCompatActivity {
         if (isCheckingStatus || isPaymentCompleted) return;
 
         isCheckingStatus = true;
-        if (showToastOnFailure) {
-            pollingStatusLayout.setVisibility(View.VISIBLE);
-        }
+
 
         new Thread(() -> {
             try {
