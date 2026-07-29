@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNav);
 
         // Seeder database categories and products if empty
-        FirestoreHelper.checkAndSeedDatabase();
+        // FirestoreHelper.checkAndSeedDatabase(); // Tắt seed data để tránh lỗi PERMISSION_DENIED
 
         ScreenPagerAdapter adapter = new ScreenPagerAdapter(this);
         viewPager.setAdapter(adapter);
