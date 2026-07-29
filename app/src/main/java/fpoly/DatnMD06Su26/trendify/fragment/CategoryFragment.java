@@ -58,41 +58,38 @@ public class CategoryFragment extends Fragment {
         RecyclerView rvLeftCategories = view.findViewById(R.id.rvLeftCategories);
         RecyclerView rvRightCategories = view.findViewById(R.id.rvRightCategories);
 
-        // Dummy left categories
-        List<String> leftCategories = new ArrayList<>();
-        leftCategories.add("Thời Trang Nam");
-        leftCategories.add("Thời Trang Nữ");
-        leftCategories.add("Điện Thoại & Phụ Kiện");
-        leftCategories.add("Mẹ & Bé");
-        leftCategories.add("Thiết Bị Điện Tử");
-        leftCategories.add("Nhà Cửa & Đời Sống");
-        leftCategories.add("Sắc Đẹp");
-        leftCategories.add("Sức Khỏe");
-        leftCategories.add("Giày Dép Nữ");
-        leftCategories.add("Giày Dép Nam");
-
-        LeftCategoryAdapter leftAdapter = new LeftCategoryAdapter(leftCategories, position -> {
-            // Right now, we just reload all items from firestore since we don't have sub-categories
-            loadRightCategories(rvRightCategories);
-        });
-        rvLeftCategories.setAdapter(leftAdapter);
-
-        loadRightCategories(rvRightCategories);
-
-        return view;
-    }
-
-    private void loadRightCategories(RecyclerView rvRightCategories) {
         FirestoreHelper.loadCategories(new FirestoreHelper.CategoriesCallback() {
             @Override
             public void onLoaded(List<CategoryItem> categories) {
-                RightCategoryAdapter rightAdapter = new RightCategoryAdapter(categories);
-                rvRightCategories.setAdapter(rightAdapter);
+                LeftCategoryAdapter leftAdapter = new LeftCategoryAdapter(categories, position -> {
+                    loadRightProducts(rvRightCategories, categories.get(position).getId());
+                });
+                rvLeftCategories.setAdapter(leftAdapter);
+                if (!categories.isEmpty()) {
+                    loadRightProducts(rvRightCategories, categories.get(0).getId());
+                }
             }
 
             @Override
             public void onFailure(String error) {
                 Toast.makeText(requireContext(), "Không thể tải danh mục: " + error, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        return view;
+    }
+
+    private void loadRightProducts(RecyclerView rvRightCategories, String categoryId) {
+        FirestoreHelper.loadProducts(categoryId, new FirestoreHelper.ProductsCallback() {
+            @Override
+            public void onLoaded(List<ProductItem> products) {
+                ProductAdapter rightAdapter = new ProductAdapter(products);
+                rvRightCategories.setAdapter(rightAdapter);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(requireContext(), "Không thể tải sản phẩm: " + error, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -102,11 +99,11 @@ public class CategoryFragment extends Fragment {
     }
 
     private class LeftCategoryAdapter extends RecyclerView.Adapter<LeftCategoryAdapter.ViewHolder> {
-        private final List<String> items;
+        private final List<CategoryItem> items;
         private int selectedPosition = 0;
         private final OnItemClickListener listener;
 
-        public LeftCategoryAdapter(List<String> items, OnItemClickListener listener) {
+        public LeftCategoryAdapter(List<CategoryItem> items, OnItemClickListener listener) {
             this.items = items;
             this.listener = listener;
         }
@@ -120,8 +117,8 @@ public class CategoryFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            String name = items.get(position);
-            holder.tvCategoryName.setText(name);
+            CategoryItem item = items.get(position);
+            holder.tvCategoryName.setText(item.getName());
 
             if (selectedPosition == position) {
                 holder.itemView.setBackgroundColor(android.graphics.Color.WHITE);
@@ -161,56 +158,5 @@ public class CategoryFragment extends Fragment {
         }
     }
 
-    private class RightCategoryAdapter extends RecyclerView.Adapter<RightCategoryAdapter.ViewHolder> {
-        private final List<CategoryItem> items;
 
-        public RightCategoryAdapter(List<CategoryItem> items) {
-            this.items = items;
-        }
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_category_right, parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            CategoryItem item = items.get(position);
-            holder.tvCategoryName.setText(item.getName());
-
-            String imgUrl = item.getImageUrl();
-            if (imgUrl != null && !imgUrl.isEmpty()) {
-                com.bumptech.glide.Glide.with(holder.itemView.getContext())
-                        .load(imgUrl)
-                        .placeholder(R.drawable.ic_shopping_bag)
-                        .error(R.drawable.ic_shopping_bag)
-                        .into(holder.ivIcon);
-            }
-
-            holder.itemView.setOnClickListener(v -> {
-                Intent intent = new Intent(v.getContext(), ProductListActivity.class);
-                intent.putExtra("CATEGORY_ID", item.getId());
-                intent.putExtra("CATEGORY_NAME", item.getName());
-                v.getContext().startActivity(intent);
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return items.size();
-        }
-
-        class ViewHolder extends RecyclerView.ViewHolder {
-            ImageView ivIcon;
-            TextView tvCategoryName;
-
-            ViewHolder(@NonNull View itemView) {
-                super(itemView);
-                ivIcon = itemView.findViewById(R.id.ivIcon);
-                tvCategoryName = itemView.findViewById(R.id.tvCategoryName);
-            }
-        }
-    }
 }
