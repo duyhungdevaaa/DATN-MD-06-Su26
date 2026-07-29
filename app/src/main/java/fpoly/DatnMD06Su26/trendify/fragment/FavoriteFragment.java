@@ -37,18 +37,22 @@ public class FavoriteFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favorite, container, false);
 
-        View searchBarContainer = view.findViewById(R.id.searchBarContainer);
-        if (searchBarContainer != null) {
-            searchBarContainer.setOnClickListener(v -> {
+        ImageView ivSearch = view.findViewById(R.id.ivSearch);
+        ImageView ivNotification = view.findViewById(R.id.ivNotification);
+        ImageView ivMenu = view.findViewById(R.id.ivMenu);
+
+        if (ivMenu != null) {
+            ivMenu.setOnClickListener(v -> Toast.makeText(requireContext(), "Menu chính", Toast.LENGTH_SHORT).show());
+        }
+        if (ivSearch != null) {
+            ivSearch.setOnClickListener(v -> {
                 if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).setCurrentPage(1); // Page 1 is Search
+                    ((MainActivity) getActivity()).setCurrentPage(1);
                 }
             });
         }
-
-        ImageView ivCart = view.findViewById(R.id.ivCart);
-        if (ivCart != null) {
-            ivCart.setOnClickListener(v -> {
+        if (ivNotification != null) {
+            ivNotification.setOnClickListener(v -> {
                 startActivity(new Intent(requireContext(), CartActivity.class));
             });
         }

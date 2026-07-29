@@ -34,11 +34,10 @@
                 android:id="@+id/tvPolicyBrand"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
-                android:text="Chính sách &amp; Hỗ trợ"
+                android:fontFamily="serif"
+                android:text="TRENDIFY"
                 android:textColor="@color/trend_text"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                android:textSize="22sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -57,7 +56,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
+            android:fontFamily="serif"
             android:gravity="center"
             android:lineSpacingExtra="2dp"
             android:text="CHÍNH SÁCH &amp; ĐIỀU\nKHOẢN"
@@ -78,7 +77,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
+            android:fontFamily="serif"
             android:paddingTop="34dp"
             android:text="CHÍNH SÁCH GIAO HÀNG"
             android:textColor="@color/trend_text"
@@ -112,7 +111,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-    
+                    android:fontFamily="serif"
                     android:text="TRONG NƯỚC"
                     android:textColor="@color/trend_text"
                     android:textSize="16sp"
@@ -147,7 +146,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-    
+                    android:fontFamily="serif"
                     android:text="QUỐC TẾ"
                     android:textColor="@color/trend_text"
                     android:textSize="16sp"
@@ -176,8 +175,8 @@
             android:paddingVertical="18dp"
             android:text="ĐỔI &amp; TRẢ HÀNG   ˅"
             android:textColor="@color/trend_text"
-            android:textSize="24sp" />
-
+            android:textSize="24sp"
+            android:fontFamily="serif" />
 
         <View
             android:layout_width="match_parent"
@@ -190,8 +189,8 @@
             android:paddingVertical="18dp"
             android:text="CHÍNH SÁCH BẢO MẬT   ˅"
             android:textColor="@color/trend_text"
-            android:textSize="24sp" />
-
+            android:textSize="24sp"
+            android:fontFamily="serif" />
 
         <View
             android:layout_width="match_parent"
@@ -204,8 +203,8 @@
             android:paddingVertical="18dp"
             android:text="ĐIỀU KHOẢN DỊCH VỤ   ˅"
             android:textColor="@color/trend_text"
-            android:textSize="24sp" />
-
+            android:textSize="24sp"
+            android:fontFamily="serif" />
 
         <View
             android:layout_width="match_parent"
@@ -215,7 +214,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
+            android:fontFamily="serif"
             android:gravity="center"
             android:paddingTop="34dp"
             android:text="BẠN CẦN TRỢ GIÚP?"
