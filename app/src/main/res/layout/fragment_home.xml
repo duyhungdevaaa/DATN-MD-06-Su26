@@ -109,53 +109,22 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <!-- Menu Item -->
+                    <!-- Săn Sale -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#2196F3" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Khung Giờ Săn Sale" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                        <com.airbnb.lottie.LottieAnimationView android:layout_width="48dp" android:layout_height="48dp" app:lottie_rawRes="@raw/sale" app:lottie_autoPlay="true" app:lottie_loop="true" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Săn Sale" android:textSize="12sp" android:textStyle="bold" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
                     </LinearLayout>
 
+                    <!-- Hàng Mới -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#4CAF50" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Miễn Phí Vận Chuyển" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                        <com.airbnb.lottie.LottieAnimationView android:layout_width="48dp" android:layout_height="48dp" app:lottie_rawRes="@raw/hangmoi" app:lottie_autoPlay="true" app:lottie_loop="true" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hàng Mới" android:textSize="12sp" android:textStyle="bold" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
                     </LinearLayout>
 
+                    <!-- Voucher -->
                     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#FFC107" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hoàn Xu 20%" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
-                    </LinearLayout>
-
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#E91E63" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hàng Mới Về" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <!-- Row 2 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="16dp">
-
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#9C27B0" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tech Zone" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
-                    </LinearLayout>
-
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#F44336" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Siêu Thị Điện Tử" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
-                    </LinearLayout>
-
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#00BCD4" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mã Giảm Giá" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
-                    </LinearLayout>
-
-                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                        <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/bg_circle_white" app:tint="#795548" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tất Cả Danh Mục" android:textSize="10sp" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
+                        <com.airbnb.lottie.LottieAnimationView android:layout_width="48dp" android:layout_height="48dp" app:lottie_rawRes="@raw/voucher_tag" app:lottie_autoPlay="true" app:lottie_loop="true" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Voucher" android:textSize="12sp" android:textStyle="bold" android:gravity="center" android:layout_marginTop="4dp" android:maxLines="2" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
