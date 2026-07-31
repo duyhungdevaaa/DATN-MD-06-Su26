@@ -110,7 +110,7 @@ public class RegisterActivity extends AppCompatActivity {
                                         SessionManager.getInstance().saveSession(newUserId, token);
 
                                         // Also save profile to Firestore to maintain compatibility with existing app logic
-                                        UserProfile profile = new UserProfile(newUserId, fullName, email, "", Timestamp.now());
+                                        UserProfile profile = new UserProfile(newUserId, fullName, email, "", "", Timestamp.now());
                                         FirestoreHelper.saveUserProfile(profile, new FirestoreHelper.SimpleCallback() {
                                             @Override
                                             public void onSuccess() {

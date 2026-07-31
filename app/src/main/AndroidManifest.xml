@@ -18,7 +18,6 @@
         
         <activity
             android:name=".activity.SplashActivity"
-            android:theme="@style/Theme.Splash"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,6 +25,7 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.OnboardingActivity" android:exported="false" />
         <activity android:name=".activity.MainActivity" android:exported="false" />
         <activity android:name=".activity.LoginActivity" android:exported="false" />
         <activity android:name=".activity.RegisterActivity" android:exported="false" />
@@ -42,8 +42,6 @@
         <activity android:name=".activity.OrderSuccessActivity" android:exported="false" />
         <activity android:name=".activity.TrackOrderActivity" android:exported="false" />
         <activity android:name=".activity.OrderHistoryActivity" android:exported="false" />
-        <activity android:name=".activity.OrderDetailActivity" android:exported="false" />
-        <activity android:name=".activity.VoucherListActivity" android:exported="false" />
 
         <activity android:name=".activity.AddressManagementActivity" android:exported="false" />
         <activity android:name=".activity.ReturnRequestActivity" android:exported="false" />
@@ -53,6 +51,7 @@
         <activity android:name=".activity.TermsActivity" android:exported="false" />
         <activity android:name=".activity.PrivacyPolicyActivity" android:exported="false" />
         <activity android:name=".activity.ChatActivity" android:exported="false" />
+        <activity android:name=".activity.EditProfileActivity" android:exported="false" />
     </application>
 
 </manifest>

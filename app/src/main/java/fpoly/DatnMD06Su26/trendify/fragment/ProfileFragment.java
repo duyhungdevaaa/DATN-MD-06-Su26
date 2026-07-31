@@ -50,31 +50,50 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        ImageView ivSettings = view.findViewById(R.id.ivSettings);
-        ImageView ivCart = view.findViewById(R.id.ivCart);
-        ImageView ivChat = view.findViewById(R.id.ivChat);
+        ImageView ivSearch = view.findViewById(R.id.ivSearch);
+        ImageView ivNotification = view.findViewById(R.id.ivNotification);
+        ImageView ivMenu = view.findViewById(R.id.ivMenu);
 
-        if (ivSettings != null) {
-            ivSettings.setOnClickListener(v -> handleSettings());
+        if (ivMenu != null) {
+            ivMenu.setOnClickListener(v -> Toast.makeText(requireContext(), "Menu chính", Toast.LENGTH_SHORT).show());
         }
-        if (ivCart != null) {
-            ivCart.setOnClickListener(v -> {
+        if (ivSearch != null) {
+            ivSearch.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).setCurrentPage(1);
+                }
+            });
+        }
+        if (ivNotification != null) {
+            ivNotification.setOnClickListener(v -> {
                 startActivity(new Intent(requireContext(), CartActivity.class));
             });
         }
-        if (ivChat != null) {
-            ivChat.setOnClickListener(v -> handleNotifications());
-        }
 
         tvUserName = view.findViewById(R.id.tvUserName);
-        if (tvUserName != null) {
-            tvUserName.setOnClickListener(v -> handleEditProfile());
-        }
+        tvUserEmail = view.findViewById(R.id.tvUserEmail);
 
+        llEditProfile = view.findViewById(R.id.llEditProfile);
         llMyOrders = view.findViewById(R.id.llMyOrders);
-        if (llMyOrders != null) {
-            llMyOrders.setOnClickListener(v -> handleMyOrders());
-        }
+        llDeliveryAddress = view.findViewById(R.id.llDeliveryAddress);
+        llPaymentMethods = view.findViewById(R.id.llPaymentMethods);
+        llNotifications = view.findViewById(R.id.llNotifications);
+        btnHelpCenter = view.findViewById(R.id.btnHelpCenter);
+        btnPrivacyPolicy = view.findViewById(R.id.btnPrivacyPolicy);
+        btnTermsOfService = view.findViewById(R.id.btnTermsOfService);
+        llSettings = view.findViewById(R.id.llSettings);
+        llLogout = view.findViewById(R.id.llLogout);
+
+        llEditProfile.setOnClickListener(v -> handleEditProfile());
+        llMyOrders.setOnClickListener(v -> handleMyOrders());
+        llDeliveryAddress.setOnClickListener(v -> handleDeliveryAddress());
+        llPaymentMethods.setOnClickListener(v -> handlePaymentMethods());
+        llNotifications.setOnClickListener(v -> handleNotifications());
+        btnHelpCenter.setOnClickListener(v -> handleHelpCenter());
+        btnPrivacyPolicy.setOnClickListener(v -> handlePrivacyPolicy());
+        btnTermsOfService.setOnClickListener(v -> handleTermsOfService());
+        llSettings.setOnClickListener(v -> handleSettings());
+        llLogout.setOnClickListener(v -> showLogoutDialog());
 
         loadUserProfile();
         return view;
@@ -90,17 +109,25 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onLoaded(UserProfile profile) {
                 currentProfile = profile;
-                if (tvUserName != null) tvUserName.setText(profile.getFullName());
-                // if (tvUserEmail != null) tvUserEmail.setText(profile.getEmail());
+                tvUserName.setText(profile.getFullName());
+                tvUserEmail.setText(profile.getEmail());
+                
+                ImageView ivUserAvatar = getView() != null ? getView().findViewById(R.id.ivUserAvatar) : null;
+                if (ivUserAvatar != null && profile.getAvatarUrl() != null && !profile.getAvatarUrl().isEmpty()) {
+                    com.bumptech.glide.Glide.with(ProfileFragment.this)
+                            .load(profile.getAvatarUrl())
+                            .placeholder(R.drawable.ic_launcher_background)
+                            .into(ivUserAvatar);
+                }
             }
 
             @Override
             public void onFailure(String error) {
                 String displayName = "Khách hàng";
                 String email = "";
-                currentProfile = new UserProfile(SessionManager.getInstance().getUserId(), displayName, email, "", null);
-                if (tvUserName != null) tvUserName.setText(displayName);
-                // if (tvUserEmail != null) tvUserEmail.setText(email);
+                currentProfile = new UserProfile(SessionManager.getInstance().getUserId(), displayName, email, "", null, null);
+                tvUserName.setText(displayName);
+                tvUserEmail.setText(email);
                 Toast.makeText(getContext(), "Không thể tải hồ sơ: " + error, Toast.LENGTH_SHORT).show();
             }
         });
@@ -116,48 +143,10 @@ public class ProfileFragment extends Fragment {
             loadUserProfile();
             return;
         }
-        showEditProfileDialog();
+        startActivity(new Intent(requireContext(), EditProfileActivity.class));
     }
 
-    private void showEditProfileDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_edit_profile, null);
-        TextInputEditText etFullName = dialogView.findViewById(R.id.etFullName);
-        TextInputEditText etPhone = dialogView.findViewById(R.id.etPhone);
-
-        etFullName.setText(currentProfile.getFullName());
-        etPhone.setText(currentProfile.getPhone());
-
-        builder.setTitle("Cập nhật hồ sơ")
-                .setView(dialogView)
-                .setPositiveButton("Lưu", (dialog, which) -> {
-                    String fullName = etFullName.getText() != null ? etFullName.getText().toString().trim() : "";
-                    String phone = etPhone.getText() != null ? etPhone.getText().toString().trim() : "";
-                    if (fullName.isEmpty()) {
-                        Toast.makeText(getContext(), "Họ tên không được để trống", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    Map<String, Object> updates = new HashMap<>();
-                    updates.put("fullName", fullName);
-                    updates.put("phone", phone);
-                    FirestoreHelper.updateUserProfile(updates, new FirestoreHelper.SimpleCallback() {
-                        @Override
-                        public void onSuccess() {
-                            currentProfile.setFullName(fullName);
-                            currentProfile.setPhone(phone);
-                            tvUserName.setText(fullName);
-                            Toast.makeText(getContext(), "Cập nhật hồ sơ thành công", Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onFailure(String error) {
-                            Toast.makeText(getContext(), "Cập nhật hồ sơ thất bại: " + error, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                })
-                .setNegativeButton("Hủy", null)
-                .show();
-    }
+    // showEditProfileDialog has been moved to EditProfileActivity
 
     private void handleMyOrders() {
         startActivity(new Intent(getContext(), OrderHistoryActivity.class));
@@ -208,7 +197,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void showLoggedOutState() {
-        if (tvUserName != null) tvUserName.setText("Chưa đăng nhập");
-        // if (tvUserEmail != null) tvUserEmail.setText("");
+        tvUserName.setText("Chưa đăng nhập");
+        tvUserEmail.setText("");
     }
 }

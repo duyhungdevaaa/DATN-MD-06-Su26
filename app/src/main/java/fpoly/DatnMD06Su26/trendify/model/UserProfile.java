@@ -15,16 +15,18 @@ public class UserProfile {
     private String fullName;
     private String email;
     private String phone;
+    private String avatarUrl;
     private Timestamp createdAt;
 
     public UserProfile() {
     }
 
-    public UserProfile(String uid, String fullName, String email, String phone, Timestamp createdAt) {
+    public UserProfile(String uid, String fullName, String email, String phone, String avatarUrl, Timestamp createdAt) {
         this.uid = uid;
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
+        this.avatarUrl = avatarUrl;
         this.createdAt = createdAt;
     }
 
@@ -62,6 +64,14 @@ public class UserProfile {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
     public void setCreatedAt(Timestamp createdAt) {
