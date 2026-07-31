@@ -65,6 +65,11 @@ public class OrderConfirmActivity extends AppCompatActivity {
     private Voucher appliedVoucher;
     private long appliedDiscount;
     private String paymentMethod = "Thẻ tín dụng";
+    
+    // UI details
+    private TextView tvDetailSubtotal;
+    private TextView tvDetailShipping;
+    private TextView tvDetailTotal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +92,11 @@ public class OrderConfirmActivity extends AppCompatActivity {
         tvPaymentMethod = findViewById(R.id.tvPaymentMethod);
         etVoucherCode = findViewById(R.id.etVoucherCode);
         btnApplyVoucher = findViewById(R.id.btnApplyVoucher);
-        tvVoucherMessage = null;
+        tvVoucherMessage = findViewById(R.id.tvVoucherMessage);
+        
+        tvDetailSubtotal = findViewById(R.id.tvDetailSubtotal);
+        tvDetailShipping = findViewById(R.id.tvDetailShipping);
+        tvDetailTotal = findViewById(R.id.tvDetailTotal);
 
         btnApplyVoucher.setOnClickListener(v -> applyVoucherCode());
 
@@ -295,6 +304,17 @@ public class OrderConfirmActivity extends AppCompatActivity {
         }
         if (tvTotal != null) {
             tvTotal.setText(formatCurrency(total));
+        }
+        
+        // Update Chi tiết thanh toán block
+        if (tvDetailSubtotal != null) {
+            tvDetailSubtotal.setText(formatCurrency(subtotal));
+        }
+        if (tvDetailShipping != null) {
+            tvDetailShipping.setText(formatCurrency(shippingFee));
+        }
+        if (tvDetailTotal != null) {
+            tvDetailTotal.setText(formatCurrency(total));
         }
     }
 

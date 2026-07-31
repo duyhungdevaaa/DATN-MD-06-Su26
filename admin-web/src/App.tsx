@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { ActiveTab, Product, Category, User, Order, ProductStatus, UserTier, OrderStatus } from "./types";
+import { ActiveTab, Product, Category, User, Order, ProductStatus, UserTier, OrderStatus, Voucher } from "./types";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { DashboardView } from "./components/DashboardView";
@@ -15,6 +15,8 @@ import { CategoryFormView } from "./components/CategoryFormView";
 import { UserListView } from "./components/UserListView";
 import { OrderListView } from "./components/OrderListView";
 import { OrderDetailView } from "./components/OrderDetailView";
+import { VoucherListView } from "./components/VoucherListView";
+import { VoucherFormView } from "./components/VoucherFormView";
 
 import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
@@ -47,15 +49,18 @@ export default function App() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<User[]>(DEFAULT_USERS); // Mocked for now
+  const [vouchers, setVouchers] = useState<Voucher[]>([]);
 
   // Focus and Active detail states
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null);
 
   // Form rendering states (controls creation or update redirection)
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [isAddingVoucher, setIsAddingVoucher] = useState(false);
 
   // Dynamically resolve customer details for orders using loaded users database
   const resolvedOrders = React.useMemo(() => {
@@ -98,6 +103,7 @@ export default function App() {
           description: data.tags ? data.tags.join(', ') : "",
           categoryName: data.categoryId || "Apparel",
           price: data.price || 0,
+          discount: data.discount || 0,
           stock: quantity,
           status,
           imageUrl: data.imageUrl || "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600",
@@ -204,11 +210,27 @@ export default function App() {
       console.warn("Could not load users collection, falling back.", error);
     });
 
+    const unsubVouchers = onSnapshot(collection(db, "vouchers"), (snapshot) => {
+      const loadedVouchers: Voucher[] = snapshot.docs.map(docSnap => {
+        const data = docSnap.data();
+        return {
+          id: docSnap.id,
+          code: data.code || "",
+          discountAmount: data.discountAmount || 0,
+          discountRate: data.discountRate || 0,
+          maximumDiscount: data.maximumDiscount || 0,
+          expirationDate: data.expirationDate || ""
+        };
+      });
+      setVouchers(loadedVouchers);
+    });
+
     return () => {
       unsubProducts();
       unsubCategories();
       unsubOrders();
       unsubUsers();
+      unsubVouchers();
     };
   }, [authUser]);
 
@@ -232,6 +254,7 @@ export default function App() {
       const docData: any = {
         name: payload.name,
         price: payload.price,
+        discount: payload.discount || 0,
         categoryId: payload.categoryName,
         quantity: payload.stock,
         tags: payload.description ? [payload.description] : [],
@@ -307,6 +330,39 @@ export default function App() {
       await deleteDoc(doc(db, "categories", categoryId));
     } catch (e) {
       console.error("Error deleting category:", e);
+    }
+  };
+
+  // --- CRUD Actions for Vouchers ---
+  const handleSaveVoucher = async (payload: Partial<Voucher>) => {
+    try {
+      const docData = {
+        code: payload.code,
+        discountAmount: payload.discountAmount || 0,
+        discountRate: payload.discountRate || 0,
+        maximumDiscount: payload.maximumDiscount || 0,
+        expirationDate: payload.expirationDate
+      };
+
+      if (payload.id) {
+        await updateDoc(doc(db, "vouchers", payload.id), docData);
+      } else {
+        await addDoc(collection(db, "vouchers"), docData);
+      }
+    } catch (e) {
+      console.error("Error saving voucher:", e);
+    }
+
+    setEditingVoucher(null);
+    setIsAddingVoucher(false);
+    setActiveTab(ActiveTab.VOUCHERS);
+  };
+
+  const handleDeleteVoucher = async (voucherId: string) => {
+    try {
+      await deleteDoc(doc(db, "vouchers", voucherId));
+    } catch (e) {
+      console.error("Error deleting voucher:", e);
     }
   };
 
@@ -447,6 +503,29 @@ export default function App() {
           />
         );
 
+      case ActiveTab.VOUCHERS:
+        if (isAddingVoucher || editingVoucher) {
+          return (
+            <VoucherFormView
+              editingVoucher={editingVoucher}
+              onSaveVoucher={handleSaveVoucher}
+              onCancel={() => {
+                setEditingVoucher(null);
+                setIsAddingVoucher(false);
+              }}
+            />
+          );
+        }
+        return (
+          <VoucherListView
+            vouchers={vouchers}
+            searchText={searchText}
+            onAddVoucherClick={() => setIsAddingVoucher(true)}
+            onEditVoucherClick={(voucher) => setEditingVoucher(voucher)}
+            onDeleteVoucher={handleDeleteVoucher}
+          />
+        );
+
       default:
         return (
           <div className="bg-white rounded-2xl border border-zinc-200/50 p-16 text-center shadow-sm font-sans">
@@ -494,8 +573,10 @@ export default function App() {
           setSelectedOrder(null);
           setEditingProduct(null);
           setEditingCategory(null);
+          setEditingVoucher(null);
           setIsAddingProduct(false);
           setIsAddingCategory(false);
+          setIsAddingVoucher(false);
         }}
         productCount={products.length}
         orderCount={orders.filter(o => o.status === OrderStatus.AWAITING_PAYMENT || o.status === OrderStatus.PROCESSING).length}

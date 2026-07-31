@@ -35,6 +35,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
   const [description, setDescription] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [price, setPrice] = useState<number>(0);
+  const [discount, setDiscount] = useState<number>(0);
   const [stock, setStock] = useState<number>(1);
   const [status, setStatus] = useState<ProductStatus>(ProductStatus.ACTIVE);
   const [imageUrl, setImageUrl] = useState("");
@@ -128,6 +129,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
       setDescription(editingProduct.description);
       setCategoryName(editingProduct.categoryName);
       setPrice(editingProduct.price);
+      setDiscount(editingProduct.discount || 0);
       setStock(editingProduct.stock);
       setStatus(editingProduct.status);
       setImageUrl(editingProduct.imageUrl);
@@ -224,6 +226,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
       description: description.trim(),
       categoryName,
       price,
+      discount,
       stock: hasVariants ? variants.reduce((sum, v) => sum + v.quantity, 0) : stock,
       status,
       imageUrl: imageUrl.trim(),
@@ -349,12 +352,12 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                 />
               </div>
 
-              {/* Price and Stock levels inputs */}
-              <div className="grid grid-cols-2 gap-4">
-                {/* Price (VNĐ or USD based on structure) */}
+              {/* Price, Discount, and Stock levels inputs */}
+              <div className="grid grid-cols-3 gap-4">
+                {/* Price */}
                 <div>
                   <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
-                    Giá trị niêm yết (VND / $) *
+                    Giá niêm yết (VND) *
                   </label>
                   <input
                     type="number"
@@ -367,10 +370,26 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                   />
                 </div>
 
+                {/* Discount */}
+                <div>
+                  <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
+                    Giảm giá Săn Sale (%)
+                  </label>
+                  <input
+                    type="number"
+                    value={discount || ""}
+                    onChange={(e) => setDiscount(Number(e.target.value))}
+                    placeholder="Ví dụ: 15"
+                    className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3 text-xs font-mono font-bold focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-850"
+                    min="0"
+                    max="100"
+                  />
+                </div>
+
                 {/* Remaining Stock */}
                 <div>
                   <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
-                    Số lượng nhập kho *
+                    Kho hàng *
                   </label>
                   <input
                     type="number"
