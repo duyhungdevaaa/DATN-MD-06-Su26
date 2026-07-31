@@ -89,8 +89,7 @@
                     android:text="Trendify"
                     android:textColor="@color/trend_text"
                     android:textSize="32sp"
-                    android:textStyle="italic|bold"
-                    android:fontFamily="serif" />
+                    android:textStyle="italic|bold" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -110,8 +109,8 @@
                 android:text="1. Giới thiệu"
                 android:textColor="@color/trend_text"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:fontFamily="serif" />
+                android:textStyle="bold" />
+
 
             <TextView
                 android:layout_width="match_parent"
@@ -135,8 +134,8 @@
                 android:text="2. Quy định sử dụng ứng dụng"
                 android:textColor="@color/trend_text"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:fontFamily="serif" />
+                android:textStyle="bold" />
+
 
             <TextView
                 android:layout_width="match_parent"
@@ -160,8 +159,8 @@
                 android:text="3. Quy định mua hàng"
                 android:textColor="@color/trend_text"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:fontFamily="serif" />
+                android:textStyle="bold" />
+
 
             <TextView
                 android:layout_width="match_parent"
@@ -185,8 +184,8 @@
                 android:text="4. Chính sách thanh toán"
                 android:textColor="@color/trend_text"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:fontFamily="serif" />
+                android:textStyle="bold" />
+
 
             <TextView
                 android:layout_width="match_parent"
@@ -210,8 +209,8 @@
                 android:text="5. Trách nhiệm khách hàng"
                 android:textColor="@color/trend_text"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:fontFamily="serif" />
+                android:textStyle="bold" />
+
 
             <TextView
                 android:layout_width="match_parent"
@@ -235,8 +234,8 @@
                 android:text="6. Trách nhiệm của Trendify"
                 android:textColor="@color/trend_text"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:fontFamily="serif" />
+                android:textStyle="bold" />
+
 
             <TextView
                 android:layout_width="match_parent"
@@ -260,8 +259,8 @@
                 android:text="7. Điều khoản chung"
                 android:textColor="@color/trend_text"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:fontFamily="serif" />
+                android:textStyle="bold" />
+
 
             <TextView
                 android:layout_width="match_parent"
