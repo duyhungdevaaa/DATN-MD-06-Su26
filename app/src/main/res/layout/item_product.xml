@@ -29,8 +29,7 @@
                 android:layout_height="match_parent"
                 android:background="#EEEEEE"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_shopping_bag"
-                app:tint="#BDBDBD" />
+                android:src="@drawable/ic_shopping_bag" />
 
             <!-- Mall/Favorite Tag overlay -->
             <TextView
@@ -49,6 +48,7 @@
 
             <!-- Discount Tag overlay -->
             <LinearLayout
+                android:id="@+id/llDiscountTag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -59,6 +59,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
                 <TextView
+                    android:id="@+id/tvDiscountPercent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="50%"
@@ -73,6 +74,18 @@
                     android:textSize="8sp"
                     android:textStyle="bold" />
             </LinearLayout>
+            <!-- Favorite Icon overlay -->
+            <ImageView
+                android:id="@+id/ivFavorite"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_favorite"
+                android:layout_margin="6dp"
+                android:padding="6dp"
+                android:background="@drawable/bg_circle_white"
+                android:elevation="2dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Product Name -->
@@ -92,20 +105,42 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Price -->
-        <TextView
-            android:id="@+id/tvProductPrice"
-            android:layout_width="wrap_content"
+        <!-- Price Container -->
+        <LinearLayout
+            android:id="@+id/llPriceContainer"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:layout_marginStart="8dp"
             android:layout_marginTop="12dp"
-            android:text="đ99.000"
-            android:textColor="#EE4D2D"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif-medium"
             app:layout_constraintTop_toBottomOf="@id/tvProductName"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tvSoldCount">
+
+            <!-- Discounted Price (or original price if no discount) -->
+            <TextView
+                android:id="@+id/tvProductPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="đ99.000"
+                android:textColor="#EE4D2D"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium" />
+
+            <!-- Original Price (only visible if discount > 0) with Strikethrough -->
+            <TextView
+                android:id="@+id/tvProductOriginalPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="đ120.000"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif"
+                android:visibility="gone" />
+        </LinearLayout>
 
         <!-- Sold Count -->
         <TextView
@@ -116,7 +151,7 @@
             android:text="Đã bán 1,2k"
             android:textColor="@color/text_secondary"
             android:textSize="10sp"
-            app:layout_constraintBottom_toBottomOf="@id/tvProductPrice"
+            app:layout_constraintBottom_toBottomOf="@id/llPriceContainer"
             app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
