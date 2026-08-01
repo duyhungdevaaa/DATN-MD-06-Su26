@@ -39,8 +39,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
-                android:padding="16dp"
-                android:orientation="vertical">
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
                 <TextView
                     android:id="@+id/tvProductPrice"
                     android:layout_width="wrap_content"
@@ -49,6 +52,16 @@
                     android:textColor="#EE4D2D"
                     android:textSize="20sp"
                     android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tvProductOriginalPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="₫300.000"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <!-- Product Info Container -->
@@ -273,12 +286,13 @@
 
     <!-- Fixed Top Header (Shopee Style) -->
     <LinearLayout
+        android:id="@+id/headerLayout"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingHorizontal="12dp"
-        android:paddingTop="24dp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="8dp"
         android:background="@color/white"
         android:layout_gravity="top"
         android:elevation="8dp">
@@ -286,9 +300,9 @@
         <!-- Back Button -->
         <ImageView
             android:id="@+id/ivBack"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:padding="4dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
             android:src="@drawable/ic_arrow_back"
             app:tint="#EE4D2D"
             android:background="?attr/selectableItemBackgroundBorderless" />
@@ -296,49 +310,49 @@
         <!-- Search Bar -->
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="32dp"
+            android:layout_height="36dp"
             android:layout_weight="1"
-            android:layout_marginHorizontal="1dp"
+            android:layout_marginHorizontal="6dp"
             android:background="@drawable/bg_search_bar"
             android:gravity="center_vertical"
             android:paddingHorizontal="12dp">
             
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:src="@drawable/ic_search"
                 app:tint="#888888" />
 
             <TextView
-                android:layout_width="200dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:layout_marginStart="8dp"
                 android:text="Tìm kiếm sản phẩm"
                 android:textColor="#888888"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:singleLine="true" />
         </LinearLayout>
 
         <!-- Share Icon -->
         <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:padding="6dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
             android:src="@drawable/ic_share"
             app:tint="#EE4D2D"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:layout_marginEnd="8dp" />
+            android:background="?attr/selectableItemBackgroundBorderless" />
 
         <!-- Cart Button overlay with Badges -->
         <FrameLayout
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginEnd="8dp">
+            android:layout_width="40dp"
+            android:layout_height="40dp">
             
             <ImageView
                 android:id="@+id/ivCartTop"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="6dp"
+                android:padding="8dp"
                 android:src="@drawable/ic_cart"
                 app:tint="#EE4D2D"
                 android:background="?attr/selectableItemBackgroundBorderless" />
@@ -346,28 +360,28 @@
             <!-- Badge: Checkmark (Success) -->
             <ImageView
                 android:id="@+id/ivCartBadgeSuccess"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:layout_gravity="top|end"
-                android:layout_marginTop="-2dp"
-                android:layout_marginEnd="-4dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="2dp"
                 android:background="@drawable/bg_badge_success"
                 android:src="@drawable/ic_check" 
-                android:padding="2dp"
+                android:padding="3dp"
                 app:tint="@color/white"
                 android:visibility="gone" />
 
             <!-- Badge: Number -->
             <TextView
                 android:id="@+id/tvCartBadgeCount"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:layout_gravity="top|end"
-                android:layout_marginTop="-2dp"
-                android:layout_marginEnd="-4dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="2dp"
                 android:background="@drawable/bg_badge_number"
                 android:textColor="@color/white"
-                android:textSize="8sp"
+                android:textSize="9sp"
                 android:gravity="center"
                 android:textStyle="bold"
                 android:visibility="gone"
@@ -376,9 +390,9 @@
 
         <!-- More Options Icon -->
         <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:padding="6dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
             android:src="@drawable/ic_more_vert"
             app:tint="#EE4D2D"
             android:background="?attr/selectableItemBackgroundBorderless" />

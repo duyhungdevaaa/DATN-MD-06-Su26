@@ -202,9 +202,15 @@ public class HomeFragment extends Fragment {
                 List<ProductItem> subList = products.subList(0, count);
                 newArrivalsAdapter.setItems(subList);
                 
-                // Giả lập dữ liệu cho Flash Sale bằng cách lấy 5 sản phẩm đầu
-                int flashSaleCount = Math.min(products.size(), 5);
-                rvFlashSale.setAdapter(new FlashSaleAdapter(products.subList(0, flashSaleCount)));
+                // Filter products that have active discounts for Flash Sale
+                List<ProductItem> flashSaleProducts = new ArrayList<>();
+                for (ProductItem p : products) {
+                    if (p.getDiscount() > 0) {
+                        flashSaleProducts.add(p);
+                    }
+                }
+                int flashSaleCount = Math.min(flashSaleProducts.size(), 5);
+                rvFlashSale.setAdapter(new FlashSaleAdapter(flashSaleProducts.subList(0, flashSaleCount)));
             }
 
             @Override
@@ -290,7 +296,7 @@ public class HomeFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             ProductItem item = items.get(position);
-            holder.tvPrice.setText("đ" + item.getPrice());
+            holder.tvPrice.setText(formatPrice(item.getPrice()));
             
             String imgUrl = item.getImageUrl();
             if (imgUrl != null && !imgUrl.isEmpty()) {
@@ -300,6 +306,34 @@ public class HomeFragment extends Fragment {
                         .error(R.drawable.ic_shopping_bag)
                         .centerCrop()
                         .into(holder.ivProductImage);
+            }
+
+            // Discount logic
+            if (holder.tvDiscountPercent != null) {
+                if (item.getDiscount() > 0) {
+                    holder.tvDiscountPercent.setVisibility(View.VISIBLE);
+                    holder.tvDiscountPercent.setText("-" + (int)item.getDiscount() + "%");
+                } else {
+                    holder.tvDiscountPercent.setVisibility(View.GONE);
+                }
+            }
+
+            // Progress bar and sold label logic
+            if (holder.vProgress != null && holder.tvProgressLabel != null) {
+                int sold = item.getSoldCount();
+                int quantity = item.getQuantity();
+                float progressPercent = (float) sold / (sold + quantity);
+                
+                androidx.constraintlayout.widget.ConstraintLayout.LayoutParams lp = 
+                    (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) holder.vProgress.getLayoutParams();
+                lp.matchConstraintPercentWidth = progressPercent;
+                holder.vProgress.setLayoutParams(lp);
+
+                if (progressPercent > 0.85f) {
+                    holder.tvProgressLabel.setText("BÁN GẦN HẾT");
+                } else {
+                    holder.tvProgressLabel.setText("ĐÃ BÁN " + sold);
+                }
             }
 
             holder.itemView.setOnClickListener(v -> {
@@ -314,6 +348,16 @@ public class HomeFragment extends Fragment {
             });
         }
 
+        private String formatPrice(String priceStr) {
+            if (priceStr == null || priceStr.isEmpty()) return "";
+            try {
+                double price = Double.parseDouble(priceStr);
+                return "đ" + String.format(java.util.Locale.US, "%,d", (long) price).replace(',', '.');
+            } catch (Exception e) {
+                return priceStr.startsWith("đ") ? priceStr : "đ" + priceStr;
+            }
+        }
+
         @Override
         public int getItemCount() {
             return items.size();
@@ -322,11 +366,17 @@ public class HomeFragment extends Fragment {
         class ViewHolder extends RecyclerView.ViewHolder {
             ImageView ivProductImage;
             TextView tvPrice;
+            TextView tvDiscountPercent;
+            View vProgress;
+            TextView tvProgressLabel;
 
             ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 ivProductImage = itemView.findViewById(R.id.ivProductImage);
                 tvPrice = itemView.findViewById(R.id.tvPrice);
+                tvDiscountPercent = itemView.findViewById(R.id.tvDiscountPercent);
+                vProgress = itemView.findViewById(R.id.vProgress);
+                tvProgressLabel = itemView.findViewById(R.id.tvProgressLabel);
             }
         }
     }
