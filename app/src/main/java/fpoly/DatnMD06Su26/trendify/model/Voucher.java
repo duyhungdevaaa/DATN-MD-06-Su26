@@ -82,7 +82,7 @@ public class Voucher {
         if (maximumDiscount > 0 && discount > maximumDiscount) {
             discount = maximumDiscount;
         }
-        return Math.max(0, discount);
+        return Math.min(subtotal, Math.max(0, discount));
     }
 
     @NonNull
