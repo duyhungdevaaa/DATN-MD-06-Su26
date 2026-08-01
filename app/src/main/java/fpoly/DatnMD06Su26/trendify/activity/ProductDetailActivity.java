@@ -12,6 +12,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -60,11 +61,20 @@ public class ProductDetailActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_product_detail);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.ivBack), (v, insets) -> {
-            Insets s = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(v.getPaddingLeft(), s.top + 20, v.getPaddingRight(), v.getPaddingBottom());
-            return insets;
-        });
+        View headerLayout = findViewById(R.id.headerLayout);
+        if (headerLayout != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(headerLayout, (v, insets) -> {
+                Insets s = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                int pLeft = v.getPaddingLeft();
+                int pRight = v.getPaddingRight();
+                int pTop = s.top + (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+                int pBottom = (int) TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+                v.setPadding(pLeft, pTop, pRight, pBottom);
+                return insets;
+            });
+        }
 
         String productId   = getIntent().getStringExtra("PRODUCT_ID");
         String productName = getIntent().getStringExtra("PRODUCT_NAME");
@@ -183,6 +193,25 @@ public class ProductDetailActivity extends AppCompatActivity {
                                 List<String> loadedColors = productDetail.getColors();
                                 android.util.Log.d("ProductDetailActivity", "Loaded sizes: " + loadedSizes + ", colors: " + loadedColors);
                                 setupSizesAndColors(productDetail, layoutSizes, layoutColors);
+
+                                // Update real prices from Firestore
+                                TextView tvDetailPrice = findViewById(R.id.tvProductPrice);
+                                TextView tvDetailOriginalPrice = findViewById(R.id.tvProductOriginalPrice);
+                                if (tvDetailPrice != null) {
+                                    if (productDetail.getDiscount() > 0) {
+                                        tvDetailPrice.setText(formatPrice(productDetail.getDiscountedPrice()));
+                                        if (tvDetailOriginalPrice != null) {
+                                            tvDetailOriginalPrice.setVisibility(View.VISIBLE);
+                                            tvDetailOriginalPrice.setText(formatPrice(productDetail.getPrice()));
+                                            tvDetailOriginalPrice.setPaintFlags(tvDetailOriginalPrice.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+                                        }
+                                    } else {
+                                        tvDetailPrice.setText(formatPrice(productDetail.getPrice()));
+                                        if (tvDetailOriginalPrice != null) {
+                                            tvDetailOriginalPrice.setVisibility(View.GONE);
+                                        }
+                                    }
+                                }
                             } else {
                                 Toast.makeText(this, "Lỗi: Dữ liệu sản phẩm rỗng!", Toast.LENGTH_LONG).show();
                             }
@@ -256,32 +285,14 @@ public class ProductDetailActivity extends AppCompatActivity {
                 cartItemId = finalProductId + "_" + selectedSize + "_" + selectedColor;
             }
 
-            CartItem item = new CartItem(finalProductId, finalProductName, finalProductPrice, 1, 
+            String cartItemPrice = (productDetail != null) ? productDetail.getDiscountedPrice() : finalProductPrice;
+            CartItem item = new CartItem(finalProductId, finalProductName, cartItemPrice, 1, 
                     finalImageUrl != null ? finalImageUrl : "", selectedSize, selectedColor, cartItemId);
             
             new CartManager().addToCart(item, new CartManager.CartCallback() {
                 @Override
                 public void onSuccess() {
-                    Toast.makeText(ProductDetailActivity.this, "Đã thêm vào giỏ hàng ✓", Toast.LENGTH_SHORT).show();
-                    
-                    // Hiển thị badge tick xanh
-                    ImageView ivBadgeSuccess = findViewById(R.id.ivCartBadgeSuccess);
-                    TextView tvBadgeCount = findViewById(R.id.tvCartBadgeCount);
-                    if (ivBadgeSuccess != null && tvBadgeCount != null) {
-                        ivBadgeSuccess.setVisibility(View.VISIBLE);
-                        tvBadgeCount.setVisibility(View.GONE);
-                        
-                        // Hiệu ứng pop-up cho tick xanh
-                        ivBadgeSuccess.setScaleX(0f);
-                        ivBadgeSuccess.setScaleY(0f);
-                        ivBadgeSuccess.animate().scaleX(1f).scaleY(1f).setDuration(300).setInterpolator(new android.view.animation.OvershootInterpolator()).start();
-                        
-                        // Sau 1.5s, ẩn tick xanh và hiện số lượng THỰC TẾ
-                        ivBadgeSuccess.postDelayed(() -> {
-                            ivBadgeSuccess.setVisibility(View.GONE);
-                            updateCartBadge();
-                        }, 1500);
-                    }
+                    playAddToCartAnimation();
                 }
                 @Override
                 public void onFailure(String error) {
@@ -701,5 +712,91 @@ public class ProductDetailActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void playAddToCartAnimation() {
+        ImageView ivProductImage = findViewById(R.id.ivProductImage);
+        ImageView ivCartTop = findViewById(R.id.ivCartTop);
+        if (ivProductImage == null || ivCartTop == null || ivProductImage.getDrawable() == null) {
+            updateCartBadge();
+            return;
+        }
+
+        // 1. Create a copy of the product image
+        final ImageView animImageView = new ImageView(this);
+        animImageView.setImageDrawable(ivProductImage.getDrawable());
+        animImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        // 2. Get screen locations
+        int[] startLoc = new int[2];
+        ivProductImage.getLocationInWindow(startLoc);
+        int[] endLoc = new int[2];
+        ivCartTop.getLocationInWindow(endLoc);
+
+        // 3. Set layout parameters on DecorView
+        ViewGroup root = (ViewGroup) getWindow().getDecorView();
+        android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(
+                ivProductImage.getWidth(), ivProductImage.getHeight()
+        );
+        params.leftMargin = startLoc[0];
+        params.topMargin = startLoc[1];
+        animImageView.setLayoutParams(params);
+        root.addView(animImageView);
+
+        // 4. Animate!
+        animImageView.setScaleX(1.0f);
+        animImageView.setScaleY(1.0f);
+        
+        // Target translations to move the center of product image to the center of cart icon
+        float targetX = endLoc[0] + (ivCartTop.getWidth() - ivProductImage.getWidth()) / 2.0f - startLoc[0];
+        float targetY = endLoc[1] + (ivCartTop.getHeight() - ivProductImage.getHeight()) / 2.0f - startLoc[1];
+
+        // Animate scale up first (screenshot flash effect)
+        animImageView.animate()
+                .scaleX(1.08f)
+                .scaleY(1.08f)
+                .setDuration(150)
+                .withEndAction(() -> {
+                    // Step 4b: Fly and shrink quickly into the cart icon
+                    animImageView.animate()
+                            .translationX(targetX)
+                            .translationY(targetY)
+                            .scaleX(0.05f)
+                            .scaleY(0.05f)
+                            .alpha(0.2f)
+                            .setDuration(600)
+                            .setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator())
+                            .withEndAction(() -> {
+                                // Step 4c: Clean up and play cart bounce animation
+                                root.removeView(animImageView);
+                                
+                                // Bounce cart icon
+                                ivCartTop.animate()
+                                        .scaleX(1.3f)
+                                        .scaleY(1.3f)
+                                        .setDuration(150)
+                                        .withEndAction(() -> {
+                                            ivCartTop.animate()
+                                                    .scaleX(1.0f)
+                                                    .scaleY(1.0f)
+                                                    .setDuration(150)
+                                                    .start();
+                                        }).start();
+                                
+                                // Update cart badge
+                                updateCartBadge();
+                            }).start();
+                }).start();
+    }
+
+    private String formatPrice(String priceStr) {
+        if (priceStr == null || priceStr.isEmpty()) return "";
+        try {
+            String clean = priceStr.replace("đ", "").replace("₫", "").replace("VND", "").replaceAll("[^0-9.]", "");
+            double price = Double.parseDouble(clean);
+            return "đ" + String.format(java.util.Locale.US, "%,d", (long) price).replace(',', '.');
+        } catch (Exception e) {
+            return priceStr.startsWith("đ") || priceStr.startsWith("₫") ? priceStr : "đ" + priceStr;
+        }
     }
 }
