@@ -58,6 +58,11 @@ public class FirestoreHelper {
         void onLoaded(Voucher voucher);
         void onFailure(String error);
     }
+    
+    public interface VouchersCallback {
+        void onLoaded(List<Voucher> vouchers);
+        void onFailure(String error);
+    }
 
     public interface CategoriesCallback {
         void onLoaded(List<CategoryItem> categories);
@@ -195,7 +200,13 @@ public class FirestoreHelper {
             Long qtyLong = document.getLong("quantity");
             int quantity = qtyLong != null ? qtyLong.intValue() : 10;
             
-            ProductItem product = new ProductItem(id, catId, name, price, imageUrl, sizes, colors, quantity);
+            Double discountDouble = document.getDouble("discount");
+            double discount = discountDouble != null ? discountDouble : 0.0;
+            
+            com.google.firebase.Timestamp createdAtTs = document.getTimestamp("createdAt");
+            Long createdAt = createdAtTs != null ? createdAtTs.toDate().getTime() : 0L;
+            
+            ProductItem product = new ProductItem(id, catId, name, price, imageUrl, sizes, colors, quantity, discount, createdAt);
             products.add(product);
         }
         return products;
@@ -308,6 +319,23 @@ public class FirestoreHelper {
                         return;
                     }
                     callback.onLoaded(voucher);
+                })
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    public static void loadVouchers(@NonNull VouchersCallback callback) {
+        getDb().collection("vouchers")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Voucher> vouchers = new ArrayList<>();
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        Voucher voucher = Voucher.fromDocument(doc);
+                        // Chỉ thêm những voucher chưa hết hạn
+                        if (!voucher.isExpired()) {
+                            vouchers.add(voucher);
+                        }
+                    }
+                    callback.onLoaded(vouchers);
                 })
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }

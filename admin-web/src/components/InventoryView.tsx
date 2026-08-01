@@ -35,6 +35,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [stockFilter, setStockFilter] = useState<string>("All");
   const [statusTab, setStatusTab] = useState<ProductStatus>(ProductStatus.ACTIVE);
+  const [isSaleOnly, setIsSaleOnly] = useState<boolean>(false);
 
   // Formats price gracefully
   const formatPrice = (price: number) => {
@@ -72,7 +73,10 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
       matchesStock = product.stock === 0;
     }
 
-    return matchesSearch && matchesCategory && matchesStatus && matchesStock;
+    // Sale filter
+    const matchesSale = !isSaleOnly || (product.discount && product.discount > 0);
+
+    return matchesSearch && matchesCategory && matchesStatus && matchesStock && matchesSale;
   });
 
   // Action confirmations
@@ -138,6 +142,19 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
               <option value="low_stock">Sắp hết hàng (1-4)</option>
               <option value="out_of_stock">Hết hàng (0)</option>
             </select>
+          </div>
+
+          {/* Sale Filter */}
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-2 cursor-pointer bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs hover:bg-zinc-100 transition-colors">
+              <input 
+                type="checkbox" 
+                checked={isSaleOnly}
+                onChange={(e) => setIsSaleOnly(e.target.checked)}
+                className="w-3.5 h-3.5 text-[#8c7623] rounded border-zinc-300 focus:ring-[#8c7623]"
+              />
+              <span className="text-[9px] font-mono text-rose-500 uppercase tracking-widest font-bold">Đang Săn Sale</span>
+            </label>
           </div>
 
         </div>
@@ -211,6 +228,13 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                   <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm shadow-sm border border-zinc-100 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-[#8c7623] font-mono">
                     {product.categoryName}
                   </span>
+                  
+                  {/* Sale overlay */}
+                  {product.discount && product.discount > 0 ? (
+                    <span className="absolute top-3 right-3 bg-rose-500 shadow-sm border border-rose-600 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-white font-mono">
+                      Giảm {product.discount}%
+                    </span>
+                  ) : null}
 
                   {/* SKU overlay */}
                   <span className="absolute bottom-3 left-3 bg-zinc-900/80 backdrop-blur-sm text-white px-2 py-0.5 rounded text-[8px] font-mono tracking-widest uppercase">
