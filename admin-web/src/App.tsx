@@ -17,7 +17,6 @@ import { OrderListView } from "./components/OrderListView";
 import { OrderDetailView } from "./components/OrderDetailView";
 import { VoucherListView } from "./components/VoucherListView";
 import { VoucherFormView } from "./components/VoucherFormView";
-import { NotificationsView } from "./components/NotificationsView";
 
 import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
@@ -526,9 +525,6 @@ export default function App() {
             onDeleteVoucher={handleDeleteVoucher}
           />
         );
-
-      case ActiveTab.NOTIFICATIONS:
-        return <NotificationsView />;
 
       default:
         return (
