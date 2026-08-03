@@ -11,7 +11,6 @@ export enum ActiveTab {
   CATEGORIES = "categories",
   VOUCHERS = "vouchers",
   SETTINGS = "settings",
-  NOTIFICATIONS = "notifications",
 }
 
 export enum ProductStatus {
