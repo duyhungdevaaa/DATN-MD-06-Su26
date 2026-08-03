@@ -8,11 +8,14 @@ public class ProductItem {
     private String categoryId;
     private String name;
     private Object price;
+    private double discount = 0.0;
     private String imageUrl;
     private List<String> sizes = new ArrayList<>();
     private List<String> colors = new ArrayList<>();
     private int quantity = 10; // Default to 10 so older products are not immediately marked as out-of-stock
     private List<Variant> variants = new ArrayList<>();
+    private Long createdAt = 0L;
+    private int sold = 0;
 
     public static class Variant {
         private String size = "";
@@ -77,6 +80,19 @@ public class ProductItem {
         this.quantity = quantity;
         this.variants = variants != null ? variants : new ArrayList<>();
     }
+    
+    public ProductItem(String id, String categoryId, String name, String price, String imageUrl, List<String> sizes, List<String> colors, int quantity, double discount, Long createdAt) {
+        this.id = id != null && !id.isEmpty() ? id : generateIdFromName(name);
+        this.categoryId = categoryId;
+        this.name = name;
+        this.price = price;
+        this.imageUrl = imageUrl != null ? imageUrl : "";
+        this.sizes = sizes != null ? sizes : new ArrayList<>();
+        this.colors = colors != null ? colors : new ArrayList<>();
+        this.quantity = quantity;
+        this.discount = discount;
+        this.createdAt = createdAt != null ? createdAt : 0L;
+    }
 
     public String getId() {
         return id != null && !id.isEmpty() ? id : generateIdFromName(name);
@@ -106,8 +122,63 @@ public class ProductItem {
         return price != null ? String.valueOf(price) : "";
     }
 
+    public double getPriceDouble() {
+        String pStr = getPrice();
+        if (pStr.isEmpty()) return 0.0;
+        try {
+            pStr = pStr.replace("đ", "").replace("VND", "").replaceAll("[^0-9.]", "");
+            return Double.parseDouble(pStr);
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
+    }
+
+    public double getDiscountedPriceDouble() {
+        double originalPrice = getPriceDouble();
+        if (discount > 0) {
+            return originalPrice * (1.0 - discount / 100.0);
+        }
+        return originalPrice;
+    }
+
+    public String getDiscountedPrice() {
+        double discPrice = getDiscountedPriceDouble();
+        if (discPrice == (long) discPrice) {
+            return String.valueOf((long) discPrice);
+        }
+        return String.valueOf(discPrice);
+    }
+
     public void setPrice(Object price) {
         this.price = price;
+    }
+
+    public double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(double discount) {
+        this.discount = discount;
+    }
+
+    public int getSold() {
+        return sold;
+    }
+
+    public void setSold(int sold) {
+        this.sold = sold;
+    }
+
+    public int getSoldCount() {
+        return sold;
+    }
+
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Long createdAt) {
+        this.createdAt = createdAt;
     }
 
     public String getImageUrl() {

@@ -12,7 +12,9 @@ import {
   Tag, 
   FolderGit2, 
   Globe,
-  LogOut
+  LogOut,
+  Ticket,
+  Bell
 } from "lucide-react";
 
 interface SidebarProps {
@@ -60,11 +62,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
       description: "Phân loại bộ sưu tập"
     },
     {
+      id: ActiveTab.VOUCHERS,
+      label: "Voucher",
+      icon: Ticket,
+      badge: null,
+      description: "Mã giảm giá & KM"
+    },
+    {
       id: ActiveTab.USERS,
       label: "Khách hàng",
       icon: Users,
       badge: null,
       description: "Hội viên & Giao dịch"
+    },
+    {
+      id: ActiveTab.NOTIFICATIONS,
+      label: "Thông báo",
+      icon: Bell,
+      badge: null,
+      description: "Gửi thông báo đến App"
     }
   ];
 

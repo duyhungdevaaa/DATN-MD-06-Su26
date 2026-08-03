@@ -13,6 +13,8 @@ import fpoly.DatnMD06Su26.trendify.helper.*;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.LayoutInflater;
+import android.widget.LinearLayout;
 import android.net.Uri;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -43,6 +45,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.util.Log;
+import com.bumptech.glide.Glide;
 
 public class OrderConfirmActivity extends AppCompatActivity {
 
@@ -92,7 +95,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
         tvPaymentMethod = findViewById(R.id.tvPaymentMethod);
         etVoucherCode = findViewById(R.id.etVoucherCode);
         btnApplyVoucher = findViewById(R.id.btnApplyVoucher);
-        tvVoucherMessage = null;
+        tvVoucherMessage = findViewById(R.id.tvVoucherMessage);
         
         tvDetailSubtotal = findViewById(R.id.tvDetailSubtotal);
         tvDetailShipping = findViewById(R.id.tvDetailShipping);
@@ -315,6 +318,61 @@ public class OrderConfirmActivity extends AppCompatActivity {
         }
         if (tvDetailTotal != null) {
             tvDetailTotal.setText(formatCurrency(total));
+        }
+
+        // Render dynamic product items
+        LinearLayout container = findViewById(R.id.llProductContainer);
+        if (container != null) {
+            container.removeAllViews();
+            LayoutInflater inflater = LayoutInflater.from(this);
+            for (CartItem item : items) {
+                View itemView = inflater.inflate(R.layout.item_checkout_product, container, false);
+                
+                ImageView ivProductImage = itemView.findViewById(R.id.ivProductImage);
+                TextView tvProductName = itemView.findViewById(R.id.tvProductName);
+                TextView tvProductVariant = itemView.findViewById(R.id.tvProductVariant);
+                TextView tvProductPrice = itemView.findViewById(R.id.tvProductPrice);
+                TextView tvProductQuantity = itemView.findViewById(R.id.tvProductQuantity);
+                
+                if (tvProductName != null) tvProductName.setText(item.getName());
+                
+                if (tvProductVariant != null) {
+                    StringBuilder variant = new StringBuilder("Phân loại hàng: ");
+                    boolean hasVariant = false;
+                    if (item.getSize() != null && !item.getSize().isEmpty()) {
+                        variant.append(item.getSize());
+                        hasVariant = true;
+                    }
+                    if (item.getColor() != null && !item.getColor().isEmpty()) {
+                        if (hasVariant) variant.append(", ");
+                        variant.append(item.getColor());
+                        hasVariant = true;
+                    }
+                    if (hasVariant) {
+                        tvProductVariant.setVisibility(View.VISIBLE);
+                        tvProductVariant.setText(variant.toString());
+                    } else {
+                        tvProductVariant.setVisibility(View.GONE);
+                    }
+                }
+                
+                if (tvProductPrice != null) {
+                    tvProductPrice.setText(formatCurrency(item.getPriceAsLong()));
+                }
+                
+                if (tvProductQuantity != null) {
+                    tvProductQuantity.setText("x" + item.getQuantity());
+                }
+                
+                if (ivProductImage != null && item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+                    Glide.with(this)
+                            .load(item.getImageUrl())
+                            .centerCrop()
+                            .into(ivProductImage);
+                }
+                
+                container.addView(itemView);
+            }
         }
     }
 
