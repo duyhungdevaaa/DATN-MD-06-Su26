@@ -24,8 +24,7 @@
         android:scaleType="centerCrop"
         android:src="@drawable/ic_shopping_bag"
         app:layout_constraintStart_toEndOf="@id/cbSelect"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="#BDBDBD" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tvItemName"

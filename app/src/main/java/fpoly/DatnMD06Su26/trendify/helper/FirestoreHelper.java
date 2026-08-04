@@ -203,10 +203,14 @@ public class FirestoreHelper {
             Double discountDouble = document.getDouble("discount");
             double discount = discountDouble != null ? discountDouble : 0.0;
             
+            Long soldLong = document.getLong("sold");
+            int sold = soldLong != null ? soldLong.intValue() : 0;
+            
             com.google.firebase.Timestamp createdAtTs = document.getTimestamp("createdAt");
             Long createdAt = createdAtTs != null ? createdAtTs.toDate().getTime() : 0L;
             
             ProductItem product = new ProductItem(id, catId, name, price, imageUrl, sizes, colors, quantity, discount, createdAt);
+            product.setSold(sold);
             products.add(product);
         }
         return products;
