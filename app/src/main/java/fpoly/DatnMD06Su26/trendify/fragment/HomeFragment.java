@@ -90,6 +90,58 @@ public class HomeFragment extends Fragment {
             });
         }
 
+        // Logic for menu buttons
+        View llSanSale = view.findViewById(R.id.llSanSale);
+        if (llSanSale != null) {
+            llSanSale.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), ProductListActivity.class);
+                intent.putExtra("FILTER_MODE", "SALE");
+                startActivity(intent);
+            });
+        }
+        
+        View llHangMoi = view.findViewById(R.id.llHangMoi);
+        if (llHangMoi != null) {
+            llHangMoi.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), ProductListActivity.class);
+                intent.putExtra("FILTER_MODE", "NEW");
+                startActivity(intent);
+            });
+        }
+        
+        View llVoucher = view.findViewById(R.id.llVoucher);
+        if (llVoucher != null) {
+            llVoucher.setOnClickListener(v -> {
+                startActivity(new Intent(requireContext(), VoucherListActivity.class));
+            });
+        }
+
+        // Flash Sale Timer Logic
+        TextView tvTimerHours = view.findViewById(R.id.tvTimerHours);
+        TextView tvTimerMinutes = view.findViewById(R.id.tvTimerMinutes);
+        TextView tvTimerSeconds = view.findViewById(R.id.tvTimerSeconds);
+        
+        if (tvTimerHours != null && tvTimerMinutes != null && tvTimerSeconds != null) {
+            // Start a 2 hour, 45 minute, 13 second countdown
+            long flashSaleTimeMillis = (2 * 3600 + 45 * 60 + 13) * 1000L;
+            new android.os.CountDownTimer(flashSaleTimeMillis, 1000) {
+                public void onTick(long millisUntilFinished) {
+                    long hours = (millisUntilFinished / (1000 * 60 * 60)) % 24;
+                    long minutes = (millisUntilFinished / (1000 * 60)) % 60;
+                    long seconds = (millisUntilFinished / 1000) % 60;
+                    
+                    tvTimerHours.setText(String.format("%02d", hours));
+                    tvTimerMinutes.setText(String.format("%02d", minutes));
+                    tvTimerSeconds.setText(String.format("%02d", seconds));
+                }
+                public void onFinish() {
+                    tvTimerHours.setText("00");
+                    tvTimerMinutes.setText("00");
+                    tvTimerSeconds.setText("00");
+                }
+            }.start();
+        }
+
         loadCategories();
         loadFavoriteIds();
         loadNewArrivals();
@@ -150,9 +202,15 @@ public class HomeFragment extends Fragment {
                 List<ProductItem> subList = products.subList(0, count);
                 newArrivalsAdapter.setItems(subList);
                 
-                // Giả lập dữ liệu cho Flash Sale bằng cách lấy 5 sản phẩm đầu
-                int flashSaleCount = Math.min(products.size(), 5);
-                rvFlashSale.setAdapter(new FlashSaleAdapter(products.subList(0, flashSaleCount)));
+                // Filter products that have active discounts for Flash Sale
+                List<ProductItem> flashSaleProducts = new ArrayList<>();
+                for (ProductItem p : products) {
+                    if (p.getDiscount() > 0) {
+                        flashSaleProducts.add(p);
+                    }
+                }
+                int flashSaleCount = Math.min(flashSaleProducts.size(), 5);
+                rvFlashSale.setAdapter(new FlashSaleAdapter(flashSaleProducts.subList(0, flashSaleCount)));
             }
 
             @Override
@@ -238,7 +296,7 @@ public class HomeFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             ProductItem item = items.get(position);
-            holder.tvPrice.setText("đ" + item.getPrice());
+            holder.tvPrice.setText(formatPrice(item.getPrice()));
             
             String imgUrl = item.getImageUrl();
             if (imgUrl != null && !imgUrl.isEmpty()) {
@@ -248,6 +306,34 @@ public class HomeFragment extends Fragment {
                         .error(R.drawable.ic_shopping_bag)
                         .centerCrop()
                         .into(holder.ivProductImage);
+            }
+
+            // Discount logic
+            if (holder.tvDiscountPercent != null) {
+                if (item.getDiscount() > 0) {
+                    holder.tvDiscountPercent.setVisibility(View.VISIBLE);
+                    holder.tvDiscountPercent.setText("-" + (int)item.getDiscount() + "%");
+                } else {
+                    holder.tvDiscountPercent.setVisibility(View.GONE);
+                }
+            }
+
+            // Progress bar and sold label logic
+            if (holder.vProgress != null && holder.tvProgressLabel != null) {
+                int sold = item.getSoldCount();
+                int quantity = item.getQuantity();
+                float progressPercent = (float) sold / (sold + quantity);
+                
+                androidx.constraintlayout.widget.ConstraintLayout.LayoutParams lp = 
+                    (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) holder.vProgress.getLayoutParams();
+                lp.matchConstraintPercentWidth = progressPercent;
+                holder.vProgress.setLayoutParams(lp);
+
+                if (progressPercent > 0.85f) {
+                    holder.tvProgressLabel.setText("BÁN GẦN HẾT");
+                } else {
+                    holder.tvProgressLabel.setText("ĐÃ BÁN " + sold);
+                }
             }
 
             holder.itemView.setOnClickListener(v -> {
@@ -262,6 +348,16 @@ public class HomeFragment extends Fragment {
             });
         }
 
+        private String formatPrice(String priceStr) {
+            if (priceStr == null || priceStr.isEmpty()) return "";
+            try {
+                double price = Double.parseDouble(priceStr);
+                return "đ" + String.format(java.util.Locale.US, "%,d", (long) price).replace(',', '.');
+            } catch (Exception e) {
+                return priceStr.startsWith("đ") ? priceStr : "đ" + priceStr;
+            }
+        }
+
         @Override
         public int getItemCount() {
             return items.size();
@@ -270,11 +366,17 @@ public class HomeFragment extends Fragment {
         class ViewHolder extends RecyclerView.ViewHolder {
             ImageView ivProductImage;
             TextView tvPrice;
+            TextView tvDiscountPercent;
+            View vProgress;
+            TextView tvProgressLabel;
 
             ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 ivProductImage = itemView.findViewById(R.id.ivProductImage);
                 tvPrice = itemView.findViewById(R.id.tvPrice);
+                tvDiscountPercent = itemView.findViewById(R.id.tvDiscountPercent);
+                vProgress = itemView.findViewById(R.id.vProgress);
+                tvProgressLabel = itemView.findViewById(R.id.tvProgressLabel);
             }
         }
     }

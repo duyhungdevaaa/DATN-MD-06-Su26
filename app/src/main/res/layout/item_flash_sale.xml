@@ -27,11 +27,11 @@
                 android:layout_height="match_parent"
                 android:background="#EEEEEE"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_shopping_bag"
-                app:tint="#BDBDBD" />
+                android:src="@drawable/ic_shopping_bag" />
 
             <!-- Discount Tag -->
             <TextView
+                android:id="@+id/tvDiscountPercent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="#FFD839"
@@ -72,6 +72,7 @@
                 android:backgroundTint="#FFB3A7" />
                 
             <View
+                android:id="@+id/vProgress"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_chip_selected"
@@ -80,6 +81,7 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
+                android:id="@+id/tvProgressLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ĐANG BÁN CHẠY"
