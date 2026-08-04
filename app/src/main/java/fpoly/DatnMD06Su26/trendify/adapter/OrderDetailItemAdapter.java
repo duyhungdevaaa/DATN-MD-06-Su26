@@ -23,21 +23,24 @@ public class OrderDetailItemAdapter extends RecyclerView.Adapter<OrderDetailItem
 
     private List<CartItem> items;
 
+    public interface OnRateClickListener {
+        void onRateClick(CartItem item, int position);
+    }
+    private OnRateClickListener rateClickListener;
+    private String orderStatus = "";
+
     public OrderDetailItemAdapter() {
         this.items = new ArrayList<>();
     }
 
-    public void setItems(List<CartItem> items) {
+    public void setItems(List<CartItem> items, String orderStatus) {
         this.items = items != null ? items : new ArrayList<>();
-        android.util.Log.d("OrderDetailAdapter", "setItems called with " + this.items.size() + " items");
+        this.orderStatus = orderStatus != null ? orderStatus : "";
         notifyDataSetChanged();
     }
 
-    @Override
-    public int getItemCount() {
-        int count = items.size();
-        android.util.Log.d("OrderDetailAdapter", "getItemCount: " + count);
-        return count;
+    public void setOnRateClickListener(OnRateClickListener listener) {
+        this.rateClickListener = listener;
     }
 
     @NonNull
@@ -50,7 +53,6 @@ public class OrderDetailItemAdapter extends RecyclerView.Adapter<OrderDetailItem
     @Override
     public void onBindViewHolder(@NonNull OrderDetailViewHolder holder, int position) {
         CartItem item = items.get(position);
-        android.util.Log.d("OrderDetailAdapter", "onBindViewHolder position: " + position + ", item: " + item.getName());
         holder.tvProductName.setText(item.getName());
         holder.tvProductPrice.setText(item.getPrice());
         holder.tvQuantity.setText("x" + item.getQuantity());
@@ -83,6 +85,23 @@ public class OrderDetailItemAdapter extends RecyclerView.Adapter<OrderDetailItem
         } else {
             holder.tvVariant.setVisibility(View.GONE);
         }
+
+        // Logic for "Đánh giá" button
+        if ("Đã giao".equals(orderStatus) && !item.isRated()) {
+            holder.btnRate.setVisibility(View.VISIBLE);
+            holder.btnRate.setOnClickListener(v -> {
+                if (rateClickListener != null) {
+                    rateClickListener.onRateClick(item, position);
+                }
+            });
+        } else {
+            holder.btnRate.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return items.size();
     }
 
     static class OrderDetailViewHolder extends RecyclerView.ViewHolder {
@@ -91,6 +110,7 @@ public class OrderDetailItemAdapter extends RecyclerView.Adapter<OrderDetailItem
         TextView tvProductPrice;
         TextView tvQuantity;
         TextView tvVariant;
+        com.google.android.material.button.MaterialButton btnRate;
 
         public OrderDetailViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -99,6 +119,7 @@ public class OrderDetailItemAdapter extends RecyclerView.Adapter<OrderDetailItem
             tvProductPrice = itemView.findViewById(R.id.tvProductPrice);
             tvQuantity = itemView.findViewById(R.id.tvQuantity);
             tvVariant = itemView.findViewById(R.id.tvVariant);
+            btnRate = itemView.findViewById(R.id.btnRate);
         }
     }
 }

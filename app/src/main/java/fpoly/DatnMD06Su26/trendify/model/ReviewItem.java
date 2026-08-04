@@ -6,19 +6,21 @@ public class ReviewItem {
     private String productId;
     private String userId;
     private String userName;
+    private String userAvatar;
     private float rating;
     private String comment;
-    private long createdAt;
+    private Object createdAt;
 
     public ReviewItem() {
         // Required for Firestore deserialization
     }
 
-    public ReviewItem(String reviewId, String productId, String userId, String userName, float rating, String comment, long createdAt) {
+    public ReviewItem(String reviewId, String productId, String userId, String userName, String userAvatar, float rating, String comment, long createdAt) {
         this.reviewId = reviewId;
         this.productId = productId;
         this.userId = userId;
         this.userName = userName;
+        this.userAvatar = userAvatar;
         this.rating = rating;
         this.comment = comment;
         this.createdAt = createdAt;
@@ -56,6 +58,14 @@ public class ReviewItem {
         this.userName = userName;
     }
 
+    public String getUserAvatar() {
+        return userAvatar;
+    }
+
+    public void setUserAvatar(String userAvatar) {
+        this.userAvatar = userAvatar;
+    }
+
     public float getRating() {
         return rating;
     }
@@ -73,10 +83,17 @@ public class ReviewItem {
     }
 
     public long getCreatedAt() {
-        return createdAt;
+        if (createdAt instanceof Long) {
+            return (Long) createdAt;
+        } else if (createdAt instanceof com.google.firebase.Timestamp) {
+            return ((com.google.firebase.Timestamp) createdAt).toDate().getTime();
+        } else if (createdAt instanceof java.util.Date) {
+            return ((java.util.Date) createdAt).getTime();
+        }
+        return 0L;
     }
 
-    public void setCreatedAt(long createdAt) {
+    public void setCreatedAt(Object createdAt) {
         this.createdAt = createdAt;
     }
 }

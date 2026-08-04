@@ -32,6 +32,7 @@ import java.util.Set;
 public class HomeFragment extends Fragment {
 
     private RecyclerView rvNewArrivals;
+    private RecyclerView rvFlashSale;
     private ProductAdapter newArrivalsAdapter;
     private Set<String> favoriteIds = new HashSet<>();
     private List<CategoryItem> loadedCategoryItems = new ArrayList<>();
@@ -41,77 +42,28 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        ImageView ivSearch = view.findViewById(R.id.ivSearch);
-        ImageView ivNotification = view.findViewById(R.id.ivNotification);
+
         rvNewArrivals = view.findViewById(R.id.rvNewArrivals);
+        rvFlashSale = view.findViewById(R.id.rvFlashSale);
 
         // Grid layout manager with 2 columns
         rvNewArrivals.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         newArrivalsAdapter = new ProductAdapter(new ArrayList<>(), favoriteIds, this::handleFavoriteToggle);
         rvNewArrivals.setAdapter(newArrivalsAdapter);
 
-        // Bind and load Hero image
-        ImageView ivHeroImage = view.findViewById(R.id.ivHeroImage);
-        if (ivHeroImage != null) {
-            Glide.with(this)
-                .load("https://lh3.googleusercontent.com/aida-public/AB6AXuCdMsc48mhR6FbFhVwf2WdVDCG3ETwd3L4ScSptSVOWhfBa5kC-jyrBzd-l5OIffblyBmtB_1CFC2TLR8WIgRjuYIHr7-wQF3R1gogD8R5vyn6fYEqV66sSFIFEf8uhqZtBwrwO2xICtxWX-8llozsrh0OhsDcO8uVP0CQBRbGuMD59wNtlUXON-ru1REYEgEr0mN_5SmekY0n1Tw9vo5BDOunX_gq8CH1dQnD-NYlwccoW655tFgTCr8wYr6mqYaXsM06DDc8zNso")
-                .centerCrop()
-                .into(ivHeroImage);
-        }
-
-        // Bind explore button to switch to Category tab (index 2)
-        View btnExplore = view.findViewById(R.id.btnExplore);
-        if (btnExplore != null) {
-            btnExplore.setOnClickListener(v -> {
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).setCurrentPage(2);
-                }
-            });
-        }
-
-        // Load and bind categories images
-        ImageView ivCatVay = view.findViewById(R.id.ivCatVay);
-        if (ivCatVay != null) {
-            Glide.with(this)
-                .load("https://lh3.googleusercontent.com/aida-public/AB6AXuCPD8ECPvM7uBmWFS9huFc5YBTfOew9OaY8wG8hQKBuByZGDsQ55V1-TFZIinLnO-VxzIb-7HINZMgd5wjXcrmA15d9Q5LMpOKiYFyKt0BLEaGAFG9UcAgnRRW8LQyWAMOlOIS4JGhQMQMGRcHKrW7S7m0qQFJlax4FMq1Gzc-d6KeC5pDpitvRbOEf6VQgjXOMzPEStcpIaEzjtlZEh70HQdTQdf3pG9v8XCTu3qaRN5D8Wbvnw-siB4OQFNZml7umCpPVvmBSZtI")
-                .centerCrop()
-                .into(ivCatVay);
-        }
-
-        ImageView ivCatAo = view.findViewById(R.id.ivCatAo);
-        if (ivCatAo != null) {
-            Glide.with(this)
-                .load("https://lh3.googleusercontent.com/aida-public/AB6AXuA2hmAL2kOVV2k7aeS1NWSp-k7hPIDNzWHShjPDrZcFLG6xthFolTG282DhcE_lbFAeIi-lwCnOs2Sd97nhc77S-c9UqQn36v9d0dTDrIxawLL3BJVNZMIGSCJs64oP-W8AUinv9S43gq7ubtKiuBow-toIy0vFxoMk3lizlu2wtPyUaexM15BbuRXvQNECqw2V3goSHewdJQMSFUEYBJBCcDrYN-8yLnu0fVelunPNMP_iQsFR8KWeImzO8v6KzwvzxGRI0_lH1yw")
-                .centerCrop()
-                .into(ivCatAo);
-        }
-
-        ImageView ivCatPhuKien = view.findViewById(R.id.ivCatPhuKien);
-        if (ivCatPhuKien != null) {
-            Glide.with(this)
-                .load("https://lh3.googleusercontent.com/aida-public/AB6AXuCAxhHQooyU8SiIwiH0Pbzuw1-uZdod_ngqcegoqttRqmzHPL_nqur3okOg4NBrK-yzBHV5e93Q3F9aKdDsai8MXvmlmuHPwCZazU_f6Bv2IHQ-KjmCI8oO-ac873DWgJdX2XZKKTRIR_hsK9p63PbP0tCXX2tS_-L3FbFQnlmCx8rxU9RVo8BRfF_DBp7RBJjbOy_h4N7H-N5AoQgvbi3LD2GWZnZGRsJD2UGfUDUpAksAejImy6j_B1zkcJmBAO6MDG7BDEb1kTw")
-                .centerCrop()
-                .into(ivCatPhuKien);
-        }
-
-        // Setup click listeners on category layouts
-        View layoutCatVay = view.findViewById(R.id.layoutCatVay);
-        View layoutCatAo = view.findViewById(R.id.layoutCatAo);
-        View layoutCatPhuKien = view.findViewById(R.id.layoutCatPhuKien);
-
-        if (layoutCatVay != null) {
-            layoutCatVay.setOnClickListener(v -> openCategoryByName("Váy"));
-        }
-        if (layoutCatAo != null) {
-            layoutCatAo.setOnClickListener(v -> openCategoryByName("Áo"));
-        }
-        if (layoutCatPhuKien != null) {
-            layoutCatPhuKien.setOnClickListener(v -> openCategoryByName("Phụ kiện"));
+        // Bind Banner Image
+        ImageView ivBanner = view.findViewById(R.id.ivBanner);
+        if (ivBanner != null) {
+            // Glide.with(this)
+            //     .load("https://lh3.googleusercontent.com/aida-public/AB6AXuCdMsc48mhR6FbFhVwf2WdVDCG3ETwd3L4ScSptSVOWhfBa5kC-jyrBzd-l5OIffblyBmtB_1CFC2TLR8WIgRjuYIHr7-wQF3R1gogD8R5vyn6fYEqV66sSFIFEf8uhqZtBwrwO2xICtxWX-8llozsrh0OhsDcO8uVP0CQBRbGuMD59wNtlUXON-ru1REYEgEr0mN_5SmekY0n1Tw9vo5BDOunX_gq8CH1dQnD-NYlwccoW655tFgTCr8wYr6mqYaXsM06DDc8zNso")
+            //     .centerCrop()
+            //     .into(ivBanner);
         }
 
         // Search trigger
-        if (ivSearch != null) {
-            ivSearch.setOnClickListener(v -> {
+        View searchBarContainer = view.findViewById(R.id.searchBarContainer);
+        if (searchBarContainer != null) {
+            searchBarContainer.setOnClickListener(v -> {
                 if (getActivity() instanceof MainActivity) {
                     ((MainActivity) getActivity()).setCurrentPage(1); // Page 1 is Search
                 }
@@ -119,22 +71,80 @@ public class HomeFragment extends Fragment {
         }
 
         // Cart trigger
-        if (ivNotification != null) {
-            ivNotification.setOnClickListener(v -> {
+        ImageView ivCart = view.findViewById(R.id.ivCart);
+        if (ivCart != null) {
+            ivCart.setOnClickListener(v -> {
+                if (!SessionManager.getInstance().isLoggedIn()) {
+                    Toast.makeText(requireContext(), "Vui lòng đăng nhập để xem giỏ hàng", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(requireContext(), LoginActivity.class));
+                    return;
+                }
                 if (getActivity() != null) {
                     startActivity(new Intent(requireContext(), CartActivity.class));
                 }
             });
         }
 
-        // See all trigger
-        View tvSeeAll = view.findViewById(R.id.tvSeeAll);
-        if (tvSeeAll != null) {
-            tvSeeAll.setOnClickListener(v -> {
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).setCurrentPage(2); // Redirect to categories
+        // Chat/Notification trigger
+        ImageView ivChat = view.findViewById(R.id.ivChat);
+        if (ivChat != null) {
+            ivChat.setOnClickListener(v -> {
+                if (getActivity() != null) {
+                    startActivity(new Intent(requireContext(), NotificationsActivity.class));
                 }
             });
+        }
+
+        // Logic for menu buttons
+        View llSanSale = view.findViewById(R.id.llSanSale);
+        if (llSanSale != null) {
+            llSanSale.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), ProductListActivity.class);
+                intent.putExtra("FILTER_MODE", "SALE");
+                startActivity(intent);
+            });
+        }
+        
+        View llHangMoi = view.findViewById(R.id.llHangMoi);
+        if (llHangMoi != null) {
+            llHangMoi.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), ProductListActivity.class);
+                intent.putExtra("FILTER_MODE", "NEW");
+                startActivity(intent);
+            });
+        }
+        
+        View llVoucher = view.findViewById(R.id.llVoucher);
+        if (llVoucher != null) {
+            llVoucher.setOnClickListener(v -> {
+                startActivity(new Intent(requireContext(), VoucherListActivity.class));
+            });
+        }
+
+        // Flash Sale Timer Logic
+        TextView tvTimerHours = view.findViewById(R.id.tvTimerHours);
+        TextView tvTimerMinutes = view.findViewById(R.id.tvTimerMinutes);
+        TextView tvTimerSeconds = view.findViewById(R.id.tvTimerSeconds);
+        
+        if (tvTimerHours != null && tvTimerMinutes != null && tvTimerSeconds != null) {
+            // Start a 2 hour, 45 minute, 13 second countdown
+            long flashSaleTimeMillis = (2 * 3600 + 45 * 60 + 13) * 1000L;
+            new android.os.CountDownTimer(flashSaleTimeMillis, 1000) {
+                public void onTick(long millisUntilFinished) {
+                    long hours = (millisUntilFinished / (1000 * 60 * 60)) % 24;
+                    long minutes = (millisUntilFinished / (1000 * 60)) % 60;
+                    long seconds = (millisUntilFinished / 1000) % 60;
+                    
+                    tvTimerHours.setText(String.format("%02d", hours));
+                    tvTimerMinutes.setText(String.format("%02d", minutes));
+                    tvTimerSeconds.setText(String.format("%02d", seconds));
+                }
+                public void onFinish() {
+                    tvTimerHours.setText("00");
+                    tvTimerMinutes.setText("00");
+                    tvTimerSeconds.setText("00");
+                }
+            }.start();
         }
 
         loadCategories();
@@ -194,7 +204,18 @@ public class HomeFragment extends Fragment {
             @Override
             public void onLoaded(List<ProductItem> products) {
                 int count = Math.min(products.size(), 10);
-                newArrivalsAdapter.setItems(products.subList(0, count));
+                List<ProductItem> subList = products.subList(0, count);
+                newArrivalsAdapter.setItems(subList);
+                
+                // Filter products that have active discounts for Flash Sale
+                List<ProductItem> flashSaleProducts = new ArrayList<>();
+                for (ProductItem p : products) {
+                    if (p.getDiscount() > 0) {
+                        flashSaleProducts.add(p);
+                    }
+                }
+                int flashSaleCount = Math.min(flashSaleProducts.size(), 5);
+                rvFlashSale.setAdapter(new FlashSaleAdapter(flashSaleProducts.subList(0, flashSaleCount)));
             }
 
             @Override
@@ -260,6 +281,112 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(requireContext(), "Không thể bỏ yêu thích: " + error, Toast.LENGTH_SHORT).show();
                 }
             });
+        }
+    }
+
+    private class FlashSaleAdapter extends RecyclerView.Adapter<FlashSaleAdapter.ViewHolder> {
+        private final List<ProductItem> items;
+
+        public FlashSaleAdapter(List<ProductItem> items) {
+            this.items = items;
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_flash_sale, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            ProductItem item = items.get(position);
+            if (item.getDiscount() > 0) {
+                holder.tvPrice.setText(formatPrice(item.getDiscountedPrice()));
+            } else {
+                holder.tvPrice.setText(formatPrice(item.getPrice()));
+            }
+            
+            String imgUrl = item.getImageUrl();
+            if (imgUrl != null && !imgUrl.isEmpty()) {
+                Glide.with(holder.itemView.getContext())
+                        .load(imgUrl)
+                        .placeholder(R.drawable.ic_shopping_bag)
+                        .error(R.drawable.ic_shopping_bag)
+                        .centerCrop()
+                        .into(holder.ivProductImage);
+            }
+
+            // Discount logic
+            if (holder.tvDiscountPercent != null) {
+                if (item.getDiscount() > 0) {
+                    holder.tvDiscountPercent.setVisibility(View.VISIBLE);
+                    holder.tvDiscountPercent.setText("-" + (int)item.getDiscount() + "%");
+                } else {
+                    holder.tvDiscountPercent.setVisibility(View.GONE);
+                }
+            }
+
+            // Progress bar and sold label logic
+            if (holder.vProgress != null && holder.tvProgressLabel != null) {
+                int sold = item.getSoldCount();
+                int quantity = item.getQuantity();
+                float progressPercent = (float) sold / (sold + quantity);
+                
+                androidx.constraintlayout.widget.ConstraintLayout.LayoutParams lp = 
+                    (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) holder.vProgress.getLayoutParams();
+                lp.matchConstraintPercentWidth = progressPercent;
+                holder.vProgress.setLayoutParams(lp);
+
+                if (progressPercent > 0.85f) {
+                    holder.tvProgressLabel.setText("BÁN GẦN HẾT");
+                } else {
+                    holder.tvProgressLabel.setText("ĐÃ BÁN " + sold);
+                }
+            }
+
+            holder.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(v.getContext(), ProductDetailActivity.class);
+                intent.putExtra("PRODUCT_ID", item.getId());
+                intent.putExtra("PRODUCT_NAME", item.getName());
+                intent.putExtra("PRODUCT_PRICE", item.getPrice());
+                intent.putExtra("PRODUCT_DESC", "");
+                intent.putExtra("PRODUCT_IMAGE", item.getImageUrl());
+                intent.putExtra("PRODUCT_CATEGORY", item.getCategoryId());
+                v.getContext().startActivity(intent);
+            });
+        }
+
+        private String formatPrice(String priceStr) {
+            if (priceStr == null || priceStr.isEmpty()) return "";
+            try {
+                double price = Double.parseDouble(priceStr);
+                return "đ" + String.format(java.util.Locale.US, "%,d", (long) price).replace(',', '.');
+            } catch (Exception e) {
+                return priceStr.startsWith("đ") ? priceStr : "đ" + priceStr;
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return items.size();
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            ImageView ivProductImage;
+            TextView tvPrice;
+            TextView tvDiscountPercent;
+            View vProgress;
+            TextView tvProgressLabel;
+
+            ViewHolder(@NonNull View itemView) {
+                super(itemView);
+                ivProductImage = itemView.findViewById(R.id.ivProductImage);
+                tvPrice = itemView.findViewById(R.id.tvPrice);
+                tvDiscountPercent = itemView.findViewById(R.id.tvDiscountPercent);
+                vProgress = itemView.findViewById(R.id.vProgress);
+                tvProgressLabel = itemView.findViewById(R.id.tvProgressLabel);
+            }
         }
     }
 }

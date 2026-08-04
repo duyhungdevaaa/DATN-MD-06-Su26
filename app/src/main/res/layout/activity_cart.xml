@@ -7,6 +7,7 @@
     android:background="#F5F5F5"
     tools:context=".activity.CartActivity">
 
+    <!-- Top AppBar -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
@@ -37,12 +38,23 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="Sửa"
+            android:textColor="#EE4D2D"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Scrollable Content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:fillViewport="true"
         app:layout_constraintBottom_toTopOf="@id/bottomPanelContainer"
         app:layout_constraintTop_toBottomOf="@id/topBar">
 
@@ -51,8 +63,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- Shop Group Header -->
             <LinearLayout
-                android:id="@+id/layoutShopHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
@@ -60,70 +72,91 @@
                 android:orientation="horizontal"
                 android:padding="12dp">
 
+                <CheckBox
+                    android:id="@+id/cbShop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="#EE4D2D"
+                    android:visibility="gone" />
+
                 <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="8dp"
                     android:src="@drawable/ic_shopping_bag"
-                    app:tint="#333333" />
+                    app:tint="#757575" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="Trendify Official Store"
+                    android:text="Trendify Official"
                     android:textColor="#333333"
                     android:textSize="14sp"
                     android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#BDBDBD" />
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#F0F0F0" />
+                android:background="#EEEEEE" />
 
+            <!-- Cart Items RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvCartItems"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:nestedScrollingEnabled="false" />
+                android:nestedScrollingEnabled="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="#F5F5F5" />
+
+            <!-- Empty Cart State (Hidden by default) -->
             <LinearLayout
                 android:id="@+id/layoutEmpty"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="64dp"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="32dp"
                 android:visibility="gone">
 
                 <ImageView
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:alpha="0.5"
-                    android:src="@drawable/ic_shopping_bag" />
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@drawable/ic_shopping_bag"
+                    app:tint="#BDBDBD" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Giỏ hàng trống"
-                    android:textColor="#999999"
-                    android:textSize="16sp" />
+                    android:text="Giỏ hàng của bạn còn trống"
+                    android:textColor="#757575"
+                    android:textSize="14sp" />
 
                 <Button
                     android:id="@+id/btnShopNow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="16dp"
                     android:backgroundTint="#EE4D2D"
-                    android:paddingHorizontal="32dp"
-                    android:text="Mua sắm ngay"
-                    app:cornerRadius="4dp" />
+                    android:text="MUA SẮM NGAY"
+                    android:textColor="@color/white" />
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <!-- Bottom Panel (Voucher + Checkout) -->
     <LinearLayout
         android:id="@+id/bottomPanelContainer"
         android:layout_width="match_parent"
@@ -133,11 +166,49 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent">
 
+        <!-- Shopee Voucher -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_shopping_bag"
+                app:tint="#FF9800" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="Trendify Voucher"
+                android:textColor="#333333"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chọn hoặc nhập mã"
+                android:textColor="#757575"
+                android:textSize="13sp" />
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="#BDBDBD" />
+        </LinearLayout>
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#F0F0F0" />
+            android:background="#EEEEEE" />
 
+        <!-- Checkout Bar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
@@ -148,19 +219,18 @@
                 android:id="@+id/cbSelectAll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="12dp"
                 android:buttonTint="#EE4D2D"
                 android:text="Tất cả"
-                android:textColor="#666666"
-                android:textSize="14sp" />
                 android:textColor="#757575"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="end"
+                android:gravity="end|center_vertical"
                 android:orientation="vertical"
                 android:paddingEnd="12dp">
 
@@ -172,43 +242,40 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tổng: "
+                        android:text="Tổng thanh toán"
                         android:textColor="#333333"
-                        android:textSize="14sp" />
+                        android:textSize="13sp" />
 
                     <TextView
                         android:id="@+id/tvTotal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
                         android:text="đ0"
                         android:textColor="#EE4D2D"
                         android:textSize="16sp"
                         android:textStyle="bold" />
                 </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nhận 0 Trendify Xu"
+                    android:textColor="#FF9800"
+                    android:textSize="10sp" />
             </LinearLayout>
 
             <Button
                 android:id="@+id/btnCheckout"
-                android:layout_width="130dp"
+                android:layout_width="110dp"
                 android:layout_height="match_parent"
                 android:backgroundTint="#EE4D2D"
-                android:text="Thanh toán (0)"
+                android:text="Mua Hàng (0)"
                 android:textColor="@color/white"
                 android:textSize="14sp"
-                android:textStyle="bold"
                 app:cornerRadius="0dp" />
 
         </LinearLayout>
     </LinearLayout>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

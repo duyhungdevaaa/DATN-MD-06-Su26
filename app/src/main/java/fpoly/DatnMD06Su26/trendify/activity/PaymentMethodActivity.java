@@ -16,15 +16,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.util.ArrayList;
-
 public class PaymentMethodActivity extends AppCompatActivity {
 
-    private View cardBankTransfer, cardCod;
+    private View cardBankTransfer, cardCod, cardTrendifyPay;
     private View selectedCard = null;
     private String shippingAddress;
     private String paymentMethod = "Chuyển khoản ngân hàng";
-    private ArrayList<CartItem> selectedItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,54 +36,50 @@ public class PaymentMethodActivity extends AppCompatActivity {
 
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
 
-        cardBankTransfer = findViewById(R.id.cardBankTransfer);
-        cardCod    = findViewById(R.id.cardCod);
+        cardBankTransfer = findViewById(R.id.layoutBankTransfer);
+        cardCod    = findViewById(R.id.layoutCod);
+        cardTrendifyPay = findViewById(R.id.layoutTrendifyPay);
 
         // Mặc định chọn chuyển khoản ngân hàng
         selectCard(cardBankTransfer);
 
         cardBankTransfer.setOnClickListener(v -> selectCard(cardBankTransfer));
         cardCod.setOnClickListener(v -> selectCard(cardCod));
+        cardTrendifyPay.setOnClickListener(v -> selectCard(cardTrendifyPay));
 
         shippingAddress = getIntent().getStringExtra("shipping_address");
-        selectedItems = getIntent().getParcelableArrayListExtra("selected_items");
 
         // Tiếp Tục → màn 19 Xác nhận đơn
-        findViewById(R.id.btnContinue).setOnClickListener(v -> {
+        findViewById(R.id.btnConfirm).setOnClickListener(v -> {
             Intent intent = new Intent(this, OrderConfirmActivity.class);
             if (shippingAddress != null) {
                 intent.putExtra("shipping_address", shippingAddress);
             }
             intent.putExtra("payment_method", paymentMethod);
-            if (selectedItems != null) {
-                intent.putParcelableArrayListExtra("selected_items", selectedItems);
+            if (getIntent().hasExtra("SELECTED_CART_ITEM_IDS")) {
+                intent.putStringArrayListExtra("SELECTED_CART_ITEM_IDS", getIntent().getStringArrayListExtra("SELECTED_CART_ITEM_IDS"));
             }
             startActivity(intent);
         });
     }
 
     private void selectCard(View card) {
-        // Reset tất cả về border mờ
-        setSelected(cardBankTransfer, false);
-        setSelected(cardCod,    false);
-        // Highlight card được chọn
-        setSelected(card, true);
-        selectedCard = card;
+        // Hide all checkmarks
+        findViewById(R.id.checkBankTransfer).setVisibility(View.INVISIBLE);
+        findViewById(R.id.checkCod).setVisibility(View.INVISIBLE);
+        findViewById(R.id.checkTrendifyPay).setVisibility(View.INVISIBLE);
+        
+        // Show checkmark for selected card
         if (card == cardBankTransfer) {
+            findViewById(R.id.checkBankTransfer).setVisibility(View.VISIBLE);
             paymentMethod = "Chuyển khoản ngân hàng";
         } else if (card == cardCod) {
+            findViewById(R.id.checkCod).setVisibility(View.VISIBLE);
             paymentMethod = "COD";
+        } else if (card == cardTrendifyPay) {
+            findViewById(R.id.checkTrendifyPay).setVisibility(View.VISIBLE);
+            paymentMethod = "Ví TrendifyPay";
         }
-    }
-
-    private void setSelected(View card, boolean selected) {
-        if (card == null) return;
-        com.google.android.material.card.MaterialCardView cv =
-                (com.google.android.material.card.MaterialCardView) card;
-        cv.setStrokeWidth(selected ? 4 : 2);
-        int color = selected
-                ? getColor(R.color.trend_text)
-                : getColor(R.color.trend_border);
-        cv.setStrokeColor(color);
+        selectedCard = card;
     }
 }

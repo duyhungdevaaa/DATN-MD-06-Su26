@@ -62,7 +62,6 @@ export const VoucherFormView: React.FC<VoucherFormViewProps> = ({
     setErrorMsg("");
     
     onSaveVoucher({
-      id: editingVoucher?.id,
       code: code.trim().toUpperCase(),
       discountAmount,
       discountRate,

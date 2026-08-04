@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { ActiveTab, Product, Category, User, Order, ProductStatus, UserTier, OrderStatus } from "./types";
+import { ActiveTab, Product, Category, User, Order, ProductStatus, UserTier, OrderStatus, Voucher } from "./types";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { DashboardView } from "./components/DashboardView";
@@ -15,8 +15,12 @@ import { CategoryFormView } from "./components/CategoryFormView";
 import { UserListView } from "./components/UserListView";
 import { OrderListView } from "./components/OrderListView";
 import { OrderDetailView } from "./components/OrderDetailView";
+import { VoucherListView } from "./components/VoucherListView";
+import { VoucherFormView } from "./components/VoucherFormView";
+import { NotificationsView } from "./components/NotificationsView";
+import { BannersView } from "./components/BannersView";
 
-import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, onSnapshot, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, increment } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { db, storage, auth } from "./firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
@@ -47,15 +51,33 @@ export default function App() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<User[]>(DEFAULT_USERS); // Mocked for now
+  const [vouchers, setVouchers] = useState<Voucher[]>([]);
 
   // Focus and Active detail states
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null);
 
   // Form rendering states (controls creation or update redirection)
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [isAddingVoucher, setIsAddingVoucher] = useState(false);
+
+  // Dynamically resolve customer details for orders using loaded users database
+  const resolvedOrders = React.useMemo(() => {
+    return orders.map(order => {
+      // Find the user whose ID matches the order's customerName (which holds the raw userId UID)
+      const user = users.find(u => u.id === order.customerName);
+      return {
+        ...order,
+        customerName: user ? user.name : order.customerName,
+        customerAvatar: user ? user.avatar : order.customerAvatar,
+        email: user ? user.email : order.email,
+        phone: user?.phone || order.phone || "09x-xxxx-xxx"
+      };
+    });
+  }, [orders, users]);
 
   // Authentication listener
   useEffect(() => {
@@ -74,7 +96,7 @@ export default function App() {
       const loadedProds: Product[] = snapshot.docs.map(docSnap => {
         const data = docSnap.data();
         const quantity = data.quantity || 0;
-        const status = ProductStatus.ACTIVE;
+        const status = (data.status as ProductStatus) || ProductStatus.ACTIVE;
         
         return {
           id: docSnap.id,
@@ -83,10 +105,14 @@ export default function App() {
           description: data.tags ? data.tags.join(', ') : "",
           categoryName: data.categoryId || "Apparel",
           price: data.price || 0,
+          discount: data.discount || 0,
           stock: quantity,
           status,
           imageUrl: data.imageUrl || "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600",
-          lastModified: data.uploadedAt ? new Date(data.uploadedAt.seconds * 1000).toLocaleDateString() : "Vừa xong"
+          lastModified: data.uploadedAt ? new Date(data.uploadedAt.seconds * 1000).toLocaleDateString() : "Vừa xong",
+          sizes: data.sizes || [],
+          colors: data.colors || [],
+          variants: data.variants || []
         };
       });
       setProducts(loadedProds);
@@ -115,13 +141,26 @@ export default function App() {
         const data = docSnap.data();
         const createdDate = data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date();
         
-        let status = OrderStatus.PENDING;
-        if (data.status === "Đã giao") status = OrderStatus.DELIVERED;
-        else if (data.status === "Đang xử lý") status = OrderStatus.SHIPPING;
-        else if (data.status === "Đã hủy") status = OrderStatus.CANCELLED;
+        let status = OrderStatus.AWAITING_PAYMENT;
+        if (data.status === "Đã giao" || data.status === "Da giao") {
+          status = OrderStatus.DELIVERED;
+        } else if (data.status === "Đang vận chuyển" || data.status === "Dang van chuyen") {
+          status = OrderStatus.SHIPPING;
+        } else if (data.status === "Đang xử lý" || data.status === "Dang xu ly") {
+          status = OrderStatus.PROCESSING;
+        } else if (data.status === "Đã hủy" || data.status === "Da huy") {
+          status = OrderStatus.CANCELLED;
+        } else if (data.status === "Trả hàng/Hoàn tiền" || data.status === "Tra hang/Hoan tien" || data.status === "Trả hàng/Hoàn đơn") {
+          status = OrderStatus.REFUNDED;
+        } else if (data.status === "Đã hoàn tiền" || data.status === "Da hoan tien") {
+          status = OrderStatus.REFUND_COMPLETED;
+        } else if (data.status === "Chờ thanh toán" || data.status === "Cho thanh toan" || data.status === "Chờ xác nhận" || data.status === "Cho xac nhan") {
+          status = OrderStatus.AWAITING_PAYMENT;
+        }
 
         return {
           id: docSnap.id,
+          userId: data.userId || "",
           customerName: data.userId || "Khách hàng",
           customerAvatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAx0BytEzbLFBt7DZ-Usl9CoGOMmn3pka2w2C-VaTEzI0u9G5YDjLKH_k2SYEizcrJHowoz_uvob6rCujIkBm9_Il0bgp1yWsoaeWPAScV_-Ve4nNiMP3Ks4da4iIFLajJ48jmLkQ9e7Q09fBtq_RV8F7IBg-n31usB1gHlqxvAjEvoo0W8IC-UryWomSVJnCF8gzH2YwPvFdL5KaagiWtrQXngCpio2zGNGMEmhNKbL4c20Wfnpaf950gD4wfxNynPvx13KwqQXiM",
           email: "",
@@ -136,14 +175,17 @@ export default function App() {
           date: createdDate.toLocaleDateString(),
           time: createdDate.toLocaleTimeString(),
           items: data.items || [],
+          timestamp: createdDate.getTime(), // Added for sorting
           timeline: {
             confirmed: { active: true, time: createdDate.toLocaleString() },
-            packing: { active: status !== OrderStatus.PENDING, time: "" },
-            shipping: { active: status === OrderStatus.SHIPPING || status === OrderStatus.DELIVERED, time: "" },
-            delivered: { active: status === OrderStatus.DELIVERED, time: "" }
+            packing: { active: status !== OrderStatus.AWAITING_PAYMENT && status !== OrderStatus.CANCELLED, time: "" },
+            shipping: { active: status === OrderStatus.SHIPPING || status === OrderStatus.DELIVERED || status === OrderStatus.REFUNDED, time: "" },
+            delivered: { active: status === OrderStatus.DELIVERED || status === OrderStatus.REFUNDED, time: "" }
           }
-        };
+        } as Order & { timestamp: number };
       });
+      // Sort orders from newest to oldest based on raw timestamp
+      loadedOrders.sort((a: any, b: any) => b.timestamp - a.timestamp);
       setOrders(loadedOrders);
     });
 
@@ -159,9 +201,10 @@ export default function App() {
 
         return {
           id: docSnap.id,
-          name: data.name || data.displayName || data.email?.split('@')[0] || "Khách hàng",
+          name: data.fullName || data.name || data.displayName || data.email?.split('@')[0] || "Khách hàng",
           email: data.email || "Chưa cập nhật",
           avatar: data.photoURL || data.avatarUrl || data.avatar || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
+          phone: data.phone || data.phoneNumber || "",
           tier: tierValue,
           joinedDate: joinedDate
         };
@@ -175,11 +218,27 @@ export default function App() {
       console.warn("Could not load users collection, falling back.", error);
     });
 
+    const unsubVouchers = onSnapshot(collection(db, "vouchers"), (snapshot) => {
+      const loadedVouchers: Voucher[] = snapshot.docs.map(docSnap => {
+        const data = docSnap.data();
+        return {
+          id: docSnap.id,
+          code: data.code || "",
+          discountAmount: data.discountAmount || 0,
+          discountRate: data.discountRate || 0,
+          maximumDiscount: data.maximumDiscount || 0,
+          expirationDate: data.expirationDate || ""
+        };
+      });
+      setVouchers(loadedVouchers);
+    });
+
     return () => {
       unsubProducts();
       unsubCategories();
       unsubOrders();
       unsubUsers();
+      unsubVouchers();
     };
   }, [authUser]);
 
@@ -203,10 +262,15 @@ export default function App() {
       const docData: any = {
         name: payload.name,
         price: payload.price,
+        discount: payload.discount || 0,
         categoryId: payload.categoryName,
         quantity: payload.stock,
         tags: payload.description ? [payload.description] : [],
-        uploadedAt: new Date()
+        status: payload.status || ProductStatus.ACTIVE,
+        uploadedAt: new Date(),
+        sizes: payload.sizes || [],
+        colors: payload.colors || [],
+        variants: payload.variants || []
       };
       
       if (finalImageUrl) docData.imageUrl = finalImageUrl;
@@ -277,6 +341,39 @@ export default function App() {
     }
   };
 
+  // --- CRUD Actions for Vouchers ---
+  const handleSaveVoucher = async (payload: Partial<Voucher>) => {
+    try {
+      const docData = {
+        code: payload.code,
+        discountAmount: payload.discountAmount || 0,
+        discountRate: payload.discountRate || 0,
+        maximumDiscount: payload.maximumDiscount || 0,
+        expirationDate: payload.expirationDate
+      };
+
+      if (payload.id) {
+        await updateDoc(doc(db, "vouchers", payload.id), docData);
+      } else {
+        await addDoc(collection(db, "vouchers"), docData);
+      }
+    } catch (e) {
+      console.error("Error saving voucher:", e);
+    }
+
+    setEditingVoucher(null);
+    setIsAddingVoucher(false);
+    setActiveTab(ActiveTab.VOUCHERS);
+  };
+
+  const handleDeleteVoucher = async (voucherId: string) => {
+    try {
+      await deleteDoc(doc(db, "vouchers", voucherId));
+    } catch (e) {
+      console.error("Error deleting voucher:", e);
+    }
+  };
+
   const handleToggleLiveCategory = async (categoryId: string) => {
     const cat = categories.find(c => c.id === categoryId);
     if (cat) {
@@ -302,11 +399,7 @@ export default function App() {
   // --- Order Operations ---
   const handleUpdateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     try {
-      let fbStatus = "Đang xử lý";
-      if (newStatus === OrderStatus.DELIVERED) fbStatus = "Đã giao";
-      else if (newStatus === OrderStatus.CANCELLED) fbStatus = "Đã hủy";
-
-      await updateDoc(doc(db, "orders", orderId), { status: fbStatus });
+      await updateDoc(doc(db, "orders", orderId), { status: newStatus });
       
       // Update selected order view dynamically
       if (selectedOrder && selectedOrder.id === orderId) {
@@ -314,6 +407,33 @@ export default function App() {
       }
     } catch (e) {
       console.error("Error updating order status:", e);
+    }
+  };
+
+  const handleApproveRefund = async (orderId: string) => {
+    try {
+      const orderRef = doc(db, "orders", orderId);
+      const orderSnap = await getDoc(orderRef);
+      if (orderSnap.exists()) {
+        const orderData = orderSnap.data();
+        const refundAmount = orderData.returnRefundAmount || 0;
+        const userId = orderData.userId;
+        
+        if (userId && refundAmount > 0) {
+          const userRef = doc(db, "users", userId);
+          // Increment wallet balance
+          await updateDoc(userRef, {
+            walletBalance: increment(refundAmount)
+          });
+        }
+        
+        await updateDoc(orderRef, { status: "Đã hoàn tiền" });
+        if (selectedOrder && selectedOrder.id === orderId) {
+          setSelectedOrder({ ...selectedOrder, status: OrderStatus.REFUND_COMPLETED });
+        }
+      }
+    } catch (e) {
+      console.error("Error approving refund:", e);
     }
   };
 
@@ -325,7 +445,7 @@ export default function App() {
         return (
           <DashboardView
             products={products}
-            orders={orders}
+            orders={resolvedOrders}
             users={users}
             onNavigateToTab={(tab) => {
               setActiveTab(tab);
@@ -401,27 +521,58 @@ export default function App() {
 
       case ActiveTab.ORDERS:
         if (selectedOrder) {
+          const resolvedSelectedOrder = resolvedOrders.find(o => o.id === selectedOrder.id) || selectedOrder;
           return (
             <OrderDetailView
-              order={selectedOrder}
-              onUpdateOrderStatus={handleUpdateOrderStatus}
-              onCancel={() => setSelectedOrder(null)}
-            />
+            order={selectedOrder}
+            onUpdateOrderStatus={handleUpdateOrderStatus}
+            onCancel={() => setSelectedOrder(null)}
+            onApproveRefund={handleApproveRefund}
+          />
           );
         }
         return (
           <OrderListView
-            orders={orders}
+            orders={resolvedOrders}
             searchText={searchText}
             onSelectOrder={(order) => setSelectedOrder(order)}
           />
         );
 
+      case ActiveTab.VOUCHERS:
+        if (isAddingVoucher || editingVoucher) {
+          return (
+            <VoucherFormView
+              editingVoucher={editingVoucher}
+              onSaveVoucher={handleSaveVoucher}
+              onCancel={() => {
+                setEditingVoucher(null);
+                setIsAddingVoucher(false);
+              }}
+            />
+          );
+        }
+        return (
+          <VoucherListView
+            vouchers={vouchers}
+            searchText={searchText}
+            onAddVoucherClick={() => setIsAddingVoucher(true)}
+            onEditVoucherClick={(voucher) => setEditingVoucher(voucher)}
+            onDeleteVoucher={handleDeleteVoucher}
+          />
+        );
+
+      case ActiveTab.NOTIFICATIONS:
+        return <NotificationsView />;
+
+      case ActiveTab.BANNERS:
+        return <BannersView />;
+
       default:
         return (
-          <div className="bg-white rounded-xl border border-[#cfc4c5]/40 p-16 text-center custom-shadow font-sans">
-            <h3 className="font-serif text-xl font-bold text-neutral-800">Cài đặt phân quyền hệ thống</h3>
-            <p className="text-xs text-neutral-500 mt-2">
+          <div className="bg-white rounded-2xl border border-zinc-200/50 p-16 text-center shadow-sm font-sans">
+            <h3 className="font-serif text-xl font-bold text-zinc-950">Cài đặt phân quyền hệ thống</h3>
+            <p className="text-xs text-zinc-500 mt-2 font-medium">
               Các thông số và tài khoản quản trị hoạt động ở chế độ khép kín.
             </p>
           </div>
@@ -439,10 +590,10 @@ export default function App() {
 
   if (isAuthChecking) {
     return (
-      <div className="min-h-screen bg-[#fbf9f9] flex items-center justify-center font-sans">
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center font-sans">
         <div className="animate-pulse flex flex-col items-center">
-          <div className="w-8 h-8 border-4 border-[#6c5e06] border-t-transparent rounded-full animate-spin mb-4" />
-          <p className="text-xs text-neutral-500 uppercase tracking-widest font-bold">Đang kết nối hệ thống...</p>
+          <div className="w-8 h-8 border-4 border-[#8c7623] border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold">Đang kết nối hệ thống...</p>
         </div>
       </div>
     );
@@ -453,7 +604,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex bg-[#fbf9f9] min-h-screen text-[#1b1c1c] font-sans selection:bg-neutral-200">
+    <div className="flex bg-zinc-50 min-h-screen text-zinc-900 font-sans selection:bg-zinc-200 selection:text-zinc-900">
       
       {/* 1. Permanent Left Sidebar */}
       <Sidebar 
@@ -464,11 +615,13 @@ export default function App() {
           setSelectedOrder(null);
           setEditingProduct(null);
           setEditingCategory(null);
+          setEditingVoucher(null);
           setIsAddingProduct(false);
           setIsAddingCategory(false);
+          setIsAddingVoucher(false);
         }}
         productCount={products.length}
-        orderCount={orders.filter(o => o.status === OrderStatus.PENDING).length}
+        orderCount={orders.filter(o => o.status === OrderStatus.AWAITING_PAYMENT || o.status === OrderStatus.PROCESSING).length}
         onLogout={handleLogout}
       />
 

@@ -76,6 +76,24 @@
                     android:textSize="14sp"
                     android:textColor="@color/color_text_secondary" />
             </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRate"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="end"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="12dp"
+                android:text="Đánh giá"
+                android:textSize="12sp"
+                android:textColor="#EE4D2D"
+                android:visibility="gone"
+                app:backgroundTint="#FFFFFF"
+                app:cornerRadius="4dp"
+                app:strokeColor="#EE4D2D"
+                app:strokeWidth="1dp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
