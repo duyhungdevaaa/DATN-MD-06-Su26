@@ -270,6 +270,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showAdBannerDialog() {
+        com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                .collection("banners")
+                .document("active")
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Boolean isActive = documentSnapshot.getBoolean("isActive");
+                        String imageUrl = documentSnapshot.getString("imageUrl");
+                        if (isActive != null && isActive && imageUrl != null && !imageUrl.isEmpty()) {
+                            displayAdBannerDialog(imageUrl);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("MainActivity", "Failed to fetch ad banner from Firestore", e);
+                });
+    }
+
+    private void displayAdBannerDialog(String adImageUrl) {
         android.app.Dialog dialog = new android.app.Dialog(this);
         dialog.setContentView(R.layout.dialog_ad_banner);
         if (dialog.getWindow() != null) {
@@ -280,8 +299,6 @@ public class MainActivity extends AppCompatActivity {
         android.widget.ImageView ivAdBanner = dialog.findViewById(R.id.ivAdBanner);
         android.widget.ImageView ivCloseAd = dialog.findViewById(R.id.ivCloseAd);
 
-        // Load a stunning promotional fashion banner image via Glide
-        String adImageUrl = "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80";
         com.bumptech.glide.Glide.with(this)
                 .load(adImageUrl)
                 .centerCrop()

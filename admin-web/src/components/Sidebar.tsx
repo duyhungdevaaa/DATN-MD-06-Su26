@@ -14,7 +14,8 @@ import {
   Globe,
   LogOut,
   Ticket,
-  Bell
+  Bell,
+  Image as ImageIcon
 } from "lucide-react";
 
 interface SidebarProps {
@@ -81,6 +82,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: Bell,
       badge: null,
       description: "Gửi thông báo đến App"
+    },
+    {
+      id: ActiveTab.BANNERS,
+      label: "Banner QC",
+      icon: ImageIcon,
+      badge: null,
+      description: "Quản lý ảnh quảng cáo"
     }
   ];
 
