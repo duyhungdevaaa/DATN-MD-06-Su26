@@ -45,5 +45,69 @@ public class SettingsActivity extends AppCompatActivity {
                 finish();
             });
         }
+
+        // Account & Security
+        View btnAccountSecurity = findViewById(R.id.btnAccountSecurity);
+        if (btnAccountSecurity != null) {
+            btnAccountSecurity.setOnClickListener(v -> {
+                android.widget.Toast.makeText(this, "Tính năng Tài khoản & Bảo mật đang phát triển", android.widget.Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        // Addresses
+        View btnAddresses = findViewById(R.id.btnAddresses);
+        if (btnAddresses != null) {
+            btnAddresses.setOnClickListener(v -> {
+                startActivity(new android.content.Intent(this, AddressManagementActivity.class));
+            });
+        }
+
+        // Linked Accounts
+        View btnLinkedAccounts = findViewById(R.id.btnLinkedAccounts);
+        if (btnLinkedAccounts != null) {
+            btnLinkedAccounts.setOnClickListener(v -> {
+                android.widget.Toast.makeText(this, "Tính năng Liên kết tài khoản đang phát triển", android.widget.Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        // Chat Settings
+        View btnChatSettings = findViewById(R.id.btnChatSettings);
+        if (btnChatSettings != null) {
+            btnChatSettings.setOnClickListener(v -> {
+                android.widget.Toast.makeText(this, "Tính năng Cài đặt Chat đang phát triển", android.widget.Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        // Notification Settings
+        View btnNotificationSettings = findViewById(R.id.btnNotificationSettings);
+        if (btnNotificationSettings != null) {
+            btnNotificationSettings.setOnClickListener(v -> {
+                android.widget.Toast.makeText(this, "Tính năng Cài đặt Thông báo đang phát triển", android.widget.Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        // Language
+        View btnLanguage = findViewById(R.id.btnLanguage);
+        if (btnLanguage != null) {
+            btnLanguage.setOnClickListener(v -> {
+                android.widget.Toast.makeText(this, "Hệ thống đang sử dụng Tiếng Việt", android.widget.Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        // Help Center
+        View btnHelpCenter = findViewById(R.id.btnHelpCenter);
+        if (btnHelpCenter != null) {
+            btnHelpCenter.setOnClickListener(v -> {
+                android.widget.Toast.makeText(this, "Đang mở Trung tâm Trợ giúp...", android.widget.Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        // Privacy Policy
+        View btnPrivacyPolicy = findViewById(R.id.btnPrivacyPolicy);
+        if (btnPrivacyPolicy != null) {
+            btnPrivacyPolicy.setOnClickListener(v -> {
+                android.widget.Toast.makeText(this, "Đang tải Chính sách bảo mật...", android.widget.Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 }
