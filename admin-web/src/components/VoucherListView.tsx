@@ -79,7 +79,7 @@ export const VoucherListView: React.FC<VoucherListViewProps> = ({
               onClick={() => setFilterStatus("ALL")}
               className={`text-[10px] uppercase font-bold tracking-wider px-4.5 py-1.5 rounded-lg transition-all duration-200 ${
                 filterStatus === "ALL" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
-              }`}
+              } font-sans`}
             >
               Tất cả
             </button>
@@ -87,7 +87,7 @@ export const VoucherListView: React.FC<VoucherListViewProps> = ({
               onClick={() => setFilterStatus("ACTIVE")}
               className={`text-[10px] uppercase font-bold tracking-wider px-4.5 py-1.5 rounded-lg transition-all duration-200 ${
                 filterStatus === "ACTIVE" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
-              }`}
+              } font-sans`}
             >
               Còn hạn
             </button>
@@ -95,7 +95,7 @@ export const VoucherListView: React.FC<VoucherListViewProps> = ({
               onClick={() => setFilterStatus("EXPIRED")}
               className={`text-[10px] uppercase font-bold tracking-wider px-4.5 py-1.5 rounded-lg transition-all duration-200 ${
                 filterStatus === "EXPIRED" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-900"
-              }`}
+              } font-sans`}
             >
               Hết hạn
             </button>
@@ -105,7 +105,7 @@ export const VoucherListView: React.FC<VoucherListViewProps> = ({
         {/* Master Addition Button */}
         <button
           onClick={onAddVoucherClick}
-          className="flex items-center justify-center gap-2 bg-zinc-900 text-white hover:bg-[#8c7623] px-5 py-3 rounded-xl text-xs font-bold tracking-wider uppercase font-sans transition-all duration-200 shadow-md shadow-zinc-900/5 whitespace-nowrap"
+          className="flex items-center justify-center gap-2 bg-zinc-900 text-white hover:bg-[#8c7623] px-5 py-3 rounded-xl text-xs font-semibold tracking-wider uppercase font-sans transition-all duration-200 shadow-md shadow-zinc-900/5 whitespace-nowrap"
         >
           <Plus className="h-4 w-4" />
           Thêm Voucher
@@ -118,8 +118,8 @@ export const VoucherListView: React.FC<VoucherListViewProps> = ({
           <div className="mx-auto w-12 h-12 rounded-full bg-zinc-50 border border-zinc-150 flex items-center justify-center mb-4">
             <Ticket className="h-5 w-5 text-zinc-400" />
           </div>
-          <h3 className="font-serif text-lg text-zinc-800 font-medium">Không có mã giảm giá nào</h3>
-          <p className="font-sans text-xs text-zinc-500 mt-2 max-w-sm mx-auto leading-relaxed">
+          <h3 className="font-sans text-lg text-zinc-800 font-bold">Không có mã giảm giá nào</h3>
+          <p className="font-sans text-xs text-zinc-500 mt-2 max-w-sm mx-auto leading-relaxed font-medium">
             Hệ thống chưa có voucher hoặc không khớp với điều kiện lọc.
           </p>
         </div>
@@ -140,7 +140,7 @@ export const VoucherListView: React.FC<VoucherListViewProps> = ({
                       <Ticket className="h-5 w-5" />
                     </div>
                     <div>
-                      <h4 className="font-mono text-base text-zinc-900 font-bold tracking-wider uppercase">
+                      <h4 className="font-sans text-base text-zinc-900 font-bold tracking-wider uppercase">
                         {voucher.code}
                       </h4>
                       <p className={`font-sans text-[10px] uppercase font-bold tracking-wider mt-0.5 ${expired ? 'text-rose-500' : 'text-emerald-600'}`}>
@@ -162,14 +162,14 @@ export const VoucherListView: React.FC<VoucherListViewProps> = ({
 
                     <div className="flex items-center justify-between">
                       <span className="font-sans text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Giảm tối đa</span>
-                      <strong className="font-mono text-xs text-zinc-950">
+                      <strong className="font-sans text-xs text-zinc-950 font-bold">
                         {formatPrice(voucher.maximumDiscount)}
                       </strong>
                     </div>
 
                     <div className="flex items-center justify-between">
                       <span className="font-sans text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Hạn sử dụng</span>
-                      <span className="font-mono text-xs text-zinc-950 flex items-center gap-1.5">
+                      <span className="font-sans text-xs text-zinc-950 flex items-center gap-1.5 font-medium">
                         {expired && <AlertCircle className="h-3 w-3 text-rose-500" />}
                         {voucher.expirationDate}
                       </span>
@@ -180,14 +180,14 @@ export const VoucherListView: React.FC<VoucherListViewProps> = ({
                   <div className="flex items-center justify-end gap-2 pt-4 border-t border-zinc-100">
                     <button
                       onClick={() => onEditVoucherClick(voucher)}
-                      className="p-1.5 px-3 bg-zinc-50 hover:bg-[#8c7623]/10 text-zinc-650 hover:text-[#8c7623] text-[10px] uppercase font-bold tracking-wider font-sans rounded-lg border border-zinc-200/80 transition-colors duration-200 flex items-center gap-1.5"
+                      className="p-1.5 px-3 bg-zinc-50 hover:bg-[#8c7623]/10 text-zinc-650 hover:text-[#8c7623] text-[10px] uppercase font-semibold tracking-wider font-sans rounded-lg border border-zinc-200/80 transition-colors duration-200 flex items-center gap-1.5"
                     >
                       <Edit3 className="h-3.5 w-3.5" />
                       Sửa
                     </button>
                     <button
                       onClick={() => handleDeleteCheck(voucher.id, voucher.code)}
-                      className="p-1.5 px-3 bg-zinc-50 hover:bg-rose-50 text-zinc-400 hover:text-rose-600 text-[10px] uppercase font-bold tracking-wider font-sans rounded-lg border border-zinc-200/80 transition-colors duration-200 flex items-center gap-1.5"
+                      className="p-1.5 px-3 bg-zinc-50 hover:bg-rose-50 text-zinc-400 hover:text-rose-600 text-[10px] uppercase font-semibold tracking-wider font-sans rounded-lg border border-zinc-200/80 transition-colors duration-200 flex items-center gap-1.5"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                       Xóa

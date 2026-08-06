@@ -80,16 +80,16 @@ export const VoucherFormView: React.FC<VoucherFormViewProps> = ({
           className="flex items-center gap-2 text-zinc-500 hover:text-zinc-900 transition-colors bg-white px-4 py-2 rounded-xl border border-zinc-200 shadow-sm"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span className="text-[11px] font-bold uppercase tracking-wider">Quay lại</span>
+          <span className="text-[11px] font-semibold uppercase tracking-wider font-sans">Quay lại</span>
         </button>
 
         <div className="flex items-center gap-3">
-          <span className="text-[10px] text-zinc-400 font-mono">
+          <span className="text-[10px] text-zinc-400 font-sans font-medium">
             {editingVoucher ? `Chỉnh sửa: ${editingVoucher.code}` : "Tạo mới voucher"}
           </span>
           <button
             onClick={handleSubmit}
-            className="flex items-center gap-2 bg-[#8c7623] text-white hover:bg-[#7a661c] px-6 py-2.5 rounded-xl text-xs font-bold tracking-wider uppercase transition-all shadow-md shadow-[#8c7623]/20"
+            className="flex items-center gap-2 bg-[#8c7623] text-white hover:bg-[#7a661c] px-6 py-2.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all shadow-md shadow-[#8c7623]/20 font-sans"
           >
             <Save className="h-4 w-4" />
             Lưu thay đổi
@@ -100,7 +100,7 @@ export const VoucherFormView: React.FC<VoucherFormViewProps> = ({
       <div className="max-w-3xl mx-auto space-y-6">
         
         {errorMsg && (
-          <div className="bg-rose-50 border border-rose-200 text-rose-600 p-4 rounded-xl text-xs font-bold">
+          <div className="bg-rose-50 border border-rose-200 text-rose-600 p-4 rounded-xl text-xs font-bold font-sans">
             {errorMsg}
           </div>
         )}
@@ -109,7 +109,7 @@ export const VoucherFormView: React.FC<VoucherFormViewProps> = ({
         <div className="bg-white p-8 rounded-2xl border border-zinc-200/50 shadow-sm space-y-6">
           <div className="flex items-center gap-2 border-b border-zinc-100 pb-4">
             <Ticket className="h-4.5 w-4.5 text-[#8c7623]" />
-            <h4 className="font-serif text-base text-zinc-950 font-bold">
+            <h4 className="font-sans text-base text-zinc-950 font-bold">
               Thông Tin Voucher
             </h4>
           </div>
@@ -123,7 +123,7 @@ export const VoucherFormView: React.FC<VoucherFormViewProps> = ({
                 type="text"
                 value={code}
                 onChange={e => setCode(e.target.value.toUpperCase())}
-                className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-sm font-mono font-bold focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none transition-all uppercase"
+                className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-sm font-sans font-bold focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none transition-all uppercase"
                 placeholder="VD: TRENDIFYSUMMER"
                 required
               />
@@ -135,14 +135,14 @@ export const VoucherFormView: React.FC<VoucherFormViewProps> = ({
                   Giảm theo %
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-sm">%</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-sans text-sm font-medium">%</span>
                   <input
                     type="number"
                     value={discountRate}
                     onChange={e => setDiscountRate(Number(e.target.value))}
                     min="0"
                     max="100"
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-4 py-3 text-sm font-sans focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none transition-all"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-4 py-3 text-sm font-sans font-medium focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none transition-all"
                     placeholder="VD: 15"
                   />
                 </div>
@@ -153,14 +153,14 @@ export const VoucherFormView: React.FC<VoucherFormViewProps> = ({
                   Giảm theo số tiền (VND)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-sm">₫</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-sans text-sm font-medium">₫</span>
                   <input
                     type="number"
                     value={discountAmount}
                     onChange={e => setDiscountAmount(Number(e.target.value))}
                     min="0"
                     step="1000"
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-8 pr-4 py-3 text-sm font-sans focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none transition-all"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-8 pr-4 py-3 text-sm font-sans font-medium focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none transition-all"
                     placeholder="VD: 50000"
                   />
                 </div>
@@ -173,18 +173,18 @@ export const VoucherFormView: React.FC<VoucherFormViewProps> = ({
                   Mức giảm tối đa (VND)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-mono text-sm">₫</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-sans text-sm font-medium">₫</span>
                   <input
                     type="number"
                     value={maximumDiscount}
                     onChange={e => setMaximumDiscount(Number(e.target.value))}
                     min="0"
                     step="1000"
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-8 pr-4 py-3 text-sm font-sans focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none transition-all"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-8 pr-4 py-3 text-sm font-sans font-bold focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none transition-all"
                     placeholder="VD: 100000"
                   />
                 </div>
-                <p className="text-[10px] text-zinc-400 font-sans">Áp dụng khi dùng "Giảm theo %"</p>
+                <p className="text-[10px] text-zinc-400 font-sans font-medium">Áp dụng khi dùng "Giảm theo %"</p>
               </div>
 
               <div className="space-y-3">
@@ -195,7 +195,7 @@ export const VoucherFormView: React.FC<VoucherFormViewProps> = ({
                   type="text"
                   value={expirationDate}
                   onChange={e => setExpirationDate(e.target.value)}
-                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-sm font-mono focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none transition-all"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-sm font-sans font-medium focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none transition-all"
                   placeholder="VD: 31/12/2026"
                   required
                 />
