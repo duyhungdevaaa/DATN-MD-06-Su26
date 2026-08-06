@@ -66,7 +66,7 @@ export const UserListView: React.FC<UserListViewProps> = ({
         <div>
           <h3 className="font-sans text-lg text-neutral-900 font-bold">Bản ghi danh hội viên</h3>
           <p className="font-sans text-xs text-neutral-400 mt-1 font-medium">
-            Theo dõi, định hạng và triân đặc quyền cho cơ sở dữ liệu khách hàng Haute Couture Việt Nam.
+            Theo dõi, định hạng và tri ân đặc quyền cho cơ sở dữ liệu khách hàng Haute Couture Việt Nam.
           </p>
         </div>
 
