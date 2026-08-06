@@ -15,6 +15,7 @@ import { CategoryFormView } from "./components/CategoryFormView";
 import { UserListView } from "./components/UserListView";
 import { OrderListView } from "./components/OrderListView";
 import { OrderDetailView } from "./components/OrderDetailView";
+import { ReportsView } from "./components/ReportsView";
 
 import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
@@ -417,6 +418,9 @@ export default function App() {
             onSelectOrder={(order) => setSelectedOrder(order)}
           />
         );
+
+      case ActiveTab.REPORTS:
+        return <ReportsView />;
 
       default:
         return (

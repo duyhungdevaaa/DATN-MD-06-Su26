@@ -81,7 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       description: "Quản lý kho"
     },
     {
-      id: "reports", // Mocked for UI match
+      id: ActiveTab.REPORTS,
       label: "Báo cáo",
       icon: LayoutDashboard,
       badge: null,

@@ -9,6 +9,7 @@ export enum ActiveTab {
   USERS = "users",
   PRODUCTS = "products",
   CATEGORIES = "categories",
+  REPORTS = "reports",
   SETTINGS = "settings",
 }
 
