@@ -40,6 +40,11 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
 
+  // Pagination State
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [jumpPage, setJumpPage] = useState<string>("");
+
   const formatVND = (num: number) => {
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(num);
   };
@@ -48,7 +53,6 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
   const parseDate = (dateStr: string) => {
     const parts = dateStr.split('/');
     if (parts.length === 3) {
-      // month is 0-indexed
       return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
     }
     return new Date(NaN);
@@ -56,21 +60,13 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
 
   // Filters logic
   const filteredOrders = orders.filter((order) => {
-    // Search filter
     const term = searchText.toLowerCase().trim();
-    const matchesSearch = 
-      !term ||
+    const matchesSearch = !term ||
       order.id.toLowerCase().includes(term) ||
       order.customerName.toLowerCase().includes(term) ||
       order.phone.toLowerCase().includes(term);
-
-    // Status filter
     const matchesStatus = statusFilter === "All" || order.status === statusFilter;
-
-    // Payment filter
     const matchesPayment = paymentFilter === "All" || order.paymentMethod === paymentFilter;
-
-    // Date range filter
     let matchesDate = true;
     if (fromDate || toDate) {
       const orderDate = parseDate(order.date);
@@ -85,68 +81,61 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
         if (orderDate > end) matchesDate = false;
       }
     }
-
     return matchesSearch && matchesStatus && matchesPayment && matchesDate;
   });
 
+  // Derived pagination data
+  const totalPages = Math.ceil(filteredOrders.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedOrders = filteredOrders.slice(startIndex, startIndex + pageSize);
+
   const getStatusBadgeClass = (status: OrderStatus) => {
     switch (status) {
-      case OrderStatus.PENDING:
-        return "bg-amber-50 text-amber-600 border-amber-100";
-      case OrderStatus.SHIPPING:
-        return "bg-orange-50 text-orange-600 border-orange-100";
-      case OrderStatus.DELIVERED:
-        return "bg-green-50 text-green-600 border-green-100";
-      case OrderStatus.CANCELLED:
-        return "bg-red-50 text-red-600 border-red-100";
-      default:
-        return "bg-neutral-50 text-neutral-500 border-neutral-200";
+      case OrderStatus.PENDING: return "bg-amber-50 text-amber-600 border-amber-100";
+      case OrderStatus.SHIPPING: return "bg-orange-50 text-orange-600 border-orange-100";
+      case OrderStatus.DELIVERED: return "bg-green-50 text-green-700 border-green-100";
+      case OrderStatus.CANCELLED: return "bg-red-50 text-red-700 border-red-100";
+      default: return "bg-neutral-50 text-neutral-500 border-neutral-200";
     }
   };
 
   return (
-    <div className="space-y-6 animate-fade-in text-left font-sans">
+    <div className="flex flex-col h-full max-h-[calc(100vh-100px)] space-y-3 font-sans animate-fade-in text-left">
       
-      {/* Header Section */}
-      <div className="flex justify-between items-start mb-6">
+      {/* Header Section - Minimized */}
+      <div className="flex justify-between items-end shrink-0">
         <div>
-          <h3 className="text-[32px] font-bold text-[#111827] tracking-[-0.5px] mb-[6px]">
-            Bản ghi vận đơn & Giao dịch
-          </h3>
-          <p className="text-[15px] font-normal text-[#6B7280]">
-            Quản lý và theo dõi trạng thái đơn hàng
-          </p>
+          <h3 className="text-xl font-bold text-[#111827] tracking-tight">Bản ghi vận đơn & Giao dịch</h3>
+          <p className="text-xs text-[#6B7280]">Quản lý và theo dõi trạng thái đơn hàng</p>
         </div>
-        <button className="h-[40px] px-4 rounded-[10px] bg-[#6c5e06] hover:bg-[#5a4e05] text-white text-[15px] font-medium flex items-center gap-2 transition-all shadow-sm active:scale-95">
-          <FileSpreadsheet className="h-4 w-4" />
+        <button className="h-8 px-3 rounded-lg bg-[#6c5e06] hover:bg-[#5a4e05] text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-sm">
+          <FileSpreadsheet className="h-3.5 w-3.5" />
           Xuất Excel
         </button>
       </div>
 
-      {/* Filter Section Card */}
-      <div className="bg-white rounded-[12px] border border-[#E5E7EB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6 mb-5">
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
-          {/* Search Input */}
-          <div className="md:col-span-2 space-y-2">
+      {/* Filter Section Card - Ultra Compact */}
+      <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm p-3 shrink-0">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+          <div className="md:col-span-3 space-y-1">
+            <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Tìm kiếm:</label>
             <div className="relative">
               <input
                 type="text"
                 value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                placeholder="Tìm kiếm mã đơn, khách hàng, SĐT..."
-                className="w-full h-[44px] rounded-[10px] border border-[#E5E7EB] pl-[40px] pr-[14px] text-[14px] placeholder:text-[#9CA3AF] focus:ring-2 focus:ring-[#6c5e06]/20 focus:border-[#6c5e06] outline-none transition-all"
+                onChange={(e) => { setSearchText(e.target.value); setCurrentPage(1); }}
+                placeholder="Mã đơn, khách hàng, SĐT..."
+                className="w-full h-9 rounded-lg border border-[#E5E7EB] pl-8 pr-2 text-xs outline-none focus:ring-2 focus:ring-[#6c5e06]/10"
               />
-              <Search className="absolute left-[14px] top-1/2 -translate-y-1/2 h-4 w-4 text-[#9CA3AF]" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#9CA3AF]" />
             </div>
           </div>
-
-          {/* Status Select */}
-          <div className="space-y-2">
-            <label className="text-[12px] font-semibold text-[#6B7280] uppercase tracking-wider block">Trạng thái:</label>
+          <div className="md:col-span-2 space-y-1">
+            <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Trạng thái:</label>
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full h-[44px] rounded-[10px] border border-[#E5E7EB] px-[14px] text-[14px] text-[#111827] bg-[#F9FAFB] focus:bg-white outline-none transition-all cursor-pointer"
+              onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+              className="w-full h-9 rounded-lg border border-[#E5E7EB] px-2 text-xs bg-[#F9FAFB] outline-none"
             >
               <option value="All">Tất cả</option>
               <option value={OrderStatus.PENDING}>Đang xử lý</option>
@@ -155,245 +144,180 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
               <option value={OrderStatus.CANCELLED}>Đã hủy</option>
             </select>
           </div>
-
-          {/* Payment Select */}
-          <div className="space-y-2">
-            <label className="text-[12px] font-semibold text-[#6B7280] uppercase tracking-wider block">Phương thức TT:</label>
+          <div className="md:col-span-2 space-y-1">
+            <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Thanh toán:</label>
             <select
               value={paymentFilter}
-              onChange={(e) => setPaymentFilter(e.target.value)}
-              className="w-full h-[44px] rounded-[10px] border border-[#E5E7EB] px-[14px] text-[14px] text-[#111827] bg-[#F9FAFB] focus:bg-white outline-none transition-all cursor-pointer"
+              onChange={(e) => { setPaymentFilter(e.target.value); setCurrentPage(1); }}
+              className="w-full h-9 rounded-lg border border-[#E5E7EB] px-2 text-xs bg-[#F9FAFB] outline-none"
             >
               <option value="All">Tất cả</option>
               <option value="COD">COD</option>
               <option value="Chuyển khoản">Chuyển khoản</option>
             </select>
           </div>
-
-          {/* Date Range - From */}
-          <div className="space-y-2">
-            <label className="text-[12px] font-semibold text-[#6B7280] uppercase tracking-wider block">Từ ngày:</label>
-            <div className="relative">
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="w-full h-[44px] rounded-[10px] border border-[#E5E7EB] pl-[14px] pr-[14px] text-[14px] text-[#111827] bg-white outline-none"
-              />
-            </div>
+          <div className="md:col-span-2 space-y-1">
+            <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Từ ngày:</label>
+            <input type="date" value={fromDate} onChange={(e) => { setFromDate(e.target.value); setCurrentPage(1); }} className="w-full h-9 rounded-lg border border-[#E5E7EB] px-2 text-xs outline-none" />
           </div>
-
-          {/* Date Range - To */}
-          <div className="space-y-2">
-            <label className="text-[12px] font-semibold text-[#6B7280] uppercase tracking-wider block">Đến ngày:</label>
-            <div className="relative">
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="w-full h-[44px] rounded-[10px] border border-[#E5E7EB] pl-[14px] pr-[14px] text-[14px] text-[#111827] bg-white outline-none"
-              />
-            </div>
+          <div className="md:col-span-2 space-y-1">
+            <label className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Đến ngày:</label>
+            <input type="date" value={toDate} onChange={(e) => { setToDate(e.target.value); setCurrentPage(1); }} className="w-full h-9 rounded-lg border border-[#E5E7EB] px-2 text-xs outline-none" />
           </div>
-
-          {/* Action Buttons */}
-          <div className="md:col-span-6 flex justify-end gap-3 mt-2">
-            <button className="h-[40px] px-6 rounded-[10px] bg-[#6c5e06] hover:bg-[#5a4e05] text-white text-[15px] font-medium flex items-center gap-2 transition-all shadow-sm active:scale-95">
-              <Filter className="h-4 w-4" />
-              Lọc
-            </button>
+          <div className="md:col-span-1 flex justify-end">
             <button
-              onClick={() => {
-                setSearchText("");
-                setStatusFilter("All");
-                setPaymentFilter("All");
-                setFromDate("");
-                setToDate("");
-              }}
-              className="h-[40px] px-6 rounded-[10px] bg-white hover:bg-neutral-50 text-neutral-600 border border-[#E5E7EB] text-[15px] font-medium flex items-center gap-2 transition-all active:scale-95"
+              onClick={() => { setSearchText(""); setStatusFilter("All"); setPaymentFilter("All"); setFromDate(""); setToDate(""); setCurrentPage(1); }}
+              className="h-9 px-3 rounded-lg border border-[#E5E7EB] text-xs font-bold text-[#6B7280] hover:bg-neutral-50 transition-all flex items-center gap-1.5"
             >
-              <RotateCcw className="h-4 w-4" />
-              Đặt lại
+              <RotateCcw className="h-3 w-3" /> Reset
             </button>
           </div>
         </div>
       </div>
 
-      {/* Main Table Grid View */}
-      {filteredOrders.length === 0 ? (
-        <div className="bg-white rounded-[12px] border border-[#E5E7EB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-20 text-center">
-          <div className="mx-auto w-16 h-16 rounded-full bg-neutral-50 flex items-center justify-center mb-6">
-            <ShoppingBag className="h-8 w-8 text-neutral-300" />
+      {/* Table Container - Fixed Heights */}
+      <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm flex flex-col flex-1 min-h-0 relative overflow-hidden">
+        {filteredOrders.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center p-10 text-center">
+            <ShoppingBag className="h-10 w-10 text-neutral-200 mb-2" />
+            <h3 className="text-sm font-bold text-neutral-800">Không có dữ liệu</h3>
           </div>
-          <h3 className="text-xl font-bold text-neutral-800">Không có dữ liệu</h3>
-          <p className="text-[15px] text-[#6B7280] mt-2 max-w-sm mx-auto">
-            Vui lòng thử gõ từ khóa tìm kiếm khác hoặc đổi bộ lọc trạng thái đơn hàng.
-          </p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-[12px] border border-[#E5E7EB] shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB] text-[14px] text-[#6B7280] uppercase tracking-wider font-semibold">
-                  <th className="py-4 px-6 pl-8">Mã đơn hàng</th>
-                  <th className="py-4 px-6">Thời gian đặt</th>
-                  <th className="py-4 px-6">Khách hàng</th>
-                  <th className="py-4 px-6">Sản phẩm</th>
-                  <th className="py-4 px-6 text-right">Tổng tiền</th>
-                  <th className="py-4 px-6">Phương thức TT</th>
-                  <th className="py-4 px-6 text-center">Trạng thái</th>
-                  <th className="py-4 px-6 pr-8 text-center">Tác vụ</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#F3F4F6]">
-                {filteredOrders.map((order) => {
-                  return (
-                    <tr 
-                      key={order.id} 
-                      className="group hover:bg-[#F9FAFB] transition-colors cursor-pointer"
-                      onClick={() => onSelectOrder(order)}
-                    >
-                      {/* Code ID */}
-                      <td className="py-[18px] px-6 pl-8 align-middle">
-                        <span className="text-[15px] font-medium text-blue-600 tracking-tight uppercase hover:underline decoration-2 underline-offset-4">
-                          #{order.id}
-                        </span>
+        ) : (
+          <>
+            <div className="overflow-auto flex-1 mb-[56px]">
+              <table className="w-full text-left border-collapse table-fixed min-w-[1000px]">
+                <thead className="sticky top-0 z-10 bg-[#FAFAFA] border-b border-[#E5E7EB]">
+                  <tr className="h-10 text-[10px] text-[#6B7280] uppercase tracking-widest font-bold">
+                    <th className="w-[150px] px-4">Mã đơn hàng</th>
+                    <th className="w-[110px] px-4">Ngày đặt</th>
+                    <th className="w-[210px] px-4">Khách hàng</th>
+                    <th className="px-4">Sản phẩm</th>
+                    <th className="w-[120px] px-4 text-center">Tổng tiền</th>
+                    <th className="w-[150px] px-4">Thanh toán</th>
+                    <th className="w-[140px] px-4 text-center">Trạng thái</th>
+                    <th className="w-[100px] px-4 pr-[20px] text-center">Tác vụ</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#F3F4F6]">
+                  {paginatedOrders.map((order) => (
+                    <tr key={order.id} className="h-[74px] hover:bg-neutral-50/50 transition-colors cursor-pointer" onClick={() => onSelectOrder(order)}>
+                      <td className="px-4 align-middle font-bold text-blue-600 text-[13px] whitespace-nowrap">#{order.id}</td>
+                      <td className="px-4 align-middle leading-tight">
+                        <div className="text-[12px] font-semibold text-[#111827]">{order.date}</div>
+                        <div className="text-[11px] text-[#6B7280]">{order.time}</div>
                       </td>
-
-                      {/* Date Time */}
-                      <td className="py-[18px] px-6 align-middle">
-                        <span className="text-[15px] font-medium text-[#111827] block">
-                          {order.date}
-                        </span>
-                        <span className="text-[14px] font-normal text-[#6B7280] block mt-0.5">
-                          {order.time}
-                        </span>
+                      <td className="px-4 align-middle leading-tight">
+                        <div className="text-[12px] font-semibold text-[#111827] truncate">{order.customerName}</div>
+                        <div className="flex items-center gap-1 text-[11px] text-[#6B7280] mt-0.5"><Phone className="h-2.5 w-2.5 opacity-60" /> {order.phone || "0901..."}</div>
+                        <div className="flex items-center gap-1 text-[11px] text-[#6B7280]"><MapPin className="h-2.5 w-2.5 opacity-60" /> <span className="truncate">{order.address || "Hà Nội"}</span></div>
                       </td>
-
-                      {/* Customer Info */}
-                      <td className="py-[18px] px-6 align-middle">
-                        <div className="flex flex-col gap-1">
-                          <p className="text-[15px] font-medium text-[#111827] tracking-tight">
-                            {order.customerName}
-                          </p>
-                          <div className="flex items-center gap-2 text-[14px] text-[#6B7280] font-normal">
-                            <Phone className="h-3.5 w-3.5 shrink-0 opacity-60" />
-                            <span>{order.phone || "0901 234 567"}</span>
+                      <td className="px-4 align-middle">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-11 w-11 rounded-lg bg-neutral-100 border border-[#E5E7EB] shrink-0 overflow-hidden shadow-xs">
+                            <img src={order.items[0]?.imageUrl} className="h-full w-full object-cover" alt="" referrerPolicy="no-referrer" />
                           </div>
-                          <div className="flex items-center gap-2 text-[14px] text-[#6B7280] font-normal">
-                            <MapPin className="h-3.5 w-3.5 shrink-0 opacity-60" />
-                            <span className="truncate max-w-[150px]">{order.address || "Hà Nội"}</span>
+                          <div className="min-w-0">
+                            <p className="text-[12px] font-semibold text-[#111827] truncate">{order.items[0]?.name || "Sản phẩm"}</p>
+                            <p className="text-[11px] text-[#6B7280] truncate">{order.items[0]?.size ? `S: ${order.items[0].size}` : "S: M"}{order.items[0]?.color ? ` - ${order.items[0].color}` : ""}</p>
+                            <p className="text-[11px] font-bold text-[#6B7280]">SL: {order.items[0]?.quantity || 1}</p>
                           </div>
                         </div>
                       </td>
-
-                      {/* Item Preview */}
-                      <td className="py-[18px] px-6 align-middle">
-                        <div className="flex items-center gap-4">
-                          <div className="h-12 w-12 rounded-[10px] overflow-hidden bg-neutral-50 border border-neutral-100 shrink-0 shadow-sm">
-                            <img
-                              src={order.items[0]?.imageUrl}
-                              alt={order.items[0]?.name}
-                              className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
-                              referrerPolicy="no-referrer"
-                            />
-                          </div>
-                          <div className="min-w-0 space-y-0.5">
-                            <p className="text-[15px] font-medium text-[#111827] truncate tracking-tight">
-                              {order.items[0]?.name || "Áo polo"}
-                            </p>
-                            <span className="text-[14px] font-normal text-[#6B7280] block">
-                              {order.items[0]?.size ? `Size ${order.items[0].size}` : "Size M"}
-                              {order.items[0]?.color ? ` - ${order.items[0].color}` : " - Trắng"}
-                            </span>
-                            <span className="text-[14px] font-medium text-[#6B7280] block">
-                              SL: {order.items[0]?.quantity || 1}
-                            </span>
-                          </div>
-                        </div>
+                      <td className="px-4 align-middle text-center font-bold text-[#111827] text-[15px]">{formatVND(order.total)}</td>
+                      <td className="px-4 align-middle leading-tight">
+                        <div className="text-[12px] font-semibold text-[#111827]">{order.paymentMethod === "COD" ? "COD" : "C.Khoản"}</div>
+                        <div className="text-[11px] text-[#6B7280]">{order.paymentMethod === "COD" ? "Tại chỗ" : "Ngân hàng"}</div>
                       </td>
-
-                      {/* Total */}
-                      <td className="py-[18px] px-6 align-middle text-right">
-                        <strong className="text-[18px] font-bold text-[#111827] tracking-tight">
-                          {formatVND(order.total)}
-                        </strong>
-                      </td>
-
-                      {/* Payment */}
-                      <td className="py-[18px] px-6 align-middle">
-                        <span className="text-[15px] font-medium text-[#111827] block">
-                          {order.paymentMethod || "Chuyển khoản"}
-                        </span>
-                        <span className="text-[14px] font-normal text-[#6B7280] block mt-0.5">
-                          {order.paymentMethod === "COD" ? "Thanh toán khi nhận" : "Ngân hàng"}
-                        </span>
-                      </td>
-
-                      {/* Status */}
-                      <td className="py-[18px] px-6 align-middle text-center">
-                        <span className={`inline-flex items-center gap-2 px-[14px] py-[6px] rounded-full border text-[13px] font-semibold transition-all ${getStatusBadgeClass(order.status)}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${
-                            order.status === OrderStatus.PENDING 
-                              ? 'bg-amber-500'
-                              : order.status === OrderStatus.SHIPPING 
-                              ? "bg-orange-500"
-                              : order.status === OrderStatus.CANCELLED
-                              ? "bg-red-500"
-                              : "bg-green-500"
-                          }`} />
+                      <td className="px-4 align-middle text-center">
+                        <span className={`inline-flex items-center h-6 px-2.5 rounded-full border text-[10px] font-bold gap-1.5 ${getStatusBadgeClass(order.status)}`}>
+                          <span className={`w-1 h-1 rounded-full ${order.status === OrderStatus.PENDING ? 'bg-amber-500' : order.status === OrderStatus.SHIPPING ? "bg-orange-500" : order.status === OrderStatus.CANCELLED ? "bg-red-500" : "bg-green-500"}`} />
                           {order.status === OrderStatus.SHIPPING ? "Đang giao" : order.status}
                         </span>
                       </td>
-
-                      {/* Actions */}
-                      <td className="py-[18px] px-6 pr-8 align-middle text-center" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-center gap-3">
-                          <button
-                            onClick={() => onSelectOrder(order)}
-                            className="h-9 px-4 text-[13px] font-semibold text-neutral-700 bg-white hover:bg-neutral-50 border border-neutral-200 rounded-[10px] shadow-sm transition-all inline-flex items-center gap-2 active:scale-95 whitespace-nowrap"
-                          >
-                            <Eye className="h-4 w-4 opacity-70" />
-                            Xem chi tiết
-                          </button>
-                          <button className="p-1 rounded-md text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 transition-all">
-                            <MoreVertical className="h-5 w-5" />
-                          </button>
-                        </div>
+                      <td className="px-4 align-middle text-center" onClick={(e) => e.stopPropagation()}>
+                        <button onClick={() => onSelectOrder(order)} className="h-7 px-2.5 rounded-md border border-[#E5E7EB] bg-white text-[11px] font-bold text-neutral-700 hover:bg-neutral-50 shadow-xs active:scale-95 whitespace-nowrap">Chi tiết</button>
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination Matching Image */}
-          <div className="px-8 py-4 border-t border-[#E5E7EB] flex items-center justify-between bg-white text-[14px] text-[#6B7280]">
-            <div>Hiển thị 1 - 10 / 46 đơn hàng</div>
-            <div className="flex items-center gap-1">
-               <button className="w-8 h-8 flex items-center justify-center rounded-md border border-[#E5E7EB] hover:bg-neutral-50 transition-all text-neutral-400">&lt;</button>
-               <button className="w-8 h-8 flex items-center justify-center rounded-md bg-[#6c5e06] text-white font-bold">1</button>
-               <button className="w-8 h-8 flex items-center justify-center rounded-md border border-transparent hover:bg-neutral-50 transition-all">2</button>
-               <button className="w-8 h-8 flex items-center justify-center rounded-md border border-transparent hover:bg-neutral-50 transition-all">3</button>
-               <button className="w-8 h-8 flex items-center justify-center rounded-md border border-transparent hover:bg-neutral-50 transition-all">4</button>
-               <button className="w-8 h-8 flex items-center justify-center rounded-md border border-transparent hover:bg-neutral-50 transition-all">5</button>
-               <button className="w-8 h-8 flex items-center justify-center rounded-md border border-[#E5E7EB] hover:bg-neutral-50 transition-all text-neutral-400">&gt;</button>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div className="flex items-center gap-2">
-              <span>Hiển thị</span>
-              <select className="border border-[#E5E7EB] rounded-md px-2 py-1 text-neutral-700 outline-none">
-                <option>10</option>
-                <option>20</option>
-                <option>50</option>
-              </select>
-              <span>trên mỗi trang</span>
-            </div>
-          </div>
-        </div>
-      )}
 
+            {/* Pagination UI - FIXED AT BOTTOM WITH INPUT */}
+            <div className="absolute bottom-0 left-0 right-0 h-14 bg-white border-t border-[#E5E7EB] px-5 flex items-center justify-between z-20 text-[12px] font-medium text-[#6B7280]">
+              <div>{filteredOrders.length > 0 ? startIndex + 1 : 0}-{Math.min(startIndex + pageSize, filteredOrders.length)} / {filteredOrders.length} đơn</div>
+
+              <div className="flex items-center gap-6">
+                {/* Jump to page */}
+                <div className="flex items-center gap-2 border-r border-[#E5E7EB] pr-6">
+                  <span>Đi đến trang:</span>
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      value={jumpPage}
+                      onChange={(e) => setJumpPage(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          const p = parseInt(jumpPage);
+                          if (p >= 1 && p <= totalPages) {
+                            setCurrentPage(p);
+                            setJumpPage("");
+                          }
+                        }
+                      }}
+                      placeholder={currentPage.toString()}
+                      className="w-10 h-7 border border-[#E5E7EB] rounded-l px-1 text-center text-[#111827] outline-none"
+                    />
+                    <button
+                      onClick={() => {
+                        const p = parseInt(jumpPage);
+                        if (p >= 1 && p <= totalPages) {
+                          setCurrentPage(p);
+                          setJumpPage("");
+                        }
+                      }}
+                      className="h-7 px-2 bg-[#FAFAFA] border border-l-0 border-[#E5E7EB] rounded-r text-[10px] font-bold hover:bg-neutral-100"
+                    >
+                      GO
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span>Hiện:</span>
+                  <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }} className="h-7 border border-[#E5E7EB] rounded px-1 text-[#111827] font-bold bg-white outline-none cursor-pointer">
+                    <option value={10}>10</option><option value={20}>20</option><option value={50}>50</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <button disabled={currentPage === 1} onClick={() => setCurrentPage(1)} className="w-7 h-7 flex items-center justify-center rounded border border-[#E5E7EB] hover:bg-neutral-50 disabled:opacity-25">&lt;&lt;</button>
+
+                  {/* Numeric Pages */}
+                  <div className="flex items-center gap-1 mx-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                      .map((p, i, arr) => (
+                        <React.Fragment key={p}>
+                          {i > 0 && p - arr[i-1] > 1 && <span className="px-1 text-neutral-300">...</span>}
+                          <button
+                            onClick={() => setCurrentPage(p)}
+                            className={`w-7 h-7 flex items-center justify-center rounded transition-all font-bold ${currentPage === p ? "bg-[#6c5e06] text-white shadow-sm" : "hover:bg-neutral-50 border border-transparent"}`}
+                          >
+                            {p}
+                          </button>
+                        </React.Fragment>
+                      ))
+                    }
+                  </div>
+
+                  <button disabled={currentPage >= totalPages} onClick={() => setCurrentPage(totalPages)} className="w-7 h-7 flex items-center justify-center rounded border border-[#E5E7EB] hover:bg-neutral-50 disabled:opacity-25">&gt;&gt;</button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };
