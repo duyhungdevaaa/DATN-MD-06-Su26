@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
-import { Sparkles, AlertCircle } from 'lucide-react';
+import { Sparkles, CircleAlert } from 'lucide-react';
 
 export const LoginView: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -39,7 +39,7 @@ export const LoginView: React.FC = () => {
         <form onSubmit={handleLogin} className="space-y-5">
           {errorMsg && (
             <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs font-medium flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 shrink-0" />
+              <CircleAlert className="h-4 w-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { Bell, Search, Clock, ChevronDown, CheckCircle, LayoutDashboard } from "lucide-react";
+import { Bell, Search, Clock, ChevronDown, CircleCheck, LayoutDashboard } from "lucide-react";
 
 interface HeaderProps {
   searchText: string;
@@ -53,41 +53,40 @@ export const Header: React.FC<HeaderProps> = ({ searchText, setSearchText }) => 
   }, []);
 
   return (
-    <header className="h-20 bg-white border-b border-[#E5E7EB] px-8 flex items-center justify-between sticky top-0 z-10 font-sans">
+    <header className="h-14 bg-white border-b border-[#E5E7EB] px-8 flex items-center justify-between sticky top-0 z-10 font-sans">
 
       <div className="flex items-center gap-8 flex-1">
         {/* Menu toggle for small screens */}
         <button className="md:hidden p-2 text-neutral-400 hover:bg-neutral-50 rounded-lg">
-          <LayoutDashboard className="h-6 w-6" />
+          <LayoutDashboard className="h-5 w-5" />
         </button>
 
         {/* Search Input bar matching specs */}
-        <div className="relative w-full max-w-[500px]">
-          <span className="absolute inset-y-0 left-[14px] flex items-center pointer-events-none">
-            <Search className="h-4.5 w-4.5 text-[#9CA3AF]" />
+        <div className="relative w-full max-w-[400px]">
+          <span className="absolute inset-y-0 left-[12px] flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-[#9CA3AF]" />
           </span>
           <input
             type="search"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            placeholder="Tìm kiếm đơn hàng, khách hàng, sản phẩm..."
-            className="w-full h-[44px] bg-[#F9FAFB] border border-[#E5E7EB] rounded-[10px] pl-[44px] pr-[80px] text-[14px] font-medium text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#6c5e06]/20 focus:border-[#6c5e06] focus:bg-white transition-all duration-200"
+            placeholder="Tìm kiếm..."
+            className="w-full h-[34px] bg-[#F9FAFB] border border-[#E5E7EB] rounded-[8px] pl-[36px] pr-[60px] text-[13px] font-medium text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#6c5e06]/15 focus:border-[#6c5e06] focus:bg-white transition-all duration-200"
           />
-          <div className="absolute inset-y-0 right-[14px] flex items-center gap-1">
-            <span className="px-1.5 py-0.5 border border-[#E5E7EB] rounded text-[10px] font-bold text-[#9CA3AF] bg-white">Ctrl</span>
-            <span className="text-[10px] font-bold text-[#9CA3AF]">|</span>
-            <span className="px-1.5 py-0.5 border border-[#E5E7EB] rounded text-[10px] font-bold text-[#9CA3AF] bg-white">K</span>
+          <div className="absolute inset-y-0 right-[10px] flex items-center gap-1">
+            <span className="px-1 py-0.5 border border-[#E5E7EB] rounded text-[9px] font-bold text-[#9CA3AF] bg-white">Ctrl</span>
+            <span className="text-[9px] font-bold text-[#9CA3AF]">K</span>
           </div>
         </div>
       </div>
 
       {/* Utilities Container */}
-      <div className="flex items-center gap-6 ml-4">
+      <div className="flex items-center gap-4 ml-4">
         {/* Realtime clock widget */}
-        <div className="hidden lg:flex items-center gap-2 bg-[#F9FAFB] border border-[#E5E7EB] px-4 py-2 rounded-[10px]">
-          <Clock className="h-4 w-4 text-neutral-400" />
-          <span className="text-[13px] font-semibold text-[#6B7280]">
-            Hôm nay, {time || "00:00:00"}
+        <div className="hidden lg:flex items-center gap-2 bg-[#F9FAFB] border border-[#E5E7EB] px-3 py-1 rounded-[8px]">
+          <Clock className="h-3.5 w-3.5 text-neutral-400" />
+          <span className="text-[12px] font-semibold text-[#6B7280]">
+            {time || "00:00:00"}
           </span>
         </div>
 
@@ -99,20 +98,18 @@ export const Header: React.FC<HeaderProps> = ({ searchText, setSearchText }) => 
               setShowProfile(false);
               setUnreadCount(0); // clear count
             }}
-            className="p-2.5 text-neutral-500 hover:bg-neutral-50 border border-[#E5E7EB] rounded-[10px] transition-all relative shadow-sm"
+            className="p-2 text-neutral-500 hover:bg-neutral-100 border border-[#E5E7EB] rounded-[8px] transition-all relative shadow-sm"
           >
-            <Bell className="h-5 w-5" />
+            <Bell className="h-4.5 w-4.5" />
             {unreadCount > 0 && (
-              <span className="absolute top-2 right-2 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full ring-2 ring-white shadow-sm">
+              <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 bg-rose-500 text-white text-[8px] font-bold flex items-center justify-center rounded-full ring-2 ring-white">
                 {unreadCount}
               </span>
             )}
           </button>
-
-          {/* Notifications Dropdown Omitted for brevity, assuming same logic */}
         </div>
 
-        <div className="h-8 w-[1px] bg-[#E5E7EB]" />
+        <div className="h-6 w-[1px] bg-[#E5E7EB]" />
 
         {/* Administrator Profile Widget */}
         <div className="relative">
@@ -121,9 +118,9 @@ export const Header: React.FC<HeaderProps> = ({ searchText, setSearchText }) => 
               setShowProfile(!showProfile);
               setShowNotifications(false);
             }}
-            className="flex items-center gap-3 hover:bg-neutral-50 p-1 rounded-lg transition-colors text-left"
+            className="flex items-center gap-2 hover:bg-neutral-50 p-1 rounded-lg transition-colors text-left"
           >
-            <div className="w-10 h-10 rounded-full border-2 border-white shadow-md overflow-hidden bg-neutral-100">
+            <div className="w-8 h-8 rounded-full border border-[#E5E7EB] overflow-hidden bg-neutral-100">
               <img 
                 src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&h=200&auto=format&fit=crop"
                 alt="Admin Avatar"
@@ -131,14 +128,14 @@ export const Header: React.FC<HeaderProps> = ({ searchText, setSearchText }) => 
               />
             </div>
             <div className="hidden sm:block">
-              <p className="text-[13px] font-bold text-[#111827] leading-tight">
+              <p className="text-[12px] font-bold text-[#111827] leading-none">
                 Marie Laurent
               </p>
-              <p className="text-[11px] font-medium text-[#6B7280]">
+              <p className="text-[10px] font-medium text-[#6B7280] mt-0.5">
                 Quản trị viên
               </p>
             </div>
-            <ChevronDown className="h-4 w-4 text-[#9CA3AF]" />
+            <ChevronDown className="h-3.5 w-3.5 text-[#9CA3AF]" />
           </button>
         </div>
       </div>
