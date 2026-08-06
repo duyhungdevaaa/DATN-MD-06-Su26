@@ -108,7 +108,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     });
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in font-sans">
       {/* Editorial Greetings Banner */}
       <section className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 bg-white p-8 rounded-xl border border-[#cfc4c5]/40 custom-shadow">
         <div>
@@ -118,10 +118,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               Bảng quản trị tối cao
             </span>
           </div>
-          <h2 className="font-serif text-3.5xl tracking-normal text-[#1b1c1c] uppercase mt-2.5 font-light">
-            Cảm hứng Sáng tạo <span className="font-normal italic text-[#6c5e06]">Trendify v1.0</span>
+          <h2 className="font-sans text-3.5xl tracking-normal text-[#1b1c1c] uppercase mt-2.5 font-bold">
+            Cảm hứng Sáng tạo <span className="font-sans font-bold italic text-[#6c5e06]">Trendify v1.0</span>
           </h2>
-          <p className="font-sans text-xs text-neutral-500 mt-2.5 max-w-2xl leading-relaxed">
+          <p className="font-sans text-xs text-neutral-500 mt-2.5 max-w-2xl leading-relaxed font-medium">
             Nơi kết tinh dịch vụ may đo thời trang Haute Couture cùng hệ thống quản lý dữ liệu bán hàng trực quan. 
             Mọi sửa đổi tồn kho hay cập nhật trạng thái hóa đơn sẽ ngay lập tức có hiệu lực trên toàn chuỗi boutique.
           </p>
@@ -129,13 +129,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="flex gap-3">
           <button 
             onClick={() => onNavigateToTab("products")}
-            className="font-sans text-[11px] font-bold tracking-widest text-[#1b1c1c] uppercase border border-neutral-300 px-5 py-3 rounded-lg hover:bg-neutral-50 transition-all duration-200"
+            className="font-sans text-[11px] font-semibold tracking-widest text-[#1b1c1c] uppercase border border-neutral-300 px-5 py-3 rounded-lg hover:bg-neutral-50 transition-all duration-200"
           >
             Quản lý kho
           </button>
           <button 
             onClick={() => onNavigateToTab("orders")}
-            className="font-sans text-[11px] font-bold tracking-widest text-white uppercase bg-[#1b1c1c] px-5 py-3 rounded-lg hover:bg-[#6c5e06] transition-all duration-200"
+            className="font-sans text-[11px] font-semibold tracking-widest text-white uppercase bg-[#1b1c1c] px-5 py-3 rounded-lg hover:bg-[#6c5e06] transition-all duration-200"
           >
             Danh sách đơn hàng
           </button>
@@ -156,7 +156,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <p className="font-sans text-[11px] font-medium text-neutral-400 tracking-wider uppercase">
                     {stat.title}
                   </p>
-                  <p className="font-serif text-2xl font-semibold text-neutral-900 mt-2">
+                  <p className="font-sans text-2xl font-bold text-neutral-900 mt-2">
                     {stat.value}
                   </p>
                 </div>
@@ -170,7 +170,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 }`}>
                   {stat.change}
                 </span>
-                <span className="font-sans text-[10px] text-neutral-400">
+                <span className="font-sans text-[10px] text-neutral-400 font-medium">
                   {stat.subtext}
                 </span>
               </div>
@@ -202,26 +202,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   Philosophy & Craft
                 </span>
               </div>
-              <h3 className="font-serif text-2xl tracking-tight text-[#1b1c1c] leading-snug font-medium">
+              <h3 className="font-sans text-2xl tracking-tight text-[#1b1c1c] leading-snug font-bold">
                 “Sự cân bằng của sự hoàn hảo nằm ở tâm huyết trong từng đường may sợi chỉ.”
               </h3>
-              <p className="font-sans text-[11px] text-neutral-500 leading-relaxed">
+              <p className="font-sans text-[11px] text-neutral-500 leading-relaxed font-medium">
                 Tại Trendify, chúng tôi định nghĩa trải nghiệm thượng lưu qua tính nguyên bản và độ tinh xảo của sản phẩm. 
                 Từng chiếc áo Silk, từng đôi giày Terra Chelsea đều trải qua hàng trăm công đoạn thủ công trước khi xuất hiện trên sảnh trưng bày.
               </p>
               
               <div className="flex items-center gap-6 pt-2">
                 <div>
-                  <p className="font-mono text-xs font-bold text-neutral-800">420 chiếc</p>
-                  <p className="font-sans text-[10px] text-neutral-400">Sản xuất giới hạn</p>
+                  <p className="font-sans text-xs font-bold text-neutral-800">420 chiếc</p>
+                  <p className="font-sans text-[10px] text-neutral-400 font-medium">Sản xuất giới hạn</p>
                 </div>
                 <div>
-                  <p className="font-mono text-xs font-bold text-neutral-800">100%</p>
-                  <p className="font-sans text-[10px] text-neutral-400">Premium Silk & Leather</p>
+                  <p className="font-sans text-xs font-bold text-neutral-800">100%</p>
+                  <p className="font-sans text-[10px] text-neutral-400 font-medium">Premium Silk & Leather</p>
                 </div>
                 <div>
-                  <p className="font-mono text-xs font-bold text-neutral-800">Cơ sở</p>
-                  <p className="font-sans text-[10px] text-neutral-400">Quận 1, TP. HCM</p>
+                  <p className="font-sans text-xs font-bold text-neutral-800">Cơ sở</p>
+                  <p className="font-sans text-[10px] text-neutral-400 font-medium">Quận 1, TP. HCM</p>
                 </div>
               </div>
             </div>
@@ -231,27 +231,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="bg-white p-6 rounded-xl border border-[#cfc4c5]/30 custom-shadow">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h4 className="font-serif text-lg text-neutral-900 font-medium">
+                <h4 className="font-sans text-lg text-neutral-900 font-bold">
                   Hiệu suất dòng tiền giao dịch
                 </h4>
-                <p className="font-sans text-[10px] text-neutral-400">
+                <p className="font-sans text-[10px] text-neutral-400 font-medium">
                   Thống kê doanh số bán ra theo tuần của kỳ hiện hành (triệu VNĐ)
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 font-sans font-medium text-[10px] text-neutral-500">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#6c5e06]" />
-                  <span className="text-[10px] font-sans text-neutral-500">Doanh số thực</span>
+                  <span>Doanh số thực</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-neutral-200" />
-                  <span className="text-[10px] font-sans text-neutral-500">Dự kiến bám rượt</span>
+                  <span>Dự kiến bám rượt</span>
                 </div>
               </div>
             </div>
 
             {/* Custom SVG Line Chart */}
-            <div className="h-44 w-full">
+            <div className="h-44 w-full font-sans font-medium">
               <svg viewBox="0 0 600 160" className="w-full h-full overflow-visible">
                 {/* Grid Lines */}
                 <line x1="30" y1="10" x2="580" y2="10" stroke="#f1eded" strokeWidth="1" strokeDasharray="3,3" />
@@ -293,18 +293,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </defs>
 
                 {/* Labels */}
-                <text x="30" y="148" textAnchor="middle" className="font-mono text-[9px] fill-neutral-400">T2</text>
-                <text x="120" y="148" textAnchor="middle" className="font-mono text-[9px] fill-neutral-400">T3</text>
-                <text x="210" y="148" textAnchor="middle" className="font-mono text-[9px] fill-neutral-400">T4</text>
-                <text x="300" y="148" textAnchor="middle" className="font-mono text-[9px] fill-neutral-400">T5</text>
-                <text x="390" y="148" textAnchor="middle" className="font-mono text-[9px] fill-neutral-400">T6</text>
-                <text x="480" y="148" textAnchor="middle" className="font-mono text-[9px] fill-neutral-400">T7</text>
-                <text x="580" y="148" textAnchor="middle" className="font-mono text-[9px] fill-neutral-400">CN</text>
+                <text x="30" y="148" textAnchor="middle" className="font-sans font-medium text-[9px] fill-neutral-400">T2</text>
+                <text x="120" y="148" textAnchor="middle" className="font-sans font-medium text-[9px] fill-neutral-400">T3</text>
+                <text x="210" y="148" textAnchor="middle" className="font-sans font-medium text-[9px] fill-neutral-400">T4</text>
+                <text x="300" y="148" textAnchor="middle" className="font-sans font-medium text-[9px] fill-neutral-400">T5</text>
+                <text x="390" y="148" textAnchor="middle" className="font-sans font-medium text-[9px] fill-neutral-400">T6</text>
+                <text x="480" y="148" textAnchor="middle" className="font-sans font-medium text-[9px] fill-neutral-400">T7</text>
+                <text x="580" y="148" textAnchor="middle" className="font-sans font-medium text-[9px] fill-neutral-400">CN</text>
 
-                <text x="15" y="12" textAnchor="middle" className="font-mono text-[8px] fill-neutral-300">20M</text>
-                <text x="15" y="52" textAnchor="middle" className="font-mono text-[8px] fill-neutral-300">10M</text>
-                <text x="15" y="92" textAnchor="middle" className="font-mono text-[8px] fill-neutral-300">5M</text>
-                <text x="15" y="133" textAnchor="middle" className="font-mono text-[8px] fill-neutral-300">0</text>
+                <text x="15" y="12" textAnchor="middle" className="font-sans font-medium text-[8px] fill-neutral-300">20M</text>
+                <text x="15" y="52" textAnchor="middle" className="font-sans font-medium text-[8px] fill-neutral-300">10M</text>
+                <text x="15" y="92" textAnchor="middle" className="font-sans font-medium text-[8px] fill-neutral-300">5M</text>
+                <text x="15" y="133" textAnchor="middle" className="font-sans font-medium text-[8px] fill-neutral-300">0</text>
               </svg>
             </div>
           </div>
@@ -316,7 +316,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="bg-white p-6 rounded-xl border border-[#cfc4c5]/30 custom-shadow flex flex-col justify-between h-[360px]">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h4 className="font-serif text-lg text-neutral-900 font-medium">
+                <h4 className="font-sans text-lg text-neutral-900 font-bold">
                   Đơn hàng live
                 </h4>
                 <button 
@@ -351,13 +351,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                           <p className="text-xs font-bold text-neutral-800 font-sans">
                             {order.customerName}
                           </p>
-                          <span className="font-mono text-[9px] text-neutral-400 block mt-0.5">
+                          <span className="font-sans text-[9px] text-neutral-400 block mt-0.5 font-medium">
                             ID: {order.id} • {order.items.length} món
                           </span>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs font-bold text-neutral-900 font-mono">
+                        <p className="text-xs font-bold text-neutral-900 font-sans">
                           {formatVND(order.total)}
                         </p>
                         <span className={`text-[9px] font-sans px-2 py-0.5 rounded-full inline-block mt-1 font-semibold ${
@@ -381,7 +381,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* System event feeds log */}
           <div className="bg-white p-6 rounded-xl border border-[#cfc4c5]/30 custom-shadow">
-            <h4 className="font-serif text-lg text-neutral-900 font-medium mb-4">
+            <h4 className="font-sans text-lg text-neutral-900 font-bold mb-4">
               Nhật ký hệ thống live
             </h4>
             <div className="space-y-4">
@@ -395,10 +395,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <strong className="text-neutral-900 font-bold">{evt.user}</strong> {evt.action}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="font-mono text-[9px] text-neutral-400">
+                      <span className="font-sans text-[9px] text-neutral-400 font-medium">
                         {evt.time}
                       </span>
-                      <span className={`text-[8px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded ${evt.color}`}>
+                      <span className={`text-[8px] font-sans uppercase tracking-widest px-1.5 py-0.5 rounded font-bold ${evt.color}`}>
                         {evt.badge}
                       </span>
                     </div>

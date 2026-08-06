@@ -108,7 +108,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <h1 className="font-serif text-[24px] tracking-tight text-white font-bold leading-none">
               Trendify
             </h1>
-            <p className="text-[10px] tracking-[0.2em] text-[#6c5e06] uppercase mt-1 font-bold">
+            <p className="font-sans text-[10px] tracking-[0.2em] text-[#6c5e06] uppercase mt-1 font-bold">
               ADMIN PANEL
             </p>
           </div>
@@ -139,13 +139,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <span className={`text-[13px] font-bold tracking-tight ${
+                  <span className={`text-[13px] font-semibold tracking-tight font-sans ${
                     isActive ? "text-white" : "text-[#F9FAFB]"
                   }`}>
                     {item.label}
                   </span>
                   {item.badge && (
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold font-sans ${
                       isActive 
                         ? "bg-white/20 text-white"
                         : "bg-neutral-800 text-neutral-400"
@@ -154,7 +154,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </span>
                   )}
                 </div>
-                <p className={`text-[10px] font-medium mt-0.5 leading-none ${
+                <p className={`text-[10px] font-medium font-sans mt-0.5 leading-none ${
                   isActive ? "text-white/70" : "text-[#6B7280]"
                 }`}>
                   {item.description}
