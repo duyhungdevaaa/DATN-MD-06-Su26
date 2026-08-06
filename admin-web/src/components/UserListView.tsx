@@ -59,24 +59,24 @@ export const UserListView: React.FC<UserListViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 animate-fade-in relative text-left">
+    <div className="space-y-6 animate-fade-in relative text-left font-sans">
       
       {/* Search and control filter line */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-6 rounded-xl border border-[#cfc4c5]/30 custom-shadow">
         <div>
-          <h3 className="font-serif text-lg text-neutral-900 font-medium font-medium">Bản ghi danh hội viên</h3>
-          <p className="font-sans text-xs text-neutral-400 mt-1">
-            Theo dõi, định hạng và tri ân đặc quyền cho cơ sở dữ liệu khách hàng Haute Couture Việt Nam.
+          <h3 className="font-sans text-lg text-neutral-900 font-bold">Bản ghi danh hội viên</h3>
+          <p className="font-sans text-xs text-neutral-400 mt-1 font-medium">
+            Theo dõi, định hạng và triân đặc quyền cho cơ sở dữ liệu khách hàng Haute Couture Việt Nam.
           </p>
         </div>
 
         {/* Tier filter dropdown */}
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest">Hạng thẻ:</span>
+          <span className="text-[10px] font-sans font-bold text-neutral-400 uppercase tracking-widest">Hạng thẻ:</span>
           <select
             value={tierFilter}
             onChange={(e) => setTierFilter(e.target.value)}
-            className="bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#6c5e06] focus:outline-none focus:bg-white font-sans text-neutral-700"
+            className="bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#6c5e06] focus:outline-none focus:bg-white font-sans font-semibold text-neutral-700"
           >
             <option value="All">Tất cả thứ hạng</option>
             <option value={UserTier.GOLD}>Thành viên GOLD</option>
@@ -92,8 +92,8 @@ export const UserListView: React.FC<UserListViewProps> = ({
           <div className="mx-auto w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center mb-4">
             <Users className="h-6 w-6 text-neutral-400" />
           </div>
-          <h3 className="font-serif text-lg text-neutral-800 font-medium">Không tìm thấy hội viên phù hợp</h3>
-          <p className="font-sans text-xs text-neutral-500 mt-2 max-w-sm mx-auto">
+          <h3 className="font-sans text-lg text-neutral-800 font-bold">Không tìm thấy hội viên phù hợp</h3>
+          <p className="font-sans text-xs text-neutral-500 mt-2 max-w-sm mx-auto font-medium">
             Đặt thử bộ tìm kiếm hoặc điều chỉnh hạng thẻ để quét tìm kiếm một lần nữa.
           </p>
         </div>
@@ -113,7 +113,7 @@ export const UserListView: React.FC<UserListViewProps> = ({
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200";
+                      (e.target as HTMLImageElement).src = "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png";
                     }}
                   />
                 </div>
@@ -121,26 +121,26 @@ export const UserListView: React.FC<UserListViewProps> = ({
                 {/* Info block */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-serif text-base text-[#1b1c1c] font-medium truncate">
+                    <h4 className="font-sans text-base text-[#1b1c1c] font-bold truncate">
                       {user.name}
                     </h4>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${getTierBadgeStyle(user.tier)}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border font-sans ${getTierBadgeStyle(user.tier)}`}>
                       {user.tier}
                     </span>
                   </div>
 
-                  <span className="font-mono text-[9px] text-neutral-400 block mt-0.5 uppercase tracking-widest">
+                  <span className="font-sans text-[9px] text-neutral-400 block mt-0.5 uppercase tracking-widest font-bold">
                     ID: {user.id}
                   </span>
 
                   <div className="space-y-1.5 mt-3">
                     <div className="flex items-center gap-2 text-neutral-500">
                       <Mail className="h-3.5 w-3.5 text-neutral-400" />
-                      <span className="text-xs font-sans truncate">{user.email}</span>
+                      <span className="text-xs font-sans font-medium truncate">{user.email}</span>
                     </div>
                     <div className="flex items-center gap-2 text-neutral-500">
                       <Calendar className="h-3.5 w-3.5 text-neutral-400" />
-                      <span className="text-xs font-sans">Ngày gia nhập: {user.joinedDate}</span>
+                      <span className="text-xs font-sans font-medium">Ngày gia nhập: {user.joinedDate}</span>
                     </div>
                   </div>
 
@@ -150,7 +150,7 @@ export const UserListView: React.FC<UserListViewProps> = ({
                     </span>
                     <button
                       onClick={() => handleOpenStats(user)}
-                      className="px-3.5 py-1.5 bg-neutral-50 hover:bg-[#6c5e06]/5 text-neutral-700 hover:text-[#6c5e06] text-[10px] font-bold uppercase tracking-wider border border-neutral-200 rounded-lg font-sans transition-colors"
+                      className="px-3.5 py-1.5 bg-neutral-50 hover:bg-[#6c5e06]/5 text-neutral-700 hover:text-[#6c5e06] text-[10px] font-semibold uppercase tracking-wider border border-neutral-200 rounded-lg font-sans transition-colors"
                     >
                       Bảng đặc quyền & Hạng thẻ
                     </button>
@@ -166,7 +166,7 @@ export const UserListView: React.FC<UserListViewProps> = ({
       {/* Customer VIP privileges inspection overlay drawer */}
       {selectedUser && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 flex items-center justify-end animate-fade-in">
-          <div className="w-full max-w-md bg-white h-screen p-8 flex flex-col justify-between shadow-2xl relative overflow-y-auto">
+          <div className="w-full max-w-md bg-white h-screen p-8 flex flex-col justify-between shadow-2xl relative overflow-y-auto font-sans">
             
             {/* Close Trigger Button */}
             <button
@@ -187,31 +187,31 @@ export const UserListView: React.FC<UserListViewProps> = ({
                     referrerPolicy="no-referrer"
                   />
                 </div>
-                <h3 className="font-serif text-xl font-semibold text-neutral-900 mt-4">
+                <h3 className="font-sans text-xl font-bold text-neutral-900 mt-4">
                   {selectedUser.name}
                 </h3>
-                <p className="font-mono text-[9px] text-neutral-400 mt-1 uppercase tracking-widest">
+                <p className="font-sans text-[9px] text-neutral-400 mt-1 uppercase tracking-widest font-bold">
                   ID: {selectedUser.id}
                 </p>
                 
-                <span className={`px-3 py-1 rounded-full text-[10px] font-bold border inline-block mt-3 ${getTierBadgeStyle(selectedUser.tier)}`}>
+                <span className={`px-3 py-1 rounded-full text-[10px] font-bold border inline-block mt-3 font-sans ${getTierBadgeStyle(selectedUser.tier)}`}>
                   Hạng Thẻ Hiện Tại: {selectedUser.tier}
                 </span>
               </div>
 
               {/* Statistical details simulation */}
-              <div className="bg-[#fbf9f9] p-4.5 rounded-xl border border-neutral-100 divide-y divide-neutral-150/40">
+              <div className="bg-[#fbf9f9] p-4.5 rounded-xl border border-neutral-100 divide-y divide-neutral-150/40 font-sans">
                 <div className="flex items-center justify-between pb-3">
-                  <span className="text-xs font-sans text-neutral-500">Doanh số trọn đời (LTV):</span>
-                  <span className="text-xs font-mono font-bold text-neutral-900">45.000.000 ₫</span>
+                  <span className="text-xs text-neutral-500 font-medium">Doanh số trọn đời (LTV):</span>
+                  <span className="text-xs font-bold text-neutral-900">45.000.000 ₫</span>
                 </div>
                 <div className="flex items-center justify-between py-3">
-                  <span className="text-xs font-sans text-neutral-500">Số đơn hoàn thành:</span>
-                  <span className="text-xs font-mono font-bold text-neutral-900">3 Đơn hàng</span>
+                  <span className="text-xs text-neutral-500 font-medium">Số đơn hoàn thành:</span>
+                  <span className="text-xs font-bold text-neutral-900">3 Đơn hàng</span>
                 </div>
                 <div className="flex items-center justify-between pt-3">
-                  <span className="text-xs font-sans text-neutral-500">Voucher đề xuất:</span>
-                  <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">VIP_COU_15</span>
+                  <span className="text-xs text-neutral-500 font-medium">Voucher đề xuất:</span>
+                  <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">VIP_COU_15</span>
                 </div>
               </div>
 
@@ -240,15 +240,15 @@ export const UserListView: React.FC<UserListViewProps> = ({
                       >
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs font-bold uppercase tracking-wider">{tierOpt}</span>
+                            <span className="font-sans text-xs font-bold uppercase tracking-wider">{tierOpt}</span>
                             {tierOpt === UserTier.GOLD && (
-                              <span className="text-[9px] font-sans font-medium text-amber-700">Giảm giá 15% VIP</span>
+                              <span className="text-[9px] font-sans font-bold text-amber-700">Giảm giá 15% VIP</span>
                             )}
                             {tierOpt === UserTier.SILVER && (
-                              <span className="text-[9px] font-sans font-medium text-slate-700">Giảm giá 5% VIP</span>
+                              <span className="text-[9px] font-sans font-bold text-slate-700">Giảm giá 5% VIP</span>
                             )}
                           </div>
-                          <p className="text-[10px] text-neutral-400 font-sans mt-0.5 leading-normal">
+                          <p className="text-[10px] text-neutral-400 font-sans mt-0.5 leading-normal font-medium">
                             {tierOpt === UserTier.GOLD 
                               ? "Yêu cầu chi tiêu tối thiểu 30 triệu đồng hàng năm." 
                               : tierOpt === UserTier.SILVER 
