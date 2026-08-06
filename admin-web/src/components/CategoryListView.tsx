@@ -39,13 +39,13 @@ export const CategoryListView: React.FC<CategoryListViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 animate-fade-in text-left">
+    <div className="space-y-6 animate-fade-in text-left font-sans">
       
       {/* Search and control filter line */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-6 rounded-xl border border-[#cfc4c5]/30 custom-shadow">
         <div>
-          <h3 className="font-serif text-lg text-neutral-900 font-medium">Bản phân loại Bộ sưu tập</h3>
-          <p className="font-sans text-xs text-neutral-400 mt-1">
+          <h3 className="font-sans text-lg text-neutral-900 font-bold">Bản phân loại Bộ sưu tập</h3>
+          <p className="font-sans text-xs text-neutral-400 mt-1 font-medium">
             Giao diện cấu hình danh mục cha, định tuyến khách hàng, và kiểm dịch hiển thị thị trường trực tuyến.
           </p>
         </div>
@@ -65,8 +65,8 @@ export const CategoryListView: React.FC<CategoryListViewProps> = ({
           <div className="mx-auto w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center mb-4">
             <FolderGit2 className="h-6 w-6 text-neutral-400" />
           </div>
-          <h3 className="font-serif text-lg text-neutral-800 font-medium">Chưa có danh mục nào được lưu</h3>
-          <p className="font-sans text-xs text-neutral-500 mt-2 max-w-sm mx-auto">
+          <h3 className="font-sans text-lg text-neutral-800 font-bold">Chưa có danh mục nào được lưu</h3>
+          <p className="font-sans text-xs text-neutral-500 mt-2 max-w-sm mx-auto font-medium">
             Vui lòng nhấn nút góc bên phải để thêm phân nhóm danh mục cha đầu tiên của bạn.
           </p>
         </div>
@@ -90,21 +90,21 @@ export const CategoryListView: React.FC<CategoryListViewProps> = ({
                     }}
                   />
                   {/* Item counter count */}
-                  <span className="absolute top-3 left-3 bg-[#1b1c1c] text-white text-[9px] font-mono font-bold tracking-widest px-2.5 py-1 rounded-full uppercase">
+                  <span className="absolute top-3 left-3 bg-[#1b1c1c] text-white text-[9px] font-sans font-bold tracking-widest px-2.5 py-1 rounded-full uppercase">
                     {category.productCount} SẢN PHẨM
                   </span>
 
                   {/* Slug label overlay */}
-                  <span className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm shadow-sm text-neutral-700 px-2 py-0.5 rounded text-[8px] font-mono tracking-widest uppercase">
+                  <span className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm shadow-sm text-neutral-700 px-2 py-0.5 rounded text-[8px] font-sans font-bold tracking-widest uppercase">
                     /{category.slug}
                   </span>
                 </div>
 
                 {/* Body Meta Details */}
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4 font-sans">
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-serif text-base text-neutral-900 font-medium tracking-tight">
+                      <h4 className="font-sans text-base text-neutral-900 font-bold tracking-tight">
                         {category.name}
                       </h4>
                       {/* Active Status Toggle */}
@@ -117,20 +117,20 @@ export const CategoryListView: React.FC<CategoryListViewProps> = ({
                         }`}
                         title="Click để đổi trạng thái"
                       >
-                        <span className={`w-1 h-1 rounded-full ${category.isLive ? 'bg-green-600' : 'bg-neutral-400'}`} />
+                        <span className={`w-1.5 h-1.5 rounded-full ${category.isLive ? 'bg-green-600' : 'bg-neutral-400'}`} />
                         {category.isLive ? "LIVE" : "DRAFT"}
                       </button>
                     </div>
 
-                    <p className="font-sans text-[11px] text-neutral-400 min-h-[32px] line-clamp-2 leading-relaxed">
+                    <p className="font-sans text-[11px] text-neutral-400 min-h-[32px] line-clamp-2 leading-relaxed font-medium">
                       {category.description || "Chưa thiết lập ghi chú chi tiết cho nhóm này."}
                     </p>
                   </div>
 
                   <div className="space-y-3 pt-3 border-t border-neutral-100">
                     <div className="flex flex-col text-left space-y-0.5">
-                      <span className="text-[9px] font-mono text-neutral-400 uppercase tracking-widest leading-none">Chỉnh lý bởi:</span>
-                      <strong className="text-[10px] text-neutral-700 font-sans tracking-tight">
+                      <span className="text-[9px] font-sans font-bold text-neutral-400 uppercase tracking-widest leading-none">Chỉnh lý bởi:</span>
+                      <strong className="text-[10px] text-neutral-700 font-sans tracking-tight font-medium">
                         {category.updatedBy} ({category.lastUpdated})
                       </strong>
                     </div>
@@ -139,7 +139,7 @@ export const CategoryListView: React.FC<CategoryListViewProps> = ({
                     <div className="flex items-center justify-end gap-1.5 pt-1">
                       <button
                         onClick={() => onEditCategoryClick(category)}
-                        className="p-1 px-2.5 bg-neutral-150 hover:bg-[#6c5e06]/10 text-neutral-600 hover:text-[#6c5e06] text-[10px] uppercase font-bold tracking-wider font-sans rounded border border-neutral-200 transition-colors duration-200 flex items-center gap-1"
+                        className="p-1 px-2.5 bg-neutral-150 hover:bg-[#6c5e06]/10 text-neutral-600 hover:text-[#6c5e06] text-[10px] uppercase font-semibold tracking-wider font-sans rounded border border-neutral-200 transition-colors duration-200 flex items-center gap-1"
                         title="Điều chỉnh nhóm"
                       >
                         <Edit2 className="h-3 w-3" />
@@ -147,7 +147,7 @@ export const CategoryListView: React.FC<CategoryListViewProps> = ({
                       </button>
                       <button
                         onClick={() => handleDeleteCheck(category.id, category.name)}
-                        className="p-1 px-2.5 bg-neutral-100 hover:bg-rose-50 text-neutral-400 hover:text-rose-600 text-[10px] uppercase font-bold tracking-wider font-sans rounded border border-neutral-200 transition-colors duration-200 flex items-center gap-1"
+                        className="p-1 px-2.5 bg-neutral-100 hover:bg-rose-50 text-neutral-400 hover:text-rose-600 text-[10px] uppercase font-semibold tracking-wider font-sans rounded border border-neutral-200 transition-colors duration-200 flex items-center gap-1"
                         title="Gỡ bỏ hoàn toàn"
                       >
                         <Trash2 className="h-3 w-3" />
