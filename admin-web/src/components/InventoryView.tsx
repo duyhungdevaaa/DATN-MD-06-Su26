@@ -100,7 +100,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                 onClick={() => setStatusTab(status)}
                 className={`text-[10px] uppercase font-semibold font-sans tracking-wider px-4 py-1.5 rounded-md transition-all duration-200 ${
                   statusTab === status 
-                    ? "bg-white text-neutral-900 shadow-sm font-bold" 
+                    ? "bg-white text-neutral-900 shadow-sm"
                     : "text-neutral-500 hover:text-neutral-900"
                 }`}
               >
@@ -113,11 +113,11 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
 
           {/* Category Filter */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest">Danh mục:</span>
+            <span className="text-[10px] font-sans font-bold text-neutral-400 uppercase tracking-widest">Danh mục:</span>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#6c5e06] focus:outline-none focus:bg-white font-sans text-neutral-700"
+              className="bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#6c5e06] focus:outline-none focus:bg-white font-sans font-medium text-neutral-700"
             >
               {availableCategories.map(cat => (
                 <option key={cat} value={cat}>{cat === "All" ? "Tất cả danh mục" : cat}</option>
@@ -127,11 +127,11 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
 
           {/* Stock Filter */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-widest">Trong kho:</span>
+            <span className="text-[10px] font-sans font-bold text-neutral-400 uppercase tracking-widest">Trong kho:</span>
             <select
               value={stockFilter}
               onChange={(e) => setStockFilter(e.target.value)}
-              className="bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#6c5e06] focus:outline-none focus:bg-white font-sans text-neutral-700"
+              className="bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#6c5e06] focus:outline-none focus:bg-white font-sans font-medium text-neutral-700"
             >
               <option value="All">Tất cả số lượng</option>
               <option value="in_stock">Còn hàng (≥ 5)</option>
@@ -154,12 +154,12 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
 
       {/* Product List Display */}
       {filteredProducts.length === 0 ? (
-        <div className="bg-white rounded-xl border border-[#cfc4c5]/30 p-16 text-center custom-shadow">
+        <div className="bg-white rounded-xl border border-[#cfc4c5]/30 p-16 text-center custom-shadow font-sans">
           <div className="mx-auto w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center mb-4">
             <Search className="h-6 w-6 text-neutral-400" />
           </div>
-          <h3 className="font-serif text-lg text-neutral-800 font-medium">Không tìm thấy sản phẩm nào</h3>
-          <p className="font-sans text-xs text-neutral-500 mt-2 max-w-sm mx-auto">
+          <h3 className="font-sans text-lg text-neutral-800 font-bold">Không tìm thấy sản phẩm nào</h3>
+          <p className="font-sans text-xs text-neutral-500 mt-2 max-w-sm mx-auto font-medium">
             Vui lòng thay đổi từ khóa tìm kiếm hoặc đặt lại các bộ lọc danh mục/trạng thái hàng hóa.
           </p>
           <button 
@@ -168,7 +168,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
               setStockFilter("All");
               setStatusTab(ProductStatus.ACTIVE);
             }} 
-            className="mt-6 text-xs text-[#6c5e06] font-semibold tracking-wider uppercase hover:underline"
+            className="mt-6 text-xs text-[#6c5e06] font-semibold tracking-wider uppercase hover:underline font-sans"
           >
             Reset bộ lọc
           </button>
@@ -209,37 +209,37 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                     }}
                   />
                   {/* Category overlay */}
-                  <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm shadow-sm border border-neutral-100 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-[#6c5e06] font-mono">
+                  <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm shadow-sm border border-neutral-100 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest text-[#6c5e06] font-sans">
                     {product.categoryName}
                   </span>
 
                   {/* SKU overlay */}
-                  <span className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-sm text-white px-2 py-0.5 rounded text-[8px] font-mono tracking-widest uppercase">
+                  <span className="absolute bottom-3 left-3 bg-black/75 backdrop-blur-sm text-white px-2 py-0.5 rounded text-[8px] font-sans font-bold tracking-widest uppercase">
                     SKU: {product.sku}
                   </span>
                 </div>
 
                 {/* Body Meta curation details */}
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4 font-sans">
                   <div className="space-y-1.5">
-                    <h4 className="font-serif text-base text-[#1b1c1c] font-medium tracking-tight line-clamp-1">
+                    <h4 className="font-sans text-base text-[#1b1c1c] font-bold tracking-tight line-clamp-1">
                       {product.name}
                     </h4>
-                    <p className="font-sans text-[11px] text-neutral-400 line-clamp-2 leading-relaxed">
+                    <p className="font-sans text-[11px] text-neutral-400 line-clamp-2 leading-relaxed font-medium">
                       {product.description}
                     </p>
                   </div>
 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="font-sans text-xs text-neutral-400 text-[10px] uppercase font-semibold">Bán giá gốc</span>
-                      <strong className="font-serif text-lg text-neutral-900 font-bold">
+                      <span className="font-sans text-xs text-neutral-400 text-[10px] uppercase font-bold">Bán giá gốc</span>
+                      <strong className="font-sans text-lg text-neutral-900 font-bold">
                         {formatPrice(product.price)}
                       </strong>
                     </div>
 
                     <div className="flex items-center gap-1.5">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-medium font-sans ${stockPillStyle}`}>
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-bold font-sans ${stockPillStyle}`}>
                         <StockIcon className="h-3 w-3" />
                         {stockLabel}
                       </span>
@@ -247,13 +247,13 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
 
                     {/* Interactive Action Ribbon */}
                     <div className="flex items-center justify-between pt-3 border-t border-neutral-100">
-                      <span className="font-mono text-[9px] text-neutral-400">
+                      <span className="font-sans text-[9px] text-neutral-400 font-bold uppercase">
                         {product.lastModified || "Mới tạo"}
                       </span>
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => onEditProductClick(product)}
-                          className="p-1 px-2.5 bg-neutral-150 hover:bg-[#6c5e06]/10 text-neutral-600 hover:text-[#6c5e06] text-[10px] uppercase font-bold tracking-wider font-sans rounded border border-neutral-200 transition-colors duration-200 flex items-center gap-1"
+                          className="p-1 px-2.5 bg-neutral-150 hover:bg-[#6c5e06]/10 text-neutral-600 hover:text-[#6c5e06] text-[10px] uppercase font-semibold tracking-wider font-sans rounded border border-neutral-200 transition-colors duration-200 flex items-center gap-1"
                           title="Chỉnh sửa chi tiết"
                         >
                           <Edit3 className="h-3 w-3" />
@@ -261,7 +261,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                         </button>
                         <button
                           onClick={() => handleDeleteCheck(product.id, product.name)}
-                          className="p-1 px-2.5 bg-neutral-100 hover:bg-rose-50 text-neutral-400 hover:text-rose-600 text-[10px] uppercase font-bold tracking-wider font-sans rounded border border-neutral-200 transition-colors duration-200 flex items-center gap-1"
+                          className="p-1 px-2.5 bg-neutral-100 hover:bg-rose-50 text-neutral-400 hover:text-rose-600 text-[10px] uppercase font-semibold tracking-wider font-sans rounded border border-neutral-200 transition-colors duration-200 flex items-center gap-1"
                           title="Xóa khỏi hệ thống"
                         >
                           <Trash2 className="h-3 w-3" />

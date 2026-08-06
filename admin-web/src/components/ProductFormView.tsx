@@ -151,7 +151,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto animate-fade-in text-left">
+    <div className="space-y-6 max-w-4xl mx-auto animate-fade-in text-left font-sans">
       
       {/* Return button */}
       <div className="flex items-center justify-between">
@@ -162,7 +162,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
           <ArrowLeft className="h-4 w-4" />
           Quay lại danh sách kho
         </button>
-        <span className="font-mono text-[10px] text-neutral-400 uppercase">
+        <span className="font-sans text-[10px] text-neutral-400 uppercase font-bold tracking-widest">
           {editingProduct ? "Bản sửa đổi: ID " + editingProduct.id : "Khởi tạo thiết kế mới"}
         </span>
       </div>
@@ -170,35 +170,35 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
       <div className="bg-white rounded-xl border border-[#cfc4c5]/40 custom-shadow overflow-hidden">
         
         {/* Visual Title Banner */}
-        <div className="p-8 border-b border-[#cfc4c5]/30 bg-[#fbf9f9] flex items-center justify-between">
+        <div className="p-8 border-b border-[#cfc4c5]/30 bg-[#fbf9f9] flex items-center justify-between font-sans">
           <div>
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-[#6c5e06]" />
-              <span className="font-mono text-[9px] tracking-[0.2em] text-[#6c5e06] uppercase font-bold">
+              <span className="font-sans text-[9px] tracking-[0.2em] text-[#6c5e06] uppercase font-bold">
                 Luxury curation
               </span>
             </div>
-            <h3 className="font-serif text-2xl tracking-normal text-[#1b1c1c] font-medium mt-2">
+            <h3 className="font-sans text-2xl tracking-normal text-[#1b1c1c] font-bold mt-2">
               {editingProduct ? "Cắt Sửa Chi Tiết Sản Phẩm" : "Tuyển Chọn Thiết Kế Sang Trọng"}
             </h3>
-            <p className="font-sans text-xs text-neutral-400 mt-1">
+            <p className="font-sans text-xs text-neutral-400 mt-1 font-medium">
               Điền các thông số sản xuất, mã nhận diện (SKU) và gắn tệp hình ảnh phác thảo của bộ sưu tập sang trọng này.
             </p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-8">
+        <form onSubmit={handleSubmit} className="p-8 space-y-8 font-sans">
           
           {/* Notifications logs inside form */}
           {errorMsg && (
-            <div className="p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs font-medium font-sans flex items-center gap-2.5">
+            <div className="p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs font-bold font-sans flex items-center gap-2.5">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {successMsg && (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-xs font-medium font-sans flex items-center gap-2.5">
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-xs font-bold font-sans flex items-center gap-2.5">
               <CheckCircle2 className="h-4 w-4 shrink-0" />
               <span>{successMsg}</span>
             </div>
@@ -221,7 +221,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                     value={sku}
                     onChange={(e) => setSku(e.target.value)}
                     placeholder="TRN-XXXX"
-                    className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-mono tracking-widest uppercase focus:outline-none focus:border-[#6c5e06] focus:bg-white"
+                    className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-sans font-bold tracking-widest uppercase focus:outline-none focus:border-[#6c5e06] focus:bg-white"
                   />
                 </div>
                 
@@ -233,7 +233,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                   <select
                     value={categoryName}
                     onChange={(e) => setCategoryName(e.target.value)}
-                    className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-sans focus:outline-none focus:border-[#6c5e06] focus:bg-white text-neutral-700"
+                    className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-sans focus:outline-none focus:border-[#6c5e06] focus:bg-white text-neutral-700 font-semibold"
                   >
                     {categories.map((catName) => (
                       <option key={catName} value={catName}>{catName}</option>
@@ -268,7 +268,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                     value={price || ""}
                     onChange={(e) => setPrice(Number(e.target.value))}
                     placeholder="Ví dụ: 450"
-                    className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-mono font-bold focus:outline-none focus:border-[#6c5e06] focus:bg-white"
+                    className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-sans font-bold focus:outline-none focus:border-[#6c5e06] focus:bg-white"
                     min="0"
                     step="any"
                   />
@@ -284,7 +284,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                     value={stock}
                     onChange={(e) => setStock(Number(e.target.value))}
                     placeholder="Ví dụ: 12"
-                    className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-mono font-bold focus:outline-none focus:border-[#6c5e06] focus:bg-white"
+                    className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-sans font-bold focus:outline-none focus:border-[#6c5e06] focus:bg-white"
                     min="0"
                   />
                 </div>
@@ -303,7 +303,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                       onClick={() => setStatus(statOption)}
                       className={`font-sans text-[10px] font-bold uppercase tracking-wider py-2.5 px-3 rounded-lg border text-center transition-all ${
                         status === statOption
-                          ? "bg-[#1b1c1c] text-white border-transparent"
+                          ? "bg-[#1b1c1c] text-white border-transparent shadow-md"
                           : "bg-[#fbf9f9] text-neutral-500 border-neutral-200 hover:bg-neutral-50"
                       }`}
                     >
@@ -323,14 +323,14 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Lịch sử sáng tác phong cách thượng lưu, tay nghề dệt may, chất lượng lụa tự nhiên..."
                   rows={4}
-                  className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-3 text-xs font-sans focus:outline-none focus:border-[#6c5e06] focus:bg-white text-neutral-700 leading-relaxed"
+                  className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-3 text-xs font-sans focus:outline-none focus:border-[#6c5e06] focus:bg-white text-neutral-700 leading-relaxed font-medium"
                 />
               </div>
 
             </div>
 
             {/* Right Block: Image drop zone and remote URL reference */}
-            <div className="space-y-6 flex flex-col justify-between">
+            <div className="space-y-6 flex flex-col justify-between font-sans">
               
               {/* Image Input Selection Container */}
               <div className="space-y-4">
@@ -369,13 +369,13 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                           referrerPolicy="no-referrer"
                         />
                       </div>
-                      <p className="font-sans text-[10px] text-neutral-400">
+                      <p className="font-sans text-[10px] text-neutral-400 font-medium">
                         Phác thảo hình ảnh tải lên thành công. Kéo thả file khác để thay đổi.
                       </p>
                       <button
                         type="button"
                         onClick={() => setImageUrl("")}
-                        className="text-[9px] font-mono text-rose-500 font-bold uppercase hover:underline"
+                        className="text-[9px] font-sans text-rose-500 font-bold uppercase hover:underline"
                       >
                         Gỡ bỏ ảnh phác thảo
                       </button>
@@ -389,7 +389,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                         <span className="font-sans text-[11px] font-bold text-neutral-700 block">
                           Tải ảnh phác thảo từ thiết bị
                         </span>
-                        <span className="font-sans text-[10px] text-neutral-400 block pb-1">
+                        <span className="font-sans text-[10px] text-neutral-400 block pb-1 font-medium">
                           hoặc thả tập tin vào khung này
                         </span>
                         <span className="inline-block bg-white border border-neutral-200 text-[9px] font-bold uppercase tracking-wider font-sans px-3 py-1.5 rounded-lg shadow-sm hover:border-[#6c5e06]">
@@ -402,7 +402,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
 
                 <div className="relative flex items-center justify-center my-4">
                   <div className="absolute inset-y-1/2 left-0 right-0 h-[1px] bg-neutral-100" />
-                  <span className="relative bg-white px-3 font-mono text-[9px] text-neutral-300 uppercase">Hoặc dán URL ảnh trực tiếp</span>
+                  <span className="relative bg-white px-3 font-sans font-bold text-[9px] text-neutral-300 uppercase">Hoặc dán URL ảnh trực tiếp</span>
                 </div>
 
                 {/* Direct image input URL box */}
@@ -415,27 +415,27 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                     value={imageUrl.startsWith("data:") ? "" : imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                     placeholder="Chèn URL ảnh trực tuyến..."
-                    className="flex-1 bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-sans focus:outline-none focus:border-[#6c5e06] focus:bg-white text-neutral-800"
+                    className="flex-1 bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-sans focus:outline-none focus:border-[#6c5e06] focus:bg-white text-neutral-800 font-medium"
                   />
                 </div>
               </div>
 
               {/* Sample high quality luxury suggestions widgets as presets if URL remains empty */}
               {!imageUrl && (
-                <div className="p-4 bg-[#6c5e06]/5 border border-[#6c5e06]/10 rounded-xl space-y-2 text-left">
+                <div className="p-4 bg-[#6c5e06]/5 border border-[#6c5e06]/10 rounded-xl space-y-2 text-left font-sans">
                   <p className="font-sans text-[10px] font-bold text-[#6c5e06] uppercase tracking-wider">Mẫu ảnh lầu năm Haute-Couture:</p>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
                       onClick={() => setImageUrl("https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600")}
-                      className="text-[9px] font-sans text-neutral-600 bg-white hover:bg-[#6c5e06]/10 p-2 rounded border border-neutral-200 truncate block text-left"
+                      className="text-[9px] font-sans text-neutral-600 bg-white hover:bg-[#6c5e06]/10 p-2 rounded border border-neutral-200 truncate block text-left font-medium"
                     >
                       Bộ váy thiết kế lụa vàng
                     </button>
                     <button
                       type="button"
                       onClick={() => setImageUrl("https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=600")}
-                      className="text-[9px] font-sans text-neutral-600 bg-white hover:bg-[#6c5e06]/10 p-2 rounded border border-neutral-200 truncate block text-left"
+                      className="text-[9px] font-sans text-neutral-600 bg-white hover:bg-[#6c5e06]/10 p-2 rounded border border-neutral-200 truncate block text-left font-medium"
                     >
                       Bốt da cao cấp
                     </button>
