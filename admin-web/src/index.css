@@ -2,7 +2,7 @@
 
 @theme {
   --font-serif: "Playfair Display", Georgia, serif;
-  --font-sans: "Montserrat", system-ui, sans-serif;
+  --font-sans: "Inter", "Montserrat", system-ui, sans-serif;
   
   --color-luxury-surface: #fbf9f9;
   --color-luxury-gold: #6c5e06;
