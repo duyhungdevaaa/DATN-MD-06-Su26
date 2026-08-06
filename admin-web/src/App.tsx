@@ -413,6 +413,7 @@ export default function App() {
           <OrderListView
             orders={orders}
             searchText={searchText}
+            setSearchText={setSearchText}
             onSelectOrder={(order) => setSelectedOrder(order)}
           />
         );

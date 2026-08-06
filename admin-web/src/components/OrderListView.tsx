@@ -25,32 +25,68 @@ import { Order, OrderStatus } from "../types";
 interface OrderListViewProps {
   orders: Order[];
   searchText: string;
+  setSearchText: (text: string) => void;
   onSelectOrder: (order: Order) => void;
 }
 
 export const OrderListView: React.FC<OrderListViewProps> = ({
   orders,
   searchText,
+  setSearchText,
   onSelectOrder
 }) => {
   const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [paymentFilter, setPaymentFilter] = useState<string>("All");
+  const [fromDate, setFromDate] = useState<string>("");
+  const [toDate, setToDate] = useState<string>("");
 
   const formatVND = (num: number) => {
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(num);
   };
 
+  // Helper to parse DD/MM/YYYY to Date object
+  const parseDate = (dateStr: string) => {
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      // month is 0-indexed
+      return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+    }
+    return new Date(NaN);
+  };
+
   // Filters logic
   const filteredOrders = orders.filter((order) => {
-    // Search filter matches against code, name, phone, or sku inside items
+    // Search filter
+    const term = searchText.toLowerCase().trim();
     const matchesSearch = 
-      order.id.toLowerCase().includes(searchText.toLowerCase()) ||
-      order.customerName.toLowerCase().includes(searchText.toLowerCase()) ||
-      order.phone.toLowerCase().includes(searchText.toLowerCase()) ||
-      order.items.some(i => i.name.toLowerCase().includes(searchText.toLowerCase()) || i.sku.toLowerCase().includes(searchText.toLowerCase()));
+      !term ||
+      order.id.toLowerCase().includes(term) ||
+      order.customerName.toLowerCase().includes(term) ||
+      order.phone.toLowerCase().includes(term);
 
+    // Status filter
     const matchesStatus = statusFilter === "All" || order.status === statusFilter;
 
-    return matchesSearch && matchesStatus;
+    // Payment filter
+    const matchesPayment = paymentFilter === "All" || order.paymentMethod === paymentFilter;
+
+    // Date range filter
+    let matchesDate = true;
+    if (fromDate || toDate) {
+      const orderDate = parseDate(order.date);
+      if (fromDate) {
+        const start = new Date(fromDate);
+        start.setHours(0, 0, 0, 0);
+        if (orderDate < start) matchesDate = false;
+      }
+      if (toDate) {
+        const end = new Date(toDate);
+        end.setHours(23, 59, 59, 999);
+        if (orderDate > end) matchesDate = false;
+      }
+    }
+
+    return matchesSearch && matchesStatus && matchesPayment && matchesDate;
   });
 
   const getStatusBadgeClass = (status: OrderStatus) => {
@@ -96,7 +132,7 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
               <input
                 type="text"
                 value={searchText}
-                onChange={(e) => {}} // Controlled by parent normally, but just for UI match
+                onChange={(e) => setSearchText(e.target.value)}
                 placeholder="Tìm kiếm mã đơn, khách hàng, SĐT..."
                 className="w-full h-[44px] rounded-[10px] border border-[#E5E7EB] pl-[40px] pr-[14px] text-[14px] placeholder:text-[#9CA3AF] focus:ring-2 focus:ring-[#6c5e06]/20 focus:border-[#6c5e06] outline-none transition-all"
               />
@@ -124,11 +160,13 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
           <div className="space-y-2">
             <label className="text-[12px] font-semibold text-[#6B7280] uppercase tracking-wider block">Phương thức TT:</label>
             <select
+              value={paymentFilter}
+              onChange={(e) => setPaymentFilter(e.target.value)}
               className="w-full h-[44px] rounded-[10px] border border-[#E5E7EB] px-[14px] text-[14px] text-[#111827] bg-[#F9FAFB] focus:bg-white outline-none transition-all cursor-pointer"
             >
               <option value="All">Tất cả</option>
               <option value="COD">COD</option>
-              <option value="Banking">Chuyển khoản</option>
+              <option value="Chuyển khoản">Chuyển khoản</option>
             </select>
           </div>
 
@@ -137,11 +175,11 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
             <label className="text-[12px] font-semibold text-[#6B7280] uppercase tracking-wider block">Từ ngày:</label>
             <div className="relative">
               <input
-                type="text"
-                defaultValue="01/08/2026"
-                className="w-full h-[44px] rounded-[10px] border border-[#E5E7EB] pl-[14px] pr-[40px] text-[14px] text-[#111827] bg-white outline-none"
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="w-full h-[44px] rounded-[10px] border border-[#E5E7EB] pl-[14px] pr-[14px] text-[14px] text-[#111827] bg-white outline-none"
               />
-              <Calendar className="absolute right-[14px] top-1/2 -translate-y-1/2 h-4 w-4 text-[#9CA3AF]" />
             </div>
           </div>
 
@@ -150,11 +188,11 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
             <label className="text-[12px] font-semibold text-[#6B7280] uppercase tracking-wider block">Đến ngày:</label>
             <div className="relative">
               <input
-                type="text"
-                defaultValue="06/08/2026"
-                className="w-full h-[44px] rounded-[10px] border border-[#E5E7EB] pl-[14px] pr-[40px] text-[14px] text-[#111827] bg-white outline-none"
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="w-full h-[44px] rounded-[10px] border border-[#E5E7EB] pl-[14px] pr-[14px] text-[14px] text-[#111827] bg-white outline-none"
               />
-              <Calendar className="absolute right-[14px] top-1/2 -translate-y-1/2 h-4 w-4 text-[#9CA3AF]" />
             </div>
           </div>
 
@@ -164,7 +202,16 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
               <Filter className="h-4 w-4" />
               Lọc
             </button>
-            <button className="h-[40px] px-6 rounded-[10px] bg-white hover:bg-neutral-50 text-neutral-600 border border-[#E5E7EB] text-[15px] font-medium flex items-center gap-2 transition-all active:scale-95">
+            <button
+              onClick={() => {
+                setSearchText("");
+                setStatusFilter("All");
+                setPaymentFilter("All");
+                setFromDate("");
+                setToDate("");
+              }}
+              className="h-[40px] px-6 rounded-[10px] bg-white hover:bg-neutral-50 text-neutral-600 border border-[#E5E7EB] text-[15px] font-medium flex items-center gap-2 transition-all active:scale-95"
+            >
               <RotateCcw className="h-4 w-4" />
               Đặt lại
             </button>
@@ -178,7 +225,7 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
           <div className="mx-auto w-16 h-16 rounded-full bg-neutral-50 flex items-center justify-center mb-6">
             <ShoppingBag className="h-8 w-8 text-neutral-300" />
           </div>
-          <h3 className="text-xl font-bold text-neutral-800">Không tìm thấy mã đơn hàng phù hợp</h3>
+          <h3 className="text-xl font-bold text-neutral-800">Không có dữ liệu</h3>
           <p className="text-[15px] text-[#6B7280] mt-2 max-w-sm mx-auto">
             Vui lòng thử gõ từ khóa tìm kiếm khác hoặc đổi bộ lọc trạng thái đơn hàng.
           </p>
