@@ -266,7 +266,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        showAdBannerDialog();
+        if (fpoly.DatnMD06Su26.trendify.MyApplication.isBackFromBackground) {
+            fpoly.DatnMD06Su26.trendify.MyApplication.isBackFromBackground = false;
+            showAdBannerDialog();
+        }
     }
 
     private void showAdBannerDialog() {
