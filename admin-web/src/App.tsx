@@ -18,7 +18,6 @@ import { OrderDetailView } from "./components/OrderDetailView";
 import { VoucherListView } from "./components/VoucherListView";
 import { VoucherFormView } from "./components/VoucherFormView";
 import { NotificationsView } from "./components/NotificationsView";
-import { BannersView } from "./components/BannersView";
 
 import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
@@ -530,9 +529,6 @@ export default function App() {
 
       case ActiveTab.NOTIFICATIONS:
         return <NotificationsView />;
-
-      case ActiveTab.BANNERS:
-        return <BannersView />;
 
       default:
         return (
