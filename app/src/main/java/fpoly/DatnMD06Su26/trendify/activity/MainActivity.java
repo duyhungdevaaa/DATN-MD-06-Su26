@@ -216,8 +216,11 @@ public class MainActivity extends AppCompatActivity {
         android.app.PendingIntent pendingIntentObj = android.app.PendingIntent.getActivity(
                 this, 0, intent, pendingFlags);
 
+        android.graphics.Bitmap appLogo = android.graphics.BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+
         androidx.core.app.NotificationCompat.Builder builder = new androidx.core.app.NotificationCompat.Builder(this, "trendify_notifications")
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setLargeIcon(appLogo)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
@@ -233,7 +236,9 @@ public class MainActivity extends AppCompatActivity {
                             .submit()
                             .get();
                     runOnUiThread(() -> {
-                        builder.setStyle(new androidx.core.app.NotificationCompat.BigPictureStyle().bigPicture(bitmap));
+                        builder.setStyle(new androidx.core.app.NotificationCompat.BigPictureStyle()
+                                .bigPicture(bitmap)
+                                .bigLargeIcon((android.graphics.Bitmap) null));
                         postNotification(builder.build());
                     });
                 } catch (Exception ex) {
