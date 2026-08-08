@@ -12,6 +12,7 @@ export enum ActiveTab {
   VOUCHERS = "vouchers",
   SETTINGS = "settings",
   NOTIFICATIONS = "notifications",
+  BANNERS = "banners",
 }
 
 export enum ProductStatus {
