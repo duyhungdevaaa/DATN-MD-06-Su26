@@ -40,7 +40,6 @@ public class ShippingAddressActivity extends AppCompatActivity {
 
     private final List<UserAddress> addresses = new ArrayList<>();
     private UserAddress selectedAddress;
-    private ArrayList<CartItem> selectedItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +51,6 @@ public class ShippingAddressActivity extends AppCompatActivity {
             v.setPadding(v.getPaddingLeft(), s.top, v.getPaddingRight(), v.getPaddingBottom());
             return insets;
         });
-
-        selectedItems = getIntent().getParcelableArrayListExtra("selected_items");
 
         initViews();
         setupActions();
@@ -69,7 +66,7 @@ public class ShippingAddressActivity extends AppCompatActivity {
 
     private void setupActions() {
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
-        btnAddAddress.setOnClickListener(v -> showAddressTypeSelector());
+        btnAddAddress.setOnClickListener(v -> showAddressForm("address", null));
         btnContinue.setOnClickListener(v -> {
             if (selectedAddress == null) {
                 showMessage("Vui lòng chọn địa chỉ giao hàng");
@@ -77,8 +74,8 @@ public class ShippingAddressActivity extends AppCompatActivity {
             }
             Intent intent = new Intent(this, PaymentMethodActivity.class);
             intent.putExtra("shipping_address", buildAddressSummary(selectedAddress));
-            if (selectedItems != null) {
-                intent.putParcelableArrayListExtra("selected_items", selectedItems);
+            if (getIntent().hasExtra("SELECTED_CART_ITEM_IDS")) {
+                intent.putStringArrayListExtra("SELECTED_CART_ITEM_IDS", getIntent().getStringArrayListExtra("SELECTED_CART_ITEM_IDS"));
             }
             startActivity(intent);
         });
@@ -128,25 +125,21 @@ public class ShippingAddressActivity extends AppCompatActivity {
 
         for (UserAddress address : addresses) {
             View itemView = LayoutInflater.from(this).inflate(R.layout.item_shipping_address, addressContainer, false);
-            MaterialCardView card = (MaterialCardView) itemView;
-            TextView tvLabel = itemView.findViewById(R.id.tvAddressLabel);
             TextView tvDefaultBadge = itemView.findViewById(R.id.tvDefaultBadge);
-            TextView tvName = itemView.findViewById(R.id.tvAddressName);
-            TextView tvPhone = itemView.findViewById(R.id.tvAddressPhone);
-            TextView tvDetail = itemView.findViewById(R.id.tvAddressDetail);
+            TextView tvName = itemView.findViewById(R.id.tvName);
+            TextView tvPhone = itemView.findViewById(R.id.tvPhone);
+            TextView tvDetail = itemView.findViewById(R.id.tvAddress);
 
-            tvLabel.setText(address.getLabel() != null ? address.getLabel() : "Địa chỉ");
             tvDefaultBadge.setVisibility(address.isDefault() ? View.VISIBLE : View.GONE);
             tvName.setText(address.getName());
             tvPhone.setText(address.getPhone());
             tvDetail.setText(address.getAddress());
 
             boolean isSelected = selectedAddress != null && selectedAddress.getId() != null && selectedAddress.getId().equals(address.getId());
-            card.setStrokeWidth(isSelected ? 4 : 1);
-            card.setStrokeColor(getColor(isSelected ? R.color.trend_text : R.color.trend_border));
+            itemView.setBackgroundColor(getColor(isSelected ? R.color.trend_bg : R.color.white));
 
-            card.setOnClickListener(v -> selectAddress(address));
-            addressContainer.addView(card);
+            itemView.setOnClickListener(v -> selectAddress(address));
+            addressContainer.addView(itemView);
         }
     }
 
@@ -283,7 +276,53 @@ public class ShippingAddressActivity extends AppCompatActivity {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(existingAddress == null ? "Thêm địa chỉ" : "Sửa địa chỉ")
                 .setView(dialogView)
+<<<<<<< HEAD
                 .setPositiveButton("Lưu", null)
+=======
+                .setPositiveButton("Lưu", (dialog, which) -> {
+                    String name = etName.getText() != null ? etName.getText().toString().trim() : "";
+                    String phone = etPhone.getText() != null ? etPhone.getText().toString().trim() : "";
+                    String addressText = etAddress.getText() != null ? etAddress.getText().toString().trim() : "";
+                    if (name.isEmpty() || phone.isEmpty() || addressText.isEmpty()) {
+                        showMessage("Vui lòng nhập đầy đủ thông tin địa chỉ");
+                        return;
+                    }
+                    if (tempDistrictId == -1 || tempWardCode.isEmpty()) {
+                        showMessage("Vui lòng chọn Tỉnh/Huyện/Xã");
+                        return;
+                    }
+
+                    String fullAddress = addressText;
+                    if (spinnerWard.getSelectedItem() != null && spinnerDistrict.getSelectedItem() != null && spinnerProvince.getSelectedItem() != null) {
+                         fullAddress = addressText + ", " + spinnerWard.getSelectedItem().toString() + ", " + spinnerDistrict.getSelectedItem().toString() + ", " + spinnerProvince.getSelectedItem().toString();
+                    }
+
+                    UserAddress address = existingAddress != null ? existingAddress : new UserAddress();
+                    address.setType(type);
+                    address.setLabel("Địa chỉ");
+                    address.setName(name);
+                    address.setPhone(phone);
+                    address.setAddress(fullAddress);
+                    address.setDistrictId(tempDistrictId);
+                    address.setWardCode(tempWardCode);
+
+                    FirestoreHelper.saveAddress(address, new FirestoreHelper.SimpleCallback() {
+                        @Override
+                        public void onSuccess() {
+                            showMessage("Lưu địa chỉ thành công");
+                            if (selectedAddress == null || (selectedAddress.getId() != null && selectedAddress.getId().equals(address.getId()))) {
+                                selectedAddress = address;
+                            }
+                            loadAddresses();
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            showMessage("Lưu địa chỉ thất bại: " + error);
+                        }
+                    });
+                })
+>>>>>>> origin/main
                 .setNegativeButton("Hủy", null)
                 .create();
 

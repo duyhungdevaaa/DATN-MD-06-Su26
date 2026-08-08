@@ -8,13 +8,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import fpoly.DatnMD06Su26.trendify.R;
-import fpoly.DatnMD06Su26.trendify.model.OnboardingItem;
+import fpoly.DatnMD06Su26.trendify.model.BannerItem;
 import java.util.List;
 
 public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerViewHolder> {
-    private List<OnboardingItem> items;
+    private List<BannerItem> items;
 
-    public BannerAdapter(List<OnboardingItem> items) {
+    public BannerAdapter(List<BannerItem> items) {
         this.items = items;
     }
 
@@ -27,7 +27,7 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerView
 
     @Override
     public void onBindViewHolder(@NonNull BannerViewHolder holder, int position) {
-        OnboardingItem item = items.get(position);
+        BannerItem item = items.get(position);
         holder.ivBannerIcon.setImageResource(item.getIconResId());
         holder.tvBannerTitle.setText(item.getTitleResId());
         holder.tvBannerDesc.setText(item.getDescriptionResId());

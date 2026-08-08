@@ -78,8 +78,12 @@ public class CartManager {
                     if (snapshot.exists()) {
                         Long currentLong = snapshot.getLong("quantity");
                         int current = currentLong != null ? currentLong.intValue() : 0;
+                        if (current + item.getQuantity() > item.getMaxQuantity()) {
+                            callback.onFailure("Vượt quá số lượng tồn kho!");
+                            return;
+                        }
                         cartItemRef(item.getCartItemId())
-                                .update("quantity", current + 1)
+                                .update("quantity", current + 1, "maxQuantity", item.getMaxQuantity())
                                 .addOnSuccessListener(v -> callback.onSuccess())
                                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
                     } else {
@@ -136,6 +140,36 @@ public class CartManager {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
+    public interface CartCountCallback {
+        void onCounted(int count);
+        void onFailure(String error);
+    }
+
+    // Đếm tổng số lượng (quantity) của các món hàng trong giỏ
+    public void getCartCount(CartCountCallback callback) {
+        if (userId == null) {
+            if (callback != null) callback.onFailure("Vui lòng đăng nhập");
+            return;
+        }
+        db.collection(COLLECTION_USERS)
+                .document(userId)
+                .collection(COLLECTION_CART)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    int totalCount = 0;
+                    for (var doc : snapshot.getDocuments()) {
+                        Long qty = doc.getLong("quantity");
+                        if (qty != null) {
+                            totalCount += qty.intValue();
+                        }
+                    }
+                    if (callback != null) callback.onCounted(totalCount);
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) callback.onFailure(e.getMessage());
+                });
+    }
+
     // Xóa toàn bộ giỏ sau khi đặt hàng thành công
     public void clearCart(CartCallback callback) {
         if (!ensureAuthenticated(callback)) return;
@@ -145,6 +179,29 @@ public class CartManager {
                     var batch = db.batch();
                     for (var doc : snapshot.getDocuments()) {
                         batch.delete(doc.getReference());
+                    }
+                    batch.commit()
+                            .addOnSuccessListener(v -> callback.onSuccess())
+                            .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+                })
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    // Xóa các sản phẩm đã chọn sau khi đặt hàng thành công
+    public void clearSelectedItems(List<String> selectedItemIds, CartCallback callback) {
+        if (!ensureAuthenticated(callback)) return;
+        if (selectedItemIds == null || selectedItemIds.isEmpty()) {
+            callback.onSuccess();
+            return;
+        }
+        db.collection(COLLECTION_USERS).document(userId)
+                .collection(COLLECTION_CART).get()
+                .addOnSuccessListener(snapshot -> {
+                    var batch = db.batch();
+                    for (var doc : snapshot.getDocuments()) {
+                        if (selectedItemIds.contains(doc.getId())) {
+                            batch.delete(doc.getReference());
+                        }
                     }
                     batch.commit()
                             .addOnSuccessListener(v -> callback.onSuccess())

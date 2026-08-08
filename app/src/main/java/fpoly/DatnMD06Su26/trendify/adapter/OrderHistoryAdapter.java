@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,26 +49,41 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<OrderHistoryAdapte
         holder.tvProductQuantity.setText("SL: " + order.getQuantity());
         holder.tvProductPrice.setText(order.getPrice());
 
-        // Load product image using Glide
         if (order.getImageUrl() != null && !order.getImageUrl().isEmpty()) {
-            Glide.with(holder.ivProductImage.getContext())
-                    .load(order.getImageUrl())
-                    .centerCrop()
-                    .into(holder.ivProductImage);
+            com.bumptech.glide.Glide.with(holder.itemView.getContext())
+                .load(order.getImageUrl())
+                .placeholder(R.drawable.ic_shopping_bag)
+                .error(R.drawable.ic_shopping_bag)
+                .centerCrop()
+                .into(holder.ivProductImage);
         } else {
             holder.ivProductImage.setImageResource(R.drawable.ic_shopping_bag);
         }
         
-        // Set status badge color based on status
-        if (order.getStatus().equals("Đã giao")) {
-            holder.tvOrderStatus.setTextColor(0xFF4CAF50);
-        } else if (order.getStatus().equals("Đang vận chuyển")) {
-            holder.tvOrderStatus.setTextColor(0xFFFF9800);
+        // Set status badge color based on exact 6 standard statuses
+        if (order.getStatus().equals("Đã giao hàng")) {
+            holder.tvOrderStatus.setTextColor(0xFF4CAF50); // Green
+        } else if (order.getStatus().equals("Đang giao hàng")) {
+            holder.tvOrderStatus.setTextColor(0xFF00BCD4); // Cyan
+        } else if (order.getStatus().equals("Chờ xác nhận")) {
+            holder.tvOrderStatus.setTextColor(0xFF9E9E9E); // Gray
+        } else if (order.getStatus().equals("Đang xử lý")) {
+            holder.tvOrderStatus.setTextColor(0xFF9C27B0); // Purple
+        } else if (order.getStatus().equals("Đã hủy")) {
+            holder.tvOrderStatus.setTextColor(0xFFF44336); // Red
+        } else if (order.getStatus().contains("Trả hàng/Hoàn tiền")) {
+            holder.tvOrderStatus.setTextColor(0xFFE91E63); // Pink
+        } else if (order.getStatus().equals("Đã hoàn tiền")) {
+            holder.tvOrderStatus.setTextColor(0xFF4CAF50); // Green
         } else {
             holder.tvOrderStatus.setTextColor(0xFF757575);
         }
 
-        // btnViewDetails click listener removed - no action for now
+        holder.btnViewDetails.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(v.getContext(), OrderDetailActivity.class);
+            intent.putExtra("orderId", order.getOrderId());
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override

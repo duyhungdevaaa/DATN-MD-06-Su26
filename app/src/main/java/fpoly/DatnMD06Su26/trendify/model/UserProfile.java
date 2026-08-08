@@ -15,7 +15,12 @@ public class UserProfile {
     private String fullName;
     private String email;
     private String phone;
+<<<<<<< HEAD
     private boolean phoneVerified;
+=======
+    private String avatar = "";
+    private long walletBalance = 0;
+>>>>>>> origin/main
     private Timestamp createdAt;
 
     public UserProfile() {
@@ -76,5 +81,21 @@ public class UserProfile {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public long getWalletBalance() {
+        return walletBalance;
+    }
+
+    public void setWalletBalance(long walletBalance) {
+        this.walletBalance = walletBalance;
     }
 }

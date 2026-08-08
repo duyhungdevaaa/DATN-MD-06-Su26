@@ -1,10 +1,8 @@
 package fpoly.DatnMD06Su26.trendify.model;
 
 import com.google.firebase.firestore.Exclude;
-import android.os.Parcel;
-import android.os.Parcelable;
 
-public class CartItem implements Parcelable {
+public class CartItem {
     private String productId;
     private String name;
     private String price;
@@ -13,36 +11,10 @@ public class CartItem implements Parcelable {
     private String size = "";
     private String color = "";
     private String cartItemId = "";
-    
-    @Exclude
-    private boolean selected = true;
-    private boolean selected = false;
+    private boolean isSelected = true;
+    private int maxQuantity = 99;
 
-    public CartItem() {}
-
-    protected CartItem(Parcel in) {
-        productId = in.readString();
-        name = in.readString();
-        price = in.readString();
-        quantity = in.readInt();
-        imageUrl = in.readString();
-        size = in.readString();
-        color = in.readString();
-        cartItemId = in.readString();
-        selected = in.readByte() != 0;
-    }
-
-    public static final Creator<CartItem> CREATOR = new Creator<CartItem>() {
-        @Override
-        public CartItem createFromParcel(Parcel in) {
-            return new CartItem(in);
-        }
-
-        @Override
-        public CartItem[] newArray(int size) {
-            return new CartItem[size];
-        }
-    };
+    public CartItem() {} // bắt buộc cho Firestore
 
     public CartItem(String productId, String name, String price, int quantity, String imageUrl) {
         this.productId = productId;
@@ -90,17 +62,19 @@ public class CartItem implements Parcelable {
     }
     public void setCartItemId(String cartItemId) { this.cartItemId = cartItemId; }
 
-    @Exclude
-    public boolean isSelected() { return selected; }
-    @Exclude
-    public void setSelected(boolean selected) { this.selected = selected; }
-
-    public void setPriceAsLong(long priceAsLong) { }
-    public boolean isSelected() { return selected; }
-    public void setSelected(boolean selected) { this.selected = selected; }
+    public int getMaxQuantity() { return maxQuantity; }
+    public void setMaxQuantity(int maxQuantity) { this.maxQuantity = maxQuantity; }
 
     public void setPriceAsLong(long priceAsLong) { /* Ignore - required to prevent Firestore mapping warnings */ }
 
+    public boolean isSelected() { return isSelected; }
+    public void setSelected(boolean selected) { isSelected = selected; }
+
+    private boolean isRated = false;
+    public boolean isRated() { return isRated; }
+    public void setRated(boolean rated) { isRated = rated; }
+
+    // Tính giá số để cộng tổng (bỏ "đ" và dấu chấm)
     @Exclude
     public long getPriceAsLong() {
         try {
@@ -108,23 +82,5 @@ public class CartItem implements Parcelable {
         } catch (Exception e) {
             return 0;
         }
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(productId);
-        dest.writeString(name);
-        dest.writeString(price);
-        dest.writeInt(quantity);
-        dest.writeString(imageUrl);
-        dest.writeString(size);
-        dest.writeString(color);
-        dest.writeString(cartItemId);
-        dest.writeByte((byte) (selected ? 1 : 0));
     }
 }
