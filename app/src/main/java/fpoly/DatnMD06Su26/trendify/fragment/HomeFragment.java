@@ -85,7 +85,7 @@ public class HomeFragment extends Fragment {
         if (ivChat != null) {
             ivChat.setOnClickListener(v -> {
                 if (getActivity() != null) {
-                    startActivity(new Intent(requireContext(), ChatActivity.class));
+                    startActivity(new Intent(requireContext(), NotificationsActivity.class));
                 }
             });
         }
