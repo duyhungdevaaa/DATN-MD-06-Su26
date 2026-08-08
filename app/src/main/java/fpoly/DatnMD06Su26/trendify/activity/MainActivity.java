@@ -216,8 +216,11 @@ public class MainActivity extends AppCompatActivity {
         android.app.PendingIntent pendingIntentObj = android.app.PendingIntent.getActivity(
                 this, 0, intent, pendingFlags);
 
+        android.graphics.Bitmap appLogo = android.graphics.BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+
         androidx.core.app.NotificationCompat.Builder builder = new androidx.core.app.NotificationCompat.Builder(this, "trendify_notifications")
-                .setSmallIcon(R.drawable.ic_notifications)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setLargeIcon(appLogo)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
@@ -233,7 +236,9 @@ public class MainActivity extends AppCompatActivity {
                             .submit()
                             .get();
                     runOnUiThread(() -> {
-                        builder.setStyle(new androidx.core.app.NotificationCompat.BigPictureStyle().bigPicture(bitmap));
+                        builder.setStyle(new androidx.core.app.NotificationCompat.BigPictureStyle()
+                                .bigPicture(bitmap)
+                                .bigLargeIcon((android.graphics.Bitmap) null));
                         postNotification(builder.build());
                     });
                 } catch (Exception ex) {
@@ -266,10 +271,32 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        showAdBannerDialog();
+        if (fpoly.DatnMD06Su26.trendify.MyApplication.isBackFromBackground) {
+            fpoly.DatnMD06Su26.trendify.MyApplication.isBackFromBackground = false;
+            showAdBannerDialog();
+        }
     }
 
     private void showAdBannerDialog() {
+        com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                .collection("banners")
+                .document("active")
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Boolean isActive = documentSnapshot.getBoolean("isActive");
+                        String imageUrl = documentSnapshot.getString("imageUrl");
+                        if (isActive != null && isActive && imageUrl != null && !imageUrl.isEmpty()) {
+                            displayAdBannerDialog(imageUrl);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("MainActivity", "Failed to fetch ad banner from Firestore", e);
+                });
+    }
+
+    private void displayAdBannerDialog(String adImageUrl) {
         android.app.Dialog dialog = new android.app.Dialog(this);
         dialog.setContentView(R.layout.dialog_ad_banner);
         if (dialog.getWindow() != null) {
@@ -280,8 +307,6 @@ public class MainActivity extends AppCompatActivity {
         android.widget.ImageView ivAdBanner = dialog.findViewById(R.id.ivAdBanner);
         android.widget.ImageView ivCloseAd = dialog.findViewById(R.id.ivCloseAd);
 
-        // Load a stunning promotional fashion banner image via Glide
-        String adImageUrl = "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80";
         com.bumptech.glide.Glide.with(this)
                 .load(adImageUrl)
                 .centerCrop()
