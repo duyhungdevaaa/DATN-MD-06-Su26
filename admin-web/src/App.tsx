@@ -15,20 +15,15 @@ import { CategoryFormView } from "./components/CategoryFormView";
 import { UserListView } from "./components/UserListView";
 import { OrderListView } from "./components/OrderListView";
 import { OrderDetailView } from "./components/OrderDetailView";
-<<<<<<< HEAD
 import { ReportsView } from "./components/ReportsView";
 import { SettingsView } from "./components/SettingsView";
-
-import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
-import { ref as rtdbRef, update as updateRtdb } from "firebase/database";
-=======
 import { VoucherListView } from "./components/VoucherListView";
 import { VoucherFormView } from "./components/VoucherFormView";
 import { NotificationsView } from "./components/NotificationsView";
 import { BannersView } from "./components/BannersView";
 
 import { collection, onSnapshot, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, increment } from "firebase/firestore";
->>>>>>> origin/main
+import { ref as rtdbRef, update as updateRtdb } from "firebase/database";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { db, storage, auth, rtdb } from "./firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
@@ -76,13 +71,14 @@ export default function App() {
   const resolvedOrders = React.useMemo(() => {
     return orders.map(order => {
       // Find the user whose ID matches the order's customerName (which holds the raw userId UID)
-      const user = users.find(u => u.id === order.customerName);
+      const user = users.find(u => u.id === order.userId);
       return {
         ...order,
         customerName: user ? user.name : order.customerName,
         customerAvatar: user ? user.avatar : order.customerAvatar,
         email: user ? user.email : order.email,
-        phone: user?.phone || order.phone || "09x-xxxx-xxx"
+        // Priority: Order snapshot phone > User profile phone > placeholder
+        phone: order.phone || user?.phone || "09x-xxxx-xxx"
       };
     });
   }, [orders, users]);
@@ -166,16 +162,47 @@ export default function App() {
           status = OrderStatus.AWAITING_PAYMENT;
         }
 
+        // Parse shippingAddress string for snapshot data
+        const shippingAddressRaw = data.shippingAddress || "";
+        let parsedPhone = "";
+        let parsedAddress = data.address || "Chưa có địa chỉ";
+        let parsedRecipientName = "";
+
+        if (shippingAddressRaw.includes("|||")) {
+            const parts = shippingAddressRaw.split("|||");
+            if (parts.length >= 4) {
+                const addressDetails = parts[3]; // "Label: Name - Phone\nAddress"
+                const lines = addressDetails.split("\n");
+                if (lines.length >= 2) {
+                    parsedAddress = lines[1];
+                    const topPart = lines[0]; // "Label: Name - Phone"
+                    if (topPart.includes(": ")) {
+                        const namePhonePart = topPart.split(": ")[1]; // "Name - Phone"
+                        if (namePhonePart.includes(" - ")) {
+                            parsedRecipientName = namePhonePart.split(" - ")[0];
+                            parsedPhone = namePhonePart.split(" - ")[1];
+                        }
+                    }
+                } else if (lines.length === 1) {
+                    // Fallback for unexpected format
+                    parsedAddress = lines[0];
+                }
+            }
+        }
+
         return {
           id: docSnap.id,
           userId: data.userId || "",
           customerName: data.userId || "Khách hàng",
           customerAvatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAx0BytEzbLFBt7DZ-Usl9CoGOMmn3pka2w2C-VaTEzI0u9G5YDjLKH_k2SYEizcrJHowoz_uvob6rCujIkBm9_Il0bgp1yWsoaeWPAScV_-Ve4nNiMP3Ks4da4iIFLajJ48jmLkQ9e7Q09fBtq_RV8F7IBg-n31usB1gHlqxvAjEvoo0W8IC-UryWomSVJnCF8gzH2YwPvFdL5KaagiWtrQXngCpio2zGNGMEmhNKbL4c20Wfnpaf950gD4wfxNynPvx13KwqQXiM",
           email: "",
-          phone: "",
-          address: data.address || "Tại cửa hàng",
-          subtotal: data.total || 0,
-          shippingFee: 0,
+          phone: parsedPhone,
+          address: parsedAddress,
+          recipientName: parsedRecipientName,
+          subtotal: data.subtotal || data.total || 0,
+          shippingFee: data.shippingFee || 0,
+          discountAmount: data.discountAmount || 0,
+          walletAmountUsed: data.walletAmountUsed || 0,
           total: data.total || 0,
           paymentMethod: data.paymentMethod || "COD",
           paymentEndingCard: "",
@@ -214,7 +241,6 @@ export default function App() {
           avatar: data.photoURL || data.avatarUrl || data.avatar || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
           phone: data.phone || data.phoneNumber || "",
           tier: tierValue,
-          phone: data.phone || "",
           phoneVerified: data.phoneVerified || false,
           joinedDate: joinedDate
         };
@@ -541,7 +567,7 @@ export default function App() {
           const resolvedSelectedOrder = resolvedOrders.find(o => o.id === selectedOrder.id) || selectedOrder;
           return (
             <OrderDetailView
-            order={selectedOrder}
+            order={resolvedSelectedOrder}
             onUpdateOrderStatus={handleUpdateOrderStatus}
             onCancel={() => setSelectedOrder(null)}
             onApproveRefund={handleApproveRefund}
@@ -557,13 +583,12 @@ export default function App() {
           />
         );
 
-<<<<<<< HEAD
       case ActiveTab.REPORTS:
         return <ReportsView />;
 
       case ActiveTab.SETTINGS:
         return <SettingsView />;
-=======
+
       case ActiveTab.VOUCHERS:
         if (isAddingVoucher || editingVoucher) {
           return (
@@ -592,13 +617,12 @@ export default function App() {
 
       case ActiveTab.BANNERS:
         return <BannersView />;
->>>>>>> origin/main
 
       default:
         return (
           <div className="bg-white rounded-2xl border border-zinc-200/50 p-16 text-center shadow-sm font-sans">
             <h3 className="font-serif text-xl font-bold text-zinc-950">Cài đặt phân quyền hệ thống</h3>
-            <p className="text-xs text-zinc-500 mt-2 font-medium">
+            <p className="text-xs text-neutral-500 mt-2 font-medium">
               Các thông số và tài khoản quản trị hoạt động ở chế độ khép kín.
             </p>
           </div>
@@ -618,8 +642,8 @@ export default function App() {
     return (
       <div className="min-h-screen bg-zinc-50 flex items-center justify-center font-sans">
         <div className="animate-pulse flex flex-col items-center">
-          <div className="w-8 h-8 border-4 border-[#8c7623] border-t-transparent rounded-full animate-spin mb-4" />
-          <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold">Đang kết nối hệ thống...</p>
+          <div className="w-6 h-6 border-2 border-[#8c7623] border-t-transparent rounded-full animate-spin mb-3" />
+          <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Trendify Systems</p>
         </div>
       </div>
     );
@@ -630,7 +654,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex bg-zinc-50 min-h-screen text-zinc-900 font-sans selection:bg-zinc-200 selection:text-zinc-900">
+    <div className="flex bg-zinc-50 min-h-screen text-zinc-900 font-sans selection:bg-zinc-950 selection:text-white">
       
       {/* 1. Permanent Left Sidebar */}
       <Sidebar 
@@ -652,13 +676,13 @@ export default function App() {
       />
 
       {/* 2. Right core workspace column */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 bg-[#fbf9f9]/50 overflow-hidden h-screen">
         
         {/* Top persistent Header bar with dynamic clock & real-time search */}
         <Header searchText={searchText} setSearchText={setSearchText} />
 
         {/* Scaled main content view */}
-        <main className="p-8 max-w-7xl w-full mx-auto flex-1">
+        <main className="p-5 max-w-[1600px] w-full mx-auto flex-1 overflow-y-auto">
           {renderActiveView()}
         </main>
         

@@ -9,14 +9,11 @@ export enum ActiveTab {
   USERS = "users",
   PRODUCTS = "products",
   CATEGORIES = "categories",
-<<<<<<< HEAD
-  REPORTS = "reports",
-=======
   VOUCHERS = "vouchers",
->>>>>>> origin/main
   SETTINGS = "settings",
   NOTIFICATIONS = "notifications",
   BANNERS = "banners",
+  REPORTS = "reports",
 }
 
 export enum ProductStatus {
@@ -83,14 +80,18 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  userId?: string;
   customerName: string;
   customerAvatar: string;
   email: string;
   phone: string;
   address: string;
+  recipientName?: string;
   items: OrderItem[];
   subtotal: number;
   shippingFee: number;
+  discountAmount?: number;
+  walletAmountUsed?: number;
   total: number;
   paymentMethod: string;
   paymentEndingCard: string;
@@ -112,10 +113,7 @@ export interface User {
   tier: UserTier;
   email: string;
   phone?: string;
-<<<<<<< HEAD
   phoneVerified?: boolean;
-=======
->>>>>>> origin/main
   joinedDate: string;
 }
 
