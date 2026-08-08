@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewPager2 viewPager;
     private BottomNavigationView bottomNavigationView;
-    private static com.google.firebase.firestore.ListenerRegistration notificationListener = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,49 +158,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void listenToAdminNotifications() {
-        if (notificationListener != null) {
-            notificationListener.remove();
-            notificationListener = null;
-        }
-
-        android.content.SharedPreferences prefs = getSharedPreferences("trendify_prefs", android.content.Context.MODE_PRIVATE);
-        long lastNotifTime = prefs.getLong("last_notif_time", System.currentTimeMillis() - 5000);
-
-        notificationListener = com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("notifications")
+        long appStartTime = System.currentTimeMillis();
+        com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("notifications")
             .addSnapshotListener((snapshots, e) -> {
                 if (e != null) {
                     Log.e("MainActivity", "Listen to notifications failed", e);
                     return;
                 }
                 if (snapshots != null) {
-                    long maxTime = lastNotifTime;
-                    boolean hasNew = false;
-                    String newTitle = null;
-                    String newBody = null;
-                    String newImageUrl = null;
-
                     for (com.google.firebase.firestore.DocumentChange dc : snapshots.getDocumentChanges()) {
                         if (dc.getType() == com.google.firebase.firestore.DocumentChange.Type.ADDED) {
                             com.google.firebase.firestore.QueryDocumentSnapshot doc = dc.getDocument();
                             com.google.firebase.Timestamp timestamp = doc.getTimestamp("createdAt");
                             if (timestamp != null) {
                                 long notifTime = timestamp.toDate().getTime();
-                                if (notifTime > lastNotifTime) {
-                                    if (notifTime > maxTime) {
-                                        maxTime = notifTime;
-                                        newTitle = doc.getString("title");
-                                        newBody = doc.getString("body");
-                                        newImageUrl = doc.getString("imageUrl");
-                                        hasNew = true;
-                                    }
+                                if (notifTime > appStartTime - 5000) {
+                                    String title = doc.getString("title");
+                                    String body = doc.getString("body");
+                                    String imageUrl = doc.getString("imageUrl");
+                                    showSystemNotification(title, body, imageUrl);
                                 }
                             }
                         }
-                    }
-
-                    if (hasNew) {
-                        prefs.edit().putLong("last_notif_time", maxTime).apply();
-                        showSystemNotification(newTitle, newBody, newImageUrl);
                     }
                 }
             });
