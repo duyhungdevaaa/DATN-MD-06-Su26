@@ -19,12 +19,14 @@ import { User, UserTier } from "../types";
 interface UserListViewProps {
   users: User[];
   onUpdateUserTier: (userId: string, newTier: UserTier) => void;
+  onUpdateUserPhoneStatus?: (userId: string, verified: boolean) => void;
   searchText: string;
 }
 
 export const UserListView: React.FC<UserListViewProps> = ({
   users,
   onUpdateUserTier,
+  onUpdateUserPhoneStatus,
   searchText
 }) => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -127,6 +129,13 @@ export const UserListView: React.FC<UserListViewProps> = ({
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border font-sans ${getTierBadgeStyle(user.tier)}`}>
                       {user.tier}
                     </span>
+                    {user.phoneVerified !== undefined && (
+                      <span className={`px-2 py-0.5 rounded-full text-[8px] font-bold border uppercase tracking-wider ${
+                        user.phoneVerified ? "bg-green-50 text-green-700 border-green-200" : "bg-rose-50 text-rose-700 border-rose-200"
+                      }`}>
+                        {user.phoneVerified ? "Đã xác nhận" : "Chưa xác nhận"}
+                      </span>
+                    )}
                   </div>
 
                   <span className="font-sans text-[9px] text-neutral-400 block mt-0.5 uppercase tracking-widest font-bold">
@@ -213,6 +222,39 @@ export const UserListView: React.FC<UserListViewProps> = ({
                   <span className="text-xs text-neutral-500 font-medium">Voucher đề xuất:</span>
                   <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">VIP_COU_15</span>
                 </div>
+              </div>
+
+              {/* Phone Verification Toggle */}
+              <div className="space-y-4">
+                <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest font-sans border-b border-neutral-100 pb-2">
+                  Trạng thái xác thực số điện thoại:
+                </p>
+                <button
+                  onClick={() => {
+                    if (onUpdateUserPhoneStatus) {
+                      onUpdateUserPhoneStatus(selectedUser.id, !selectedUser.phoneVerified);
+                      setSelectedUser({ ...selectedUser, phoneVerified: !selectedUser.phoneVerified });
+                    }
+                  }}
+                  className={`w-full p-4 rounded-xl border flex items-center justify-between transition-all ${
+                    selectedUser.phoneVerified
+                      ? "bg-green-50 border-green-200 text-green-700"
+                      : "bg-rose-50 border-rose-200 text-rose-700"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {selectedUser.phoneVerified ? <Check className="h-5 w-5" /> : <X className="h-5 w-5" />}
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider">
+                        {selectedUser.phoneVerified ? "Đã xác nhận SĐT" : "Chưa xác nhận SĐT"}
+                      </p>
+                      <p className="text-[10px] opacity-70 mt-0.5">
+                        {selectedUser.phoneVerified ? "Người dùng này có thể đặt hàng ngay." : "Người dùng sẽ phải xác nhận lại SĐT khi đặt hàng."}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[9px] font-bold underline uppercase">Thay đổi</span>
+                </button>
               </div>
 
               {/* Interactive Tier Change control panel */}

@@ -117,7 +117,7 @@ public class ProfileFragment extends Fragment {
             public void onFailure(String error) {
                 String displayName = "Khách hàng";
                 String email = "";
-                currentProfile = new UserProfile(SessionManager.getInstance().getUserId(), displayName, email, "", null);
+                currentProfile = new UserProfile(SessionManager.getInstance().getUserId(), displayName, email, "", false, null);
                 tvUserName.setText(displayName);
                 tvUserEmail.setText(email);
                 Toast.makeText(getContext(), "Không thể tải hồ sơ: " + error, Toast.LENGTH_SHORT).show();

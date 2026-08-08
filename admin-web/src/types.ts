@@ -98,5 +98,7 @@ export interface User {
   avatar: string;
   tier: UserTier;
   email: string;
+  phone?: string;
+  phoneVerified?: boolean;
   joinedDate: string;
 }

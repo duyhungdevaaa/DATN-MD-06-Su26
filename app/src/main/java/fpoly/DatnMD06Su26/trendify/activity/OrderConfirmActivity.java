@@ -44,6 +44,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.util.Log;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 
 public class OrderConfirmActivity extends AppCompatActivity {
 
@@ -144,7 +150,123 @@ public class OrderConfirmActivity extends AppCompatActivity {
         }
 
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
-        findViewById(R.id.btnPlaceOrder).setOnClickListener(v -> placeOrder());
+        findViewById(R.id.btnPlaceOrder).setOnClickListener(v -> checkPhoneVerification());
+    }
+
+    private void checkPhoneVerification() {
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        String uid = SessionManager.getInstance().getUserId();
+        
+        FirebaseDatabase.getInstance().getReference("users").child(uid)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@androidx.annotation.NonNull DataSnapshot snapshot) {
+                        if (progressBar != null) progressBar.setVisibility(View.GONE);
+                        Boolean isVerified = snapshot.child("phoneVerified").getValue(Boolean.class);
+                        String currentPhone = snapshot.child("phone").getValue(String.class);
+                        
+                        if (isVerified != null && isVerified) {
+                            placeOrder();
+                        } else {
+                            showVerificationDialog(java.util.Objects.requireNonNullElse(currentPhone, ""));
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@androidx.annotation.NonNull DatabaseError error) {
+                        if (progressBar != null) progressBar.setVisibility(View.GONE);
+                        placeOrder(); // Fallback
+                    }
+                });
+    }
+
+    private void showVerificationDialog(String currentPhone) {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        View view = getLayoutInflater().inflate(R.layout.dialog_phone_verification, null);
+        
+        TextView tvPhone = view.findViewById(R.id.tvCurrentPhone);
+        Button btnEdit = view.findViewById(R.id.btnEditPhone);
+        CheckBox cbConfirm = view.findViewById(R.id.cbConfirmPhone);
+        
+        tvPhone.setText(currentPhone);
+        
+        builder.setView(view);
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.show();
+
+        btnEdit.setOnClickListener(v -> showEditPhoneDialog(tvPhone));
+
+        view.findViewById(R.id.btnCancel).setOnClickListener(v -> dialog.dismiss());
+        
+        Button btnConfirm = view.findViewById(R.id.btnConfirm);
+        btnConfirm.setOnClickListener(v -> {
+            if (!cbConfirm.isChecked()) {
+                Toast.makeText(this, "Vui lòng tick xác nhận số điện thoại", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            String finalPhone = tvPhone.getText().toString();
+            updatePhoneVerification(finalPhone, dialog);
+        });
+    }
+
+    private void showEditPhoneDialog(TextView tvDisplay) {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("Sửa số điện thoại");
+        
+        final EditText input = new EditText(this);
+        input.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
+        input.setText(tvDisplay.getText());
+        builder.setView(input);
+
+        builder.setPositiveButton("Lưu", (dialog, which) -> {
+            String newPhone = input.getText().toString().trim();
+            if (newPhone.matches("^0[35789][0-9]{8}$")) {
+                tvDisplay.setText(newPhone);
+            } else {
+                Toast.makeText(this, "Số điện thoại không hợp lệ", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+    private void updatePhoneVerification(String phone, androidx.appcompat.app.AlertDialog dialog) {
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        String uid = SessionManager.getInstance().getUserId();
+        
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("phone", phone);
+        updates.put("phoneVerified", true);
+
+        FirebaseDatabase.getInstance().getReference("users").child(uid).updateChildren(updates)
+                .addOnSuccessListener(aVoid -> {
+                    // Sync with Firestore
+                    Map<String, Object> fsUpdates = new HashMap<>();
+                    fsUpdates.put("phone", phone);
+                    fsUpdates.put("phoneVerified", true);
+                    FirestoreHelper.updateUserProfile(fsUpdates, new FirestoreHelper.SimpleCallback() {
+                        @Override
+                        public void onSuccess() {
+                            if (progressBar != null) progressBar.setVisibility(View.GONE);
+                            dialog.dismiss();
+                            placeOrder();
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            if (progressBar != null) progressBar.setVisibility(View.GONE);
+                            dialog.dismiss();
+                            placeOrder(); // Proceed anyway since RTDB updated
+                        }
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    if (progressBar != null) progressBar.setVisibility(View.GONE);
+                    Toast.makeText(this, "Lỗi cập nhật: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void loadOrderSummary() {

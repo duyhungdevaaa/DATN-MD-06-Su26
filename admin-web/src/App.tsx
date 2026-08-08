@@ -19,8 +19,9 @@ import { ReportsView } from "./components/ReportsView";
 import { SettingsView } from "./components/SettingsView";
 
 import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { ref as rtdbRef, update as updateRtdb } from "firebase/database";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
-import { db, storage, auth } from "./firebase";
+import { db, storage, auth, rtdb } from "./firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import { LoginView } from "./components/LoginView";
 
@@ -165,6 +166,8 @@ export default function App() {
           email: data.email || "Chưa cập nhật",
           avatar: data.photoURL || data.avatarUrl || data.avatar || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
           tier: tierValue,
+          phone: data.phone || "",
+          phoneVerified: data.phoneVerified || false,
           joinedDate: joinedDate
         };
       });
@@ -292,13 +295,19 @@ export default function App() {
 
   // --- User Operations ---
   const handleUpdateUserTier = (userId: string, newTier: UserTier) => {
-    const updated = users.map((u) => {
-      if (u.id === userId) {
-        return { ...u, tier: newTier };
-      }
-      return u;
-    });
-    setUsers(updated); // Just local memory
+    // Sync with Firestore
+    updateDoc(doc(db, "users", userId), { tier: newTier })
+      .catch(e => console.error("Error updating tier:", e));
+  };
+
+  const handleUpdateUserPhoneStatus = (userId: string, verified: boolean) => {
+    // Update Firestore
+    updateDoc(doc(db, "users", userId), { phoneVerified: verified })
+      .catch(e => console.error("Error updating phone status (FS):", e));
+
+    // Update Realtime Database
+    updateRtdb(rtdbRef(rtdb, `users/${userId}`), { phoneVerified: verified })
+      .catch(e => console.error("Error updating phone status (RTDB):", e));
   };
 
   // --- Order Operations ---
@@ -398,6 +407,7 @@ export default function App() {
             users={users}
             searchText={searchText}
             onUpdateUserTier={handleUpdateUserTier}
+            onUpdateUserPhoneStatus={handleUpdateUserPhoneStatus}
           />
         );
 

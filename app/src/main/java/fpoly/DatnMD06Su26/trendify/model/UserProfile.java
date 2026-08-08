@@ -15,16 +15,18 @@ public class UserProfile {
     private String fullName;
     private String email;
     private String phone;
+    private boolean phoneVerified;
     private Timestamp createdAt;
 
     public UserProfile() {
     }
 
-    public UserProfile(String uid, String fullName, String email, String phone, Timestamp createdAt) {
+    public UserProfile(String uid, String fullName, String email, String phone, boolean phoneVerified, Timestamp createdAt) {
         this.uid = uid;
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
+        this.phoneVerified = phoneVerified;
         this.createdAt = createdAt;
     }
 
@@ -62,6 +64,14 @@ public class UserProfile {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public boolean isPhoneVerified() {
+        return phoneVerified;
+    }
+
+    public void setPhoneVerified(boolean phoneVerified) {
+        this.phoneVerified = phoneVerified;
     }
 
     public void setCreatedAt(Timestamp createdAt) {
