@@ -66,32 +66,19 @@ export const UserListView: React.FC<UserListViewProps> = ({
       {/* Search and control filter line */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-zinc-200/60 shadow-sm">
         <div>
-<<<<<<< HEAD
-          <h3 className="font-sans text-lg text-neutral-900 font-bold">Bản ghi danh hội viên</h3>
-          <p className="font-sans text-xs text-neutral-400 mt-1 font-medium">
-=======
-          <h3 className="font-serif text-lg text-zinc-900 font-bold">Bản ghi danh hội viên</h3>
+          <h3 className="font-sans text-lg text-zinc-900 font-bold">Bản ghi danh hội viên</h3>
           <p className="font-sans text-xs text-zinc-400 mt-1">
->>>>>>> origin/main
             Theo dõi, định hạng và tri ân đặc quyền cho cơ sở dữ liệu khách hàng Haute Couture Việt Nam.
           </p>
         </div>
 
         {/* Tier filter dropdown */}
         <div className="flex items-center gap-2">
-<<<<<<< HEAD
-          <span className="text-[10px] font-sans font-bold text-neutral-400 uppercase tracking-widest">Hạng thẻ:</span>
-          <select
-            value={tierFilter}
-            onChange={(e) => setTierFilter(e.target.value)}
-            className="bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-[#6c5e06] focus:outline-none focus:bg-white font-sans font-semibold text-neutral-700"
-=======
           <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest font-bold">Hạng thẻ:</span>
           <select
             value={tierFilter}
             onChange={(e) => setTierFilter(e.target.value)}
             className="bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none focus:bg-white font-sans text-zinc-700 font-bold"
->>>>>>> origin/main
           >
             <option value="All">Tất cả thứ hạng</option>
             <option value={UserTier.GOLD}>Thành viên GOLD</option>
@@ -107,13 +94,8 @@ export const UserListView: React.FC<UserListViewProps> = ({
           <div className="mx-auto w-12 h-12 rounded-full bg-zinc-50 border border-zinc-150 flex items-center justify-center mb-4">
             <Users className="h-5 w-5 text-zinc-400" />
           </div>
-<<<<<<< HEAD
-          <h3 className="font-sans text-lg text-neutral-800 font-bold">Không tìm thấy hội viên phù hợp</h3>
-          <p className="font-sans text-xs text-neutral-500 mt-2 max-w-sm mx-auto font-medium">
-=======
-          <h3 className="font-serif text-lg text-zinc-800 font-medium">Không tìm thấy hội viên phù hợp</h3>
+          <h3 className="font-sans text-lg text-zinc-800 font-medium">Không tìm thấy hội viên phù hợp</h3>
           <p className="font-sans text-xs text-zinc-500 mt-2 max-w-sm mx-auto leading-relaxed">
->>>>>>> origin/main
             Đặt thử bộ tìm kiếm hoặc điều chỉnh hạng thẻ để quét tìm kiếm một lần nữa.
           </p>
         </div>
@@ -141,13 +123,7 @@ export const UserListView: React.FC<UserListViewProps> = ({
                 {/* Info block */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-<<<<<<< HEAD
-                    <h4 className="font-sans text-base text-[#1b1c1c] font-bold truncate">
-                      {user.name}
-                    </h4>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border font-sans ${getTierBadgeStyle(user.tier)}`}>
-=======
-                    <h4 className="font-serif text-base text-zinc-900 font-bold truncate">
+                    <h4 className="font-sans text-base text-zinc-900 font-bold truncate">
                       {user.name}
                     </h4>
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
@@ -157,7 +133,6 @@ export const UserListView: React.FC<UserListViewProps> = ({
                         ? 'bg-slate-50 text-slate-700 border-slate-200' 
                         : 'bg-zinc-50 text-zinc-500 border-zinc-200'
                     }`}>
->>>>>>> origin/main
                       {user.tier}
                     </span>
                     {user.phoneVerified !== undefined && (
@@ -169,24 +144,11 @@ export const UserListView: React.FC<UserListViewProps> = ({
                     )}
                   </div>
 
-<<<<<<< HEAD
-                  <span className="font-sans text-[9px] text-neutral-400 block mt-0.5 uppercase tracking-widest font-bold">
-=======
                   <span className="font-mono text-[9px] text-zinc-400 block mt-0.5 uppercase tracking-widest">
->>>>>>> origin/main
                     ID: {user.id}
                   </span>
 
                   <div className="space-y-1.5 mt-3">
-<<<<<<< HEAD
-                    <div className="flex items-center gap-2 text-neutral-500">
-                      <Mail className="h-3.5 w-3.5 text-neutral-400" />
-                      <span className="text-xs font-sans font-medium truncate">{user.email}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-neutral-500">
-                      <Calendar className="h-3.5 w-3.5 text-neutral-400" />
-                      <span className="text-xs font-sans font-medium">Ngày gia nhập: {user.joinedDate}</span>
-=======
                     <div className="flex items-center gap-2 text-zinc-500">
                       <Mail className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
                       <span className="text-xs font-sans truncate">{user.email}</span>
@@ -194,7 +156,6 @@ export const UserListView: React.FC<UserListViewProps> = ({
                     <div className="flex items-center gap-2 text-zinc-500">
                       <Calendar className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
                       <span className="text-xs font-sans">Ngày gia nhập: {user.joinedDate}</span>
->>>>>>> origin/main
                     </div>
                   </div>
 
@@ -204,11 +165,7 @@ export const UserListView: React.FC<UserListViewProps> = ({
                     </span>
                     <button
                       onClick={() => handleOpenStats(user)}
-<<<<<<< HEAD
-                      className="px-3.5 py-1.5 bg-neutral-50 hover:bg-[#6c5e06]/5 text-neutral-700 hover:text-[#6c5e06] text-[10px] font-semibold uppercase tracking-wider border border-neutral-200 rounded-lg font-sans transition-colors"
-=======
                       className="px-3.5 py-1.5 bg-zinc-50 hover:bg-[#8c7623]/10 text-zinc-650 hover:text-[#8c7623] hover:border-[#8c7623]/30 text-[10px] font-bold uppercase tracking-wider border border-zinc-200 rounded-lg font-sans transition-all duration-200"
->>>>>>> origin/main
                     >
                       Bảng đặc quyền & Hạng thẻ
                     </button>
@@ -223,14 +180,9 @@ export const UserListView: React.FC<UserListViewProps> = ({
 
       {/* Customer VIP privileges inspection overlay drawer */}
       {selectedUser && (
-<<<<<<< HEAD
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 flex items-center justify-end animate-fade-in">
-          <div className="w-full max-w-md bg-white h-screen p-8 flex flex-col justify-between shadow-2xl relative overflow-y-auto font-sans">
-=======
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-end animate-fade-in">
           <div className="w-full max-w-md bg-white h-screen p-8 flex flex-col justify-between shadow-2xl relative overflow-y-auto ring-1 ring-black/5 rounded-l-3xl">
->>>>>>> origin/main
-            
+
             {/* Close Trigger Button */}
             <button
               onClick={() => setSelectedUser(null)}
@@ -250,17 +202,7 @@ export const UserListView: React.FC<UserListViewProps> = ({
                     referrerPolicy="no-referrer"
                   />
                 </div>
-<<<<<<< HEAD
-                <h3 className="font-sans text-xl font-bold text-neutral-900 mt-4">
-                  {selectedUser.name}
-                </h3>
-                <p className="font-sans text-[9px] text-neutral-400 mt-1 uppercase tracking-widest font-bold">
-                  ID: {selectedUser.id}
-                </p>
-                
-                <span className={`px-3 py-1 rounded-full text-[10px] font-bold border inline-block mt-3 font-sans ${getTierBadgeStyle(selectedUser.tier)}`}>
-=======
-                <h3 className="font-serif text-xl font-bold text-zinc-950 mt-4">
+                <h3 className="font-sans text-xl font-bold text-zinc-950 mt-4">
                   {selectedUser.name}
                 </h3>
                 <p className="font-mono text-[9px] text-zinc-400 mt-1 uppercase tracking-widest font-bold">
@@ -274,26 +216,11 @@ export const UserListView: React.FC<UserListViewProps> = ({
                     ? 'bg-slate-50 text-slate-700 border-slate-200' 
                     : 'bg-zinc-50 text-zinc-500 border-zinc-200'
                 }`}>
->>>>>>> origin/main
                   Hạng Thẻ Hiện Tại: {selectedUser.tier}
                 </span>
               </div>
 
               {/* Statistical details simulation */}
-<<<<<<< HEAD
-              <div className="bg-[#fbf9f9] p-4.5 rounded-xl border border-neutral-100 divide-y divide-neutral-150/40 font-sans">
-                <div className="flex items-center justify-between pb-3">
-                  <span className="text-xs text-neutral-500 font-medium">Doanh số trọn đời (LTV):</span>
-                  <span className="text-xs font-bold text-neutral-900">45.000.000 ₫</span>
-                </div>
-                <div className="flex items-center justify-between py-3">
-                  <span className="text-xs text-neutral-500 font-medium">Số đơn hoàn thành:</span>
-                  <span className="text-xs font-bold text-neutral-900">3 Đơn hàng</span>
-                </div>
-                <div className="flex items-center justify-between pt-3">
-                  <span className="text-xs text-neutral-500 font-medium">Voucher đề xuất:</span>
-                  <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">VIP_COU_15</span>
-=======
               <div className="bg-zinc-50/50 p-4.5 rounded-2xl border border-zinc-150/70 divide-y divide-zinc-200/50">
                 <div className="flex items-center justify-between pb-3">
                   <span className="text-xs font-sans text-zinc-500 font-semibold">Doanh số trọn đời (LTV):</span>
@@ -306,7 +233,6 @@ export const UserListView: React.FC<UserListViewProps> = ({
                 <div className="flex items-center justify-between pt-3">
                   <span className="text-xs font-sans text-zinc-500 font-semibold">Voucher đề xuất:</span>
                   <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-bold">VIP_COU_15</span>
->>>>>>> origin/main
                 </div>
               </div>
 
@@ -375,12 +301,8 @@ export const UserListView: React.FC<UserListViewProps> = ({
                               <span className="text-[9px] font-sans font-bold text-slate-700">Giảm giá 5% VIP</span>
                             )}
                           </div>
-<<<<<<< HEAD
-                          <p className="text-[10px] text-neutral-400 font-sans mt-0.5 leading-normal font-medium">
-=======
                           <p className="text-[10px] text-zinc-400 font-sans mt-0.5 leading-normal">
->>>>>>> origin/main
-                            {tierOpt === UserTier.GOLD 
+                            {tierOpt === UserTier.GOLD
                               ? "Yêu cầu chi tiêu tối thiểu 30 triệu đồng hàng năm." 
                               : tierOpt === UserTier.SILVER 
                               ? "Yêu cầu chi tiêu tối thiểu 10 triệu đồng hàng năm." 

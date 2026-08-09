@@ -32,19 +32,14 @@ export const LoginView: React.FC = () => {
               Hệ Thống Quản Trị
             </span>
           </div>
-          <h2 className="font-serif text-3xl text-zinc-950 font-bold">Trendify Admin</h2>
+          <h2 className="font-sans text-3xl text-zinc-950 font-bold">Trendify Admin</h2>
           <p className="text-xs text-zinc-500 mt-2 font-medium">Vui lòng đăng nhập để truy cập cơ sở dữ liệu Firebase.</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-5 text-left">
           {errorMsg && (
-<<<<<<< HEAD
-            <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs font-medium flex items-center gap-2">
-              <CircleAlert className="h-4 w-4 shrink-0" />
-=======
             <div className="p-3 bg-rose-50 border border-rose-100 rounded-xl text-rose-700 text-xs font-semibold flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 shrink-0" />
->>>>>>> origin/main
+              <CircleAlert className="h-4 w-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}

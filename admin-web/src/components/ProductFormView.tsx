@@ -258,11 +258,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
           <ArrowLeft className="h-4 w-4" />
           Quay lại danh sách kho
         </button>
-<<<<<<< HEAD
-        <span className="font-sans text-[10px] text-neutral-400 uppercase font-bold tracking-widest">
-=======
         <span className="font-mono text-[9px] text-zinc-400 uppercase font-bold">
->>>>>>> origin/main
           {editingProduct ? "Bản sửa đổi: ID " + editingProduct.id : "Khởi tạo thiết kế mới"}
         </span>
       </div>
@@ -270,20 +266,6 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
       <div className="bg-white rounded-2xl border border-zinc-200/50 shadow-sm overflow-hidden">
         
         {/* Visual Title Banner */}
-<<<<<<< HEAD
-        <div className="p-8 border-b border-[#cfc4c5]/30 bg-[#fbf9f9] flex items-center justify-between font-sans">
-          <div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-[#6c5e06]" />
-              <span className="font-sans text-[9px] tracking-[0.2em] text-[#6c5e06] uppercase font-bold">
-                Luxury curation
-              </span>
-            </div>
-            <h3 className="font-sans text-2xl tracking-normal text-[#1b1c1c] font-bold mt-2">
-              {editingProduct ? "Cắt Sửa Chi Tiết Sản Phẩm" : "Tuyển Chọn Thiết Kế Sang Trọng"}
-            </h3>
-            <p className="font-sans text-xs text-neutral-400 mt-1 font-medium">
-=======
         <div className="p-8 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
@@ -292,11 +274,10 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                 Luxury curation
               </span>
             </div>
-            <h3 className="font-serif text-2xl tracking-normal text-zinc-950 font-bold mt-2">
+            <h3 className="font-sans text-2xl tracking-normal text-zinc-950 font-bold mt-2">
               {editingProduct ? "Cắt Sửa Chi Tiết Sản Phẩm" : "Tuyển Chọn Thiết Kế Sang Trọng"}
             </h3>
             <p className="font-sans text-xs text-zinc-450 mt-1 leading-relaxed">
->>>>>>> origin/main
               Điền các thông số sản xuất, mã nhận diện (SKU) và gắn tệp hình ảnh phác thảo của bộ sưu tập sang trọng này.
             </p>
           </div>
@@ -304,24 +285,16 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
 
         <form onSubmit={handleSubmit} className="p-8 space-y-8 font-sans">
           
-          {/* Notifications logs inside form */}
+          {/* Notifications logs inside font */}
           {errorMsg && (
-<<<<<<< HEAD
-            <div className="p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs font-bold font-sans flex items-center gap-2.5">
-=======
             <div className="p-4 bg-rose-50 border border-rose-100 rounded-xl text-rose-700 text-xs font-semibold flex items-center gap-2.5">
->>>>>>> origin/main
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {successMsg && (
-<<<<<<< HEAD
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-xs font-bold font-sans flex items-center gap-2.5">
-=======
             <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-700 text-xs font-semibold flex items-center gap-2.5">
->>>>>>> origin/main
               <CheckCircle2 className="h-4 w-4 shrink-0" />
               <span>{successMsg}</span>
             </div>
@@ -344,11 +317,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                     value={sku}
                     onChange={(e) => setSku(e.target.value)}
                     placeholder="TRN-XXXX"
-<<<<<<< HEAD
-                    className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-sans font-bold tracking-widest uppercase focus:outline-none focus:border-[#6c5e06] focus:bg-white"
-=======
                     className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3 text-xs font-mono tracking-widest uppercase focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-800 font-bold"
->>>>>>> origin/main
                   />
                 </div>
                 
@@ -360,11 +329,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                   <select
                     value={categoryName}
                     onChange={(e) => setCategoryName(e.target.value)}
-<<<<<<< HEAD
-                    className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-sans focus:outline-none focus:border-[#6c5e06] focus:bg-white text-neutral-700 font-semibold"
-=======
                     className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-700 font-bold"
->>>>>>> origin/main
                   >
                     {categories.map((catName) => (
                       <option key={catName} value={catName}>{catName}</option>
@@ -399,11 +364,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                     value={price || ""}
                     onChange={(e) => setPrice(Number(e.target.value))}
                     placeholder="Ví dụ: 450"
-<<<<<<< HEAD
-                    className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-sans font-bold focus:outline-none focus:border-[#6c5e06] focus:bg-white"
-=======
                     className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3 text-xs font-mono font-bold focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-850"
->>>>>>> origin/main
                     min="0"
                     step="any"
                   />
@@ -435,11 +396,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                     value={stock}
                     onChange={(e) => setStock(Number(e.target.value))}
                     placeholder="Ví dụ: 12"
-<<<<<<< HEAD
-                    className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-sans font-bold focus:outline-none focus:border-[#6c5e06] focus:bg-white"
-=======
                     className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3 text-xs font-mono font-bold focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-850"
->>>>>>> origin/main
                     min="0"
                   />
                 </div>
@@ -458,13 +415,8 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                       onClick={() => setStatus(statOption)}
                       className={`font-sans text-[10px] font-bold uppercase tracking-wider py-3 px-3 rounded-xl border text-center transition-all ${
                         status === statOption
-<<<<<<< HEAD
-                          ? "bg-[#1b1c1c] text-white border-transparent shadow-md"
-                          : "bg-[#fbf9f9] text-neutral-500 border-neutral-200 hover:bg-neutral-50"
-=======
                           ? "bg-zinc-900 text-white border-transparent shadow-sm"
                           : "bg-zinc-55 border-zinc-200 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800"
->>>>>>> origin/main
                       }`}
                     >
                       {statOption === ProductStatus.ACTIVE ? "Đang bán" : statOption === ProductStatus.DRAFT ? "Lưu nháp" : "Lưu trữ"}
@@ -483,11 +435,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Lịch sử sáng tác phong cách thượng lưu, tay nghề dệt may, chất lượng lụa tự nhiên..."
                   rows={4}
-<<<<<<< HEAD
-                  className="w-full bg-[#fbf9f9] border border-neutral-200 rounded-lg p-3 text-xs font-sans focus:outline-none focus:border-[#6c5e06] focus:bg-white text-neutral-700 leading-relaxed font-medium"
-=======
                   className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3.5 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-700 leading-relaxed font-medium"
->>>>>>> origin/main
                 />
               </div>
 
@@ -533,11 +481,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                           referrerPolicy="no-referrer"
                         />
                       </div>
-<<<<<<< HEAD
-                      <p className="font-sans text-[10px] text-neutral-400 font-medium">
-=======
-                      <p className="font-sans text-[10px] text-zinc-450 font-medium">
->>>>>>> origin/main
+                      <p className="font-sans text-[10px] text-zinc-455 font-medium">
                         Phác thảo hình ảnh tải lên thành công. Kéo thả file khác để thay đổi.
                       </p>
                       <button
@@ -557,11 +501,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                         <span className="font-sans text-xs font-bold text-zinc-700 block">
                           Tải ảnh phác thảo từ thiết bị
                         </span>
-<<<<<<< HEAD
-                        <span className="font-sans text-[10px] text-neutral-400 block pb-1 font-medium">
-=======
                         <span className="font-sans text-[10px] text-zinc-400 block pb-1">
->>>>>>> origin/main
                           hoặc thả tập tin vào khung này
                         </span>
                         <span className="inline-block bg-white border border-zinc-200 text-[9px] font-bold uppercase tracking-wider font-sans px-4 py-2 rounded-xl shadow-sm hover:border-[#8c7623] transition-colors">
@@ -573,13 +513,8 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                 </div>
 
                 <div className="relative flex items-center justify-center my-4">
-<<<<<<< HEAD
-                  <div className="absolute inset-y-1/2 left-0 right-0 h-[1px] bg-neutral-100" />
-                  <span className="relative bg-white px-3 font-sans font-bold text-[9px] text-neutral-300 uppercase">Hoặc dán URL ảnh trực tiếp</span>
-=======
                   <div className="absolute inset-y-1/2 left-0 right-0 h-[1px] bg-zinc-100" />
                   <span className="relative bg-white px-3 font-mono text-[9px] text-zinc-300 uppercase font-bold tracking-wider">Hoặc dán URL ảnh trực tiếp</span>
->>>>>>> origin/main
                 </div>
 
                 {/* Direct image input URL box */}
@@ -592,44 +527,27 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                     value={imageUrl.startsWith("data:") ? "" : imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                     placeholder="Chèn URL ảnh trực tuyến..."
-<<<<<<< HEAD
-                    className="flex-1 bg-[#fbf9f9] border border-neutral-200 rounded-lg p-2.5 text-xs font-sans focus:outline-none focus:border-[#6c5e06] focus:bg-white text-neutral-800 font-medium"
-=======
                     className="flex-1 bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-800 font-medium"
->>>>>>> origin/main
                   />
                 </div>
               </div>
 
               {/* Sample suggestions widgets */}
               {!imageUrl && (
-<<<<<<< HEAD
-                <div className="p-4 bg-[#6c5e06]/5 border border-[#6c5e06]/10 rounded-xl space-y-2 text-left font-sans">
-                  <p className="font-sans text-[10px] font-bold text-[#6c5e06] uppercase tracking-wider">Mẫu ảnh lầu năm Haute-Couture:</p>
-=======
                 <div className="p-4 bg-[#8c7623]/5 border border-[#8c7623]/10 rounded-2xl space-y-2.5 text-left">
                   <p className="font-sans text-[10px] font-bold text-[#8c7623] uppercase tracking-wider">Mẫu ảnh gợi ý có sẵn:</p>
->>>>>>> origin/main
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
                       onClick={() => setImageUrl("https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600")}
-<<<<<<< HEAD
-                      className="text-[9px] font-sans text-neutral-600 bg-white hover:bg-[#6c5e06]/10 p-2 rounded border border-neutral-200 truncate block text-left font-medium"
-=======
                       className="text-[9px] font-sans text-zinc-650 bg-white hover:bg-[#8c7623]/10 hover:text-[#8c7623] hover:border-[#8c7623]/30 p-2.5 rounded-lg border border-zinc-200 truncate block text-left font-bold transition-all"
->>>>>>> origin/main
                     >
                       Bộ váy thiết kế lụa vàng
                     </button>
                     <button
                       type="button"
                       onClick={() => setImageUrl("https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=600")}
-<<<<<<< HEAD
-                      className="text-[9px] font-sans text-neutral-600 bg-white hover:bg-[#6c5e06]/10 p-2 rounded border border-neutral-200 truncate block text-left font-medium"
-=======
                       className="text-[9px] font-sans text-zinc-650 bg-white hover:bg-[#8c7623]/10 hover:text-[#8c7623] hover:border-[#8c7623]/30 p-2.5 rounded-lg border border-zinc-200 truncate block text-left font-bold transition-all"
->>>>>>> origin/main
                     >
                       Bốt da cao cấp
                     </button>
@@ -646,7 +564,7 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
             <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
               <div className="flex items-center gap-2">
                 <Package className="h-4.5 w-4.5 text-[#8c7623]" />
-                <h4 className="font-serif text-base text-zinc-950 font-bold">
+                <h4 className="font-sans text-base text-zinc-950 font-bold">
                   Phân Loại Biến Thể Sản Phẩm (Kích cỡ & Màu sắc)
                 </h4>
               </div>

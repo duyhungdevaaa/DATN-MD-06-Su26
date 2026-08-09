@@ -2,11 +2,7 @@
 
 @theme {
   --font-serif: "Playfair Display", Georgia, serif;
-<<<<<<< HEAD
-  --font-sans: "Inter", "Montserrat", system-ui, sans-serif;
-=======
-  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
->>>>>>> origin/main
+  --font-sans: "Inter", system-ui, sans-serif;
   
   --color-luxury-surface: #ffffff;
   --color-luxury-gold: #8c7623;
@@ -42,4 +38,3 @@
 .custom-shadow {
   box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.015);
 }
-
