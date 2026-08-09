@@ -143,6 +143,21 @@ export const NotificationsView: React.FC = () => {
                 placeholder="https://example.com/image.jpg"
                 className="w-full text-xs p-3 border border-zinc-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:border-zinc-900"
               />
+              {imageUrl && (
+                <div className="mt-3 relative rounded-xl overflow-hidden border border-zinc-200 aspect-[2/1] bg-zinc-50 flex items-center justify-center">
+                  <img
+                    src={imageUrl}
+                    alt="Live preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = "none";
+                    }}
+                  />
+                  <span className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-[8px] text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                    Xem trước ảnh
+                  </span>
+                </div>
+              )}
             </div>
 
             {statusMessage && (
