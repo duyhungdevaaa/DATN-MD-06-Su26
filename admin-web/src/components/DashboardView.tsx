@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react";
+import React, { useState } from "react";
 import { 
   TrendingUp, 
   CircleDollarSign, 
@@ -35,12 +35,47 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(num);
   };
 
-  const totalRevenue = orders
-    .filter(o => o.status !== "Đã hủy")
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const filteredOrders = orders.filter(o => {
+    if (!startDate && !endDate) return true;
+    try {
+      const datePart = o.date.split(" ")[0]; // "DD/MM/YYYY" or "YYYY-MM-DD" depending on how date was stored
+      let dStr = datePart;
+      if (datePart.includes("/")) {
+        const [day, month, year] = datePart.split("/");
+        dStr = `${year}-${month}-${day}`;
+      }
+      const oDate = new Date(dStr).getTime();
+      const sDate = startDate ? new Date(startDate).getTime() : 0;
+      const eDate = endDate ? new Date(endDate).getTime() : Infinity;
+      return oDate >= sDate && oDate <= eDate;
+    } catch {
+      return true;
+    }
+  });
+
+  const totalRevenue = filteredOrders
+    .filter(o => o.status !== "Đã hủy" && o.status !== "Trả hàng/Hoàn tiền")
     .reduce((sum, o) => sum + o.total, 0);
 
-  const pendingOrders = orders.filter(o => o.status === "Đang xử lý");
-  const shippingOrders = orders.filter(o => o.status === "Đang vận chuyển");
+  const pendingOrders = filteredOrders.filter(o => o.status === "Đang xử lý");
+  const shippingOrders = filteredOrders.filter(o => o.status === "Đang vận chuyển");
+
+  // Calculate Top Products
+  const productSales: Record<string, { name: string; qty: number; rev: number; img: string }> = {};
+  filteredOrders.filter(o => o.status !== "Đã hủy" && o.status !== "Trả hàng/Hoàn tiền").forEach(o => {
+    o.items.forEach(item => {
+      if (!productSales[item.id]) {
+        productSales[item.id] = { name: item.name, qty: 0, rev: 0, img: item.imageUrl };
+      }
+      productSales[item.id].qty += item.quantity;
+      productSales[item.id].rev += (item.quantity * item.price);
+    });
+  });
+  
+  const topProducts = Object.values(productSales).sort((a, b) => b.qty - a.qty).slice(0, 5);
 
   // Premium metrics
   const stats = [
@@ -57,7 +92,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     {
       id: "orders",
       title: "Khối Lượng Đơn Hàng",
-      value: `${orders.length} Đơn hàng`,
+      value: `${filteredOrders.length} Đơn hàng`,
       change: `+6.8%`,
       isPositive: true,
       subtext: `${pendingOrders.length} Đơn đang chờ xử lý`,
@@ -110,7 +145,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const daysOfWeek = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
   const revenueByDay = [0, 0, 0, 0, 0, 0, 0];
 
-  orders.filter(o => o.status !== "Đã hủy").forEach(o => {
+  filteredOrders.filter(o => o.status !== "Đã hủy").forEach(o => {
     try {
       const datePart = o.date.split(" ")[0];
       const [day, month, year] = datePart.split("/");
@@ -180,6 +215,34 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           >
             Danh sách đơn hàng
           </button>
+        </div>
+      </section>
+
+      {/* Date Filter & Actions */}
+      <section className="flex flex-col md:flex-row items-center gap-4 bg-white p-4 rounded-2xl border border-zinc-200/50 shadow-sm">
+        <span className="text-xs font-bold text-zinc-600 uppercase tracking-wider">Lọc theo thời gian:</span>
+        <div className="flex items-center gap-2">
+          <input 
+            type="date" 
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="text-xs border border-zinc-200 rounded-lg px-3 py-2 text-zinc-700 outline-none focus:border-[#8c7623]"
+          />
+          <span className="text-zinc-400">-</span>
+          <input 
+            type="date" 
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="text-xs border border-zinc-200 rounded-lg px-3 py-2 text-zinc-700 outline-none focus:border-[#8c7623]"
+          />
+          {(startDate || endDate) && (
+            <button 
+              onClick={() => { setStartDate(""); setEndDate(""); }}
+              className="text-xs text-rose-500 hover:text-rose-600 ml-2 font-bold uppercase tracking-wider"
+            >
+              Xóa lọc
+            </button>
+          )}
         </div>
       </section>
 
@@ -318,7 +381,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </div>
 
               <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
-                {orders.slice(0, 4).map((order) => {
+                {filteredOrders.slice(0, 4).map((order) => {
                   return (
                     <div 
                       key={order.id}
@@ -398,6 +461,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
 
+          {/* Top Selling Products */}
+          <div className="bg-white p-6 rounded-2xl border border-zinc-200/50 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <h4 className="font-serif text-lg text-zinc-900 font-medium mb-4">
+              Top Sản Phẩm Bán Chạy
+            </h4>
+            <div className="space-y-4">
+              {topProducts.length > 0 ? topProducts.map((prod, idx) => (
+                <div key={idx} className="flex gap-3 text-left items-center">
+                  <div className="w-10 h-10 rounded-lg bg-zinc-100 overflow-hidden shrink-0 border border-zinc-200">
+                    <img src={prod.img} alt={prod.name} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-zinc-800 font-bold truncate">{prod.name}</p>
+                    <p className="text-[10px] text-zinc-500 font-mono mt-0.5">
+                      Đã bán: <span className="text-[#8c7623] font-bold">{prod.qty}</span>
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-xs font-mono font-bold text-zinc-900">{formatVND(prod.rev)}</p>
+                  </div>
+                </div>
+              )) : (
+                <div className="text-center text-zinc-400 text-xs py-4 italic">Không có dữ liệu</div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

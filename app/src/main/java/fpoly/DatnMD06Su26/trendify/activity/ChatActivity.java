@@ -42,7 +42,7 @@ public class ChatActivity extends AppCompatActivity {
     private ChatAdapter chatAdapter;
     private List<ChatMessage> messageList;
 
-    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + fpoly.DatnMD06Su26.trendify.BuildConfig.GEMINI_API_KEY;
+    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" + fpoly.DatnMD06Su26.trendify.BuildConfig.GEMINI_API_KEY;
     private OkHttpClient client;
     private Handler mainHandler;
     private String productContext = "Hiện tại cửa hàng chưa tải được danh mục sản phẩm.";

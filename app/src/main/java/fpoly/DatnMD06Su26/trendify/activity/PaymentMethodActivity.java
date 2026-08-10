@@ -18,7 +18,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class PaymentMethodActivity extends AppCompatActivity {
 
-    private View cardBankTransfer, cardCod;
+    private View cardBankTransfer, cardCod, cardTrendifyPay;
     private View selectedCard = null;
     private String shippingAddress;
     private String paymentMethod = "Chuyển khoản ngân hàng";
@@ -38,12 +38,14 @@ public class PaymentMethodActivity extends AppCompatActivity {
 
         cardBankTransfer = findViewById(R.id.layoutBankTransfer);
         cardCod    = findViewById(R.id.layoutCod);
+        cardTrendifyPay = findViewById(R.id.layoutTrendifyPay);
 
         // Mặc định chọn chuyển khoản ngân hàng
         selectCard(cardBankTransfer);
 
         cardBankTransfer.setOnClickListener(v -> selectCard(cardBankTransfer));
         cardCod.setOnClickListener(v -> selectCard(cardCod));
+        cardTrendifyPay.setOnClickListener(v -> selectCard(cardTrendifyPay));
 
         shippingAddress = getIntent().getStringExtra("shipping_address");
 
@@ -54,6 +56,9 @@ public class PaymentMethodActivity extends AppCompatActivity {
                 intent.putExtra("shipping_address", shippingAddress);
             }
             intent.putExtra("payment_method", paymentMethod);
+            if (getIntent().hasExtra("SELECTED_CART_ITEM_IDS")) {
+                intent.putStringArrayListExtra("SELECTED_CART_ITEM_IDS", getIntent().getStringArrayListExtra("SELECTED_CART_ITEM_IDS"));
+            }
             startActivity(intent);
         });
     }
@@ -62,6 +67,7 @@ public class PaymentMethodActivity extends AppCompatActivity {
         // Hide all checkmarks
         findViewById(R.id.checkBankTransfer).setVisibility(View.INVISIBLE);
         findViewById(R.id.checkCod).setVisibility(View.INVISIBLE);
+        findViewById(R.id.checkTrendifyPay).setVisibility(View.INVISIBLE);
         
         // Show checkmark for selected card
         if (card == cardBankTransfer) {
@@ -70,6 +76,9 @@ public class PaymentMethodActivity extends AppCompatActivity {
         } else if (card == cardCod) {
             findViewById(R.id.checkCod).setVisibility(View.VISIBLE);
             paymentMethod = "COD";
+        } else if (card == cardTrendifyPay) {
+            findViewById(R.id.checkTrendifyPay).setVisibility(View.VISIBLE);
+            paymentMethod = "Ví TrendifyPay";
         }
         selectedCard = card;
     }

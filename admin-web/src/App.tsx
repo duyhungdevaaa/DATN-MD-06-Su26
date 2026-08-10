@@ -20,7 +20,7 @@ import { VoucherFormView } from "./components/VoucherFormView";
 import { NotificationsView } from "./components/NotificationsView";
 import { BannersView } from "./components/BannersView";
 
-import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, onSnapshot, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, increment } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { db, storage, auth } from "./firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
@@ -152,12 +152,15 @@ export default function App() {
           status = OrderStatus.CANCELLED;
         } else if (data.status === "Trả hàng/Hoàn tiền" || data.status === "Tra hang/Hoan tien" || data.status === "Trả hàng/Hoàn đơn") {
           status = OrderStatus.REFUNDED;
+        } else if (data.status === "Đã hoàn tiền" || data.status === "Da hoan tien") {
+          status = OrderStatus.REFUND_COMPLETED;
         } else if (data.status === "Chờ thanh toán" || data.status === "Cho thanh toan" || data.status === "Chờ xác nhận" || data.status === "Cho xac nhan") {
           status = OrderStatus.AWAITING_PAYMENT;
         }
 
         return {
           id: docSnap.id,
+          userId: data.userId || "",
           customerName: data.userId || "Khách hàng",
           customerAvatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAx0BytEzbLFBt7DZ-Usl9CoGOMmn3pka2w2C-VaTEzI0u9G5YDjLKH_k2SYEizcrJHowoz_uvob6rCujIkBm9_Il0bgp1yWsoaeWPAScV_-Ve4nNiMP3Ks4da4iIFLajJ48jmLkQ9e7Q09fBtq_RV8F7IBg-n31usB1gHlqxvAjEvoo0W8IC-UryWomSVJnCF8gzH2YwPvFdL5KaagiWtrQXngCpio2zGNGMEmhNKbL4c20Wfnpaf950gD4wfxNynPvx13KwqQXiM",
           email: "",
@@ -172,14 +175,17 @@ export default function App() {
           date: createdDate.toLocaleDateString(),
           time: createdDate.toLocaleTimeString(),
           items: data.items || [],
+          timestamp: createdDate.getTime(), // Added for sorting
           timeline: {
             confirmed: { active: true, time: createdDate.toLocaleString() },
             packing: { active: status !== OrderStatus.AWAITING_PAYMENT && status !== OrderStatus.CANCELLED, time: "" },
             shipping: { active: status === OrderStatus.SHIPPING || status === OrderStatus.DELIVERED || status === OrderStatus.REFUNDED, time: "" },
             delivered: { active: status === OrderStatus.DELIVERED || status === OrderStatus.REFUNDED, time: "" }
           }
-        };
+        } as Order & { timestamp: number };
       });
+      // Sort orders from newest to oldest based on raw timestamp
+      loadedOrders.sort((a: any, b: any) => b.timestamp - a.timestamp);
       setOrders(loadedOrders);
     });
 
@@ -404,6 +410,33 @@ export default function App() {
     }
   };
 
+  const handleApproveRefund = async (orderId: string) => {
+    try {
+      const orderRef = doc(db, "orders", orderId);
+      const orderSnap = await getDoc(orderRef);
+      if (orderSnap.exists()) {
+        const orderData = orderSnap.data();
+        const refundAmount = orderData.returnRefundAmount || 0;
+        const userId = orderData.userId;
+        
+        if (userId && refundAmount > 0) {
+          const userRef = doc(db, "users", userId);
+          // Increment wallet balance
+          await updateDoc(userRef, {
+            walletBalance: increment(refundAmount)
+          });
+        }
+        
+        await updateDoc(orderRef, { status: "Đã hoàn tiền" });
+        if (selectedOrder && selectedOrder.id === orderId) {
+          setSelectedOrder({ ...selectedOrder, status: OrderStatus.REFUND_COMPLETED });
+        }
+      }
+    } catch (e) {
+      console.error("Error approving refund:", e);
+    }
+  };
+
   // Switch workspace layout context dynamically
   const renderActiveView = () => {
     switch (activeTab) {
@@ -491,10 +524,11 @@ export default function App() {
           const resolvedSelectedOrder = resolvedOrders.find(o => o.id === selectedOrder.id) || selectedOrder;
           return (
             <OrderDetailView
-              order={resolvedSelectedOrder}
-              onUpdateOrderStatus={handleUpdateOrderStatus}
-              onCancel={() => setSelectedOrder(null)}
-            />
+            order={selectedOrder}
+            onUpdateOrderStatus={handleUpdateOrderStatus}
+            onCancel={() => setSelectedOrder(null)}
+            onApproveRefund={handleApproveRefund}
+          />
           );
         }
         return (

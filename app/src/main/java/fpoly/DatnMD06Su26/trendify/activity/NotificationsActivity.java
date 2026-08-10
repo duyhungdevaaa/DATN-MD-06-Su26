@@ -67,7 +67,13 @@ public class NotificationsActivity extends AppCompatActivity {
                     }
                     if (value != null) {
                         notificationsList.clear();
-                        notificationsList.addAll(value.getDocuments());
+                        String currentUid = fpoly.DatnMD06Su26.trendify.SessionManager.getInstance().getUserId();
+                        for (DocumentSnapshot doc : value.getDocuments()) {
+                            String targetUid = doc.getString("userId");
+                            if (targetUid == null || targetUid.isEmpty() || targetUid.equals("global") || targetUid.equals(currentUid)) {
+                                notificationsList.add(doc);
+                            }
+                        }
                         adapter.notifyDataSetChanged();
 
                         if (notificationsList.isEmpty()) {
