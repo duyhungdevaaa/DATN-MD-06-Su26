@@ -43,6 +43,7 @@ public class ProfileFragment extends Fragment {
     private LinearLayout llLogout;
     private TextView tvUserName;
     private TextView tvUserEmail;
+    private ImageView ivUserAvatar;
     private UserProfile currentProfile;
 
     @Nullable
@@ -76,8 +77,47 @@ public class ProfileFragment extends Fragment {
             llMyOrders.setOnClickListener(v -> handleMyOrders());
         }
 
-        loadUserProfile();
+        LinearLayout llWaitingConfirm = view.findViewById(R.id.llWaitingConfirm);
+        LinearLayout llWaitingPickup = view.findViewById(R.id.llWaitingPickup);
+        LinearLayout llShipping = view.findViewById(R.id.llShipping);
+        LinearLayout llRate = view.findViewById(R.id.llRate);
+
+        if (llWaitingConfirm != null) {
+            llWaitingConfirm.setOnClickListener(v -> openOrderHistoryWithFilter("CHO_XAC_NHAN"));
+        }
+        if (llWaitingPickup != null) {
+            llWaitingPickup.setOnClickListener(v -> openOrderHistoryWithFilter("CHO_LAY_HANG"));
+        }
+        if (llShipping != null) {
+            llShipping.setOnClickListener(v -> openOrderHistoryWithFilter("DANG_GIAO"));
+        }
+        if (llRate != null) {
+            llRate.setOnClickListener(v -> openPlayStoreForRating());
+        }
+
+        ivUserAvatar = view.findViewById(R.id.ivUserAvatar);
+
         return view;
+    }
+
+    private void openPlayStoreForRating() {
+        if (getContext() == null) return;
+        String packageName = getContext().getPackageName();
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=" + packageName));
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (android.content.ActivityNotFoundException e) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://play.google.com/store/apps/details?id=" + packageName));
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
+    }
+
+    private void openOrderHistoryWithFilter(String statusFilter) {
+        Intent intent = new Intent(getContext(), OrderHistoryActivity.class);
+        intent.putExtra("ORDER_STATUS_FILTER", statusFilter);
+        startActivity(intent);
     }
 
     private void loadUserProfile() {
@@ -92,6 +132,19 @@ public class ProfileFragment extends Fragment {
                 currentProfile = profile;
                 if (tvUserName != null) tvUserName.setText(profile.getFullName());
                 // if (tvUserEmail != null) tvUserEmail.setText(profile.getEmail());
+                
+                if (ivUserAvatar != null) {
+                    String avatar = profile.getAvatar();
+                    if (avatar != null && !avatar.isEmpty()) {
+                        com.bumptech.glide.Glide.with(ProfileFragment.this)
+                                .load(avatar)
+                                .placeholder(R.drawable.ic_person)
+                                .error(R.drawable.ic_person)
+                                .into(ivUserAvatar);
+                    } else {
+                        ivUserAvatar.setImageResource(R.drawable.ic_person);
+                    }
+                }
             }
 
             @Override
@@ -101,6 +154,9 @@ public class ProfileFragment extends Fragment {
                 currentProfile = new UserProfile(SessionManager.getInstance().getUserId(), displayName, email, "", null);
                 if (tvUserName != null) tvUserName.setText(displayName);
                 // if (tvUserEmail != null) tvUserEmail.setText(email);
+                if (ivUserAvatar != null) {
+                    showAvatarPlaceholder();
+                }
                 Toast.makeText(getContext(), "Không thể tải hồ sơ: " + error, Toast.LENGTH_SHORT).show();
             }
         });
@@ -207,8 +263,25 @@ public class ProfileFragment extends Fragment {
         startActivity(intent);
     }
 
+    private void showAvatarPlaceholder() {
+        if (ivUserAvatar == null) return;
+        // Convert 12dp to px correctly
+        int pad = (int) (12 * getResources().getDisplayMetrics().density);
+        ivUserAvatar.setImageResource(R.drawable.ic_person);
+        ivUserAvatar.setPadding(pad, pad, pad, pad);
+        ivUserAvatar.setColorFilter(android.graphics.Color.parseColor("#BDBDBD"),
+                android.graphics.PorterDuff.Mode.SRC_IN);
+    }
+
     private void showLoggedOutState() {
         if (tvUserName != null) tvUserName.setText("Chưa đăng nhập");
         // if (tvUserEmail != null) tvUserEmail.setText("");
+        showAvatarPlaceholder();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadUserProfile();
     }
 }
