@@ -15,6 +15,7 @@ public class UserProfile {
     private String fullName;
     private String email;
     private String phone;
+    private String avatar = "";
     private Timestamp createdAt;
 
     public UserProfile() {
@@ -66,5 +67,13 @@ public class UserProfile {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }
