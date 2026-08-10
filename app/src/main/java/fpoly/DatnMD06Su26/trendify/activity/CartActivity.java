@@ -50,17 +50,40 @@ public class CartActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
 
         adapter = new CartAdapter(cartManager);
+        adapter.setSelectionListener(() -> updateTotal(adapter.getItems()));
         rvCartItems.setLayoutManager(new LinearLayoutManager(this));
         rvCartItems.setAdapter(adapter);
 
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
+
+        View btnShopNow = findViewById(R.id.btnShopNow);
+        if (btnShopNow != null) {
+            btnShopNow.setOnClickListener(v -> {
+                Intent intent = new Intent(CartActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            });
+        }
 
         findViewById(R.id.btnCheckout).setOnClickListener(v -> {
             if (adapter.getItemCount() == 0) {
                 Toast.makeText(this, "Giỏ hàng đang trống", Toast.LENGTH_SHORT).show();
                 return;
             }
-            startActivity(new Intent(this, ShippingAddressActivity.class));
+            java.util.ArrayList<String> selectedCartItemIds = new java.util.ArrayList<>();
+            for (CartItem item : adapter.getItems()) {
+                if (item.isSelected()) {
+                    selectedCartItemIds.add(item.getCartItemId());
+                }
+            }
+            if (selectedCartItemIds.isEmpty()) {
+                Toast.makeText(this, "Vui lòng chọn ít nhất 1 sản phẩm", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent intent = new Intent(this, ShippingAddressActivity.class);
+            intent.putStringArrayListExtra("SELECTED_CART_ITEM_IDS", selectedCartItemIds);
+            startActivity(intent);
         });
 
         loadCart();
@@ -87,7 +110,11 @@ public class CartActivity extends AppCompatActivity {
 
     private void updateTotal(List<CartItem> items) {
         long total = 0;
-        for (CartItem item : items) total += item.getPriceAsLong() * item.getQuantity();
+        for (CartItem item : items) {
+            if (item.isSelected()) {
+                total += item.getPriceAsLong() * item.getQuantity();
+            }
+        }
         if (tvTotal != null) {
             tvTotal.setText(String.format("%,dđ", total).replace(",", "."));
         }

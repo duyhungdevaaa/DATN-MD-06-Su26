@@ -16,6 +16,7 @@ public class UserProfile {
     private String email;
     private String phone;
     private String avatar = "";
+    private long walletBalance = 0;
     private Timestamp createdAt;
 
     public UserProfile() {
@@ -75,5 +76,13 @@ public class UserProfile {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public long getWalletBalance() {
+        return walletBalance;
+    }
+
+    public void setWalletBalance(long walletBalance) {
+        this.walletBalance = walletBalance;
     }
 }

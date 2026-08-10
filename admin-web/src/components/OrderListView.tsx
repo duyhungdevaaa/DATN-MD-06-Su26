@@ -49,12 +49,16 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
 
   const getStatusBadgeClass = (status: OrderStatus) => {
     switch (status) {
-      case OrderStatus.PENDING:
+      case OrderStatus.PROCESSING:
         return "bg-amber-50 text-amber-700 border-amber-200/50";
       case OrderStatus.SHIPPING:
         return "bg-sky-50 text-sky-700 border-sky-200/50";
       case OrderStatus.DELIVERED:
         return "bg-green-50 text-green-700 border-green-200/50";
+      case OrderStatus.REFUNDED:
+        return "bg-rose-50 text-rose-700 border-rose-200/50";
+      case OrderStatus.REFUND_COMPLETED:
+        return "bg-emerald-50 text-emerald-700 border-emerald-200/50";
       default:
         return "bg-neutral-100 text-neutral-500 border-neutral-200";
     }
@@ -81,7 +85,7 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
             className="bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs focus:ring-4 focus:ring-[#8c7623]/10 focus:border-[#8c7623] focus:outline-none focus:bg-white font-sans text-zinc-700 font-bold"
           >
             <option value="All">Tất cả vận đơn</option>
-            <option value={OrderStatus.PENDING}>Đang xử lý ({orders.filter(o => o.status === OrderStatus.PENDING).length})</option>
+            <option value={OrderStatus.PROCESSING}>Đang xử lý ({orders.filter(o => o.status === OrderStatus.PROCESSING).length})</option>
             <option value={OrderStatus.SHIPPING}>Đang giao ({orders.filter(o => o.status === OrderStatus.SHIPPING).length})</option>
             <option value={OrderStatus.DELIVERED}>Đã hoàn thành ({orders.filter(o => o.status === OrderStatus.DELIVERED).length})</option>
             <option value={OrderStatus.CANCELLED}>Đã hủy ({orders.filter(o => o.status === OrderStatus.CANCELLED).length})</option>
@@ -203,6 +207,8 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
                             ? "bg-emerald-50 text-emerald-700 border-emerald-100"
                             : order.status === OrderStatus.REFUNDED
                             ? "bg-rose-50 text-rose-700 border-rose-100"
+                            : order.status === OrderStatus.REFUND_COMPLETED
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-100"
                             : "bg-red-50 text-red-700 border-red-100" // Cancelled
                         }`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${
