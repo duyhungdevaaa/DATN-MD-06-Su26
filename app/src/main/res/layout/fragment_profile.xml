@@ -185,13 +185,11 @@
 
                 <!-- Chờ xác nhận -->
                 <LinearLayout
-                    android:id="@+id/llWaitingConfirm"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:orientation="vertical"
-                    android:background="?android:attr/selectableItemBackground">
+                    android:orientation="vertical">
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
@@ -208,13 +206,11 @@
 
                 <!-- Chờ lấy hàng -->
                 <LinearLayout
-                    android:id="@+id/llWaitingPickup"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:orientation="vertical"
-                    android:background="?android:attr/selectableItemBackground">
+                    android:orientation="vertical">
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
@@ -231,13 +227,11 @@
 
                 <!-- Đang giao -->
                 <LinearLayout
-                    android:id="@+id/llShipping"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:orientation="vertical"
-                    android:background="?android:attr/selectableItemBackground">
+                    android:orientation="vertical">
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
@@ -254,13 +248,11 @@
 
                 <!-- Đánh giá -->
                 <LinearLayout
-                    android:id="@+id/llRate"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:orientation="vertical"
-                    android:background="?android:attr/selectableItemBackground">
+                    android:orientation="vertical">
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"

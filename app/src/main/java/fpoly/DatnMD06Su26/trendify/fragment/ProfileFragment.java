@@ -76,46 +76,8 @@ public class ProfileFragment extends Fragment {
             llMyOrders.setOnClickListener(v -> handleMyOrders());
         }
 
-        LinearLayout llWaitingConfirm = view.findViewById(R.id.llWaitingConfirm);
-        LinearLayout llWaitingPickup = view.findViewById(R.id.llWaitingPickup);
-        LinearLayout llShipping = view.findViewById(R.id.llShipping);
-        LinearLayout llRate = view.findViewById(R.id.llRate);
-
-        if (llWaitingConfirm != null) {
-            llWaitingConfirm.setOnClickListener(v -> openOrderHistoryWithFilter("CHO_XAC_NHAN"));
-        }
-        if (llWaitingPickup != null) {
-            llWaitingPickup.setOnClickListener(v -> openOrderHistoryWithFilter("CHO_LAY_HANG"));
-        }
-        if (llShipping != null) {
-            llShipping.setOnClickListener(v -> openOrderHistoryWithFilter("DANG_GIAO"));
-        }
-        if (llRate != null) {
-            llRate.setOnClickListener(v -> openPlayStoreForRating());
-        }
-
         loadUserProfile();
         return view;
-    }
-
-    private void openPlayStoreForRating() {
-        if (getContext() == null) return;
-        String packageName = getContext().getPackageName();
-        try {
-            Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=" + packageName));
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        } catch (android.content.ActivityNotFoundException e) {
-            Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://play.google.com/store/apps/details?id=" + packageName));
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        }
-    }
-
-    private void openOrderHistoryWithFilter(String statusFilter) {
-        Intent intent = new Intent(getContext(), OrderHistoryActivity.class);
-        intent.putExtra("ORDER_STATUS_FILTER", statusFilter);
-        startActivity(intent);
     }
 
     private void loadUserProfile() {

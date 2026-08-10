@@ -32,7 +32,8 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_notifications"
-                android:padding="12dp" />
+                android:padding="12dp"
+                app:tint="@color/black" />
         </androidx.cardview.widget.CardView>
 
         <!-- Title -->
