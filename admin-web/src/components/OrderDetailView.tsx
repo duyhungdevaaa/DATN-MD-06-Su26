@@ -408,7 +408,9 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
                 <span className="w-4 text-zinc-400 shrink-0 font-bold text-center">☎</span>
                 <div>
                   <p className="font-bold text-zinc-700">Số điện thoại liên hệ</p>
-                  <p className="text-zinc-500 mt-0.5 font-medium">{order.phone}</p>
+                  <p className="text-zinc-600 mt-0.5 font-semibold font-mono">
+                    {order.phone && order.phone.trim() ? order.phone.trim() : <span className="text-rose-500 italic font-sans font-medium">Chưa có SĐT</span>}
+                  </p>
                 </div>
               </div>
             </div>
@@ -419,15 +421,16 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
             <div className="flex items-center gap-2 border-b border-zinc-100 pb-4">
               <CreditCard className="h-4.5 w-4.5 text-[#8c7623]" />
               <h4 className="font-serif text-base text-zinc-950 font-bold">
-                Cổng thanh toán điện tử
+                Phương thức thanh toán
               </h4>
             </div>
 
             <div className="space-y-2.5 text-xs font-sans text-zinc-500 font-semibold">
               <div className="flex justify-between">
                 <span>Phương thức:</span>
-                <strong className="text-zinc-850 font-bold">{order.paymentMethod}</strong>
+                <strong className="text-zinc-850 font-bold">{order.paymentMethod || "COD (Thanh toán khi nhận hàng)"}</strong>
               </div>
+
               <div className="flex justify-between mt-1.5 pt-1.5 border-t border-zinc-100">
                 <span className="text-rose-500 font-bold">Tiền thu hộ (COD):</span>
                 <strong className="text-rose-600 font-bold text-sm">

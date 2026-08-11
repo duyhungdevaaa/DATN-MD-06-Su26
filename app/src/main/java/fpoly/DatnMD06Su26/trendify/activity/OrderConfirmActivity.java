@@ -547,9 +547,47 @@ public class OrderConfirmActivity extends AppCompatActivity {
             total = 0;
         }
 
+        String rawShippingAddress = getIntent().getStringExtra("shipping_address");
+        String customerName = "Khách hàng";
+        String phone = "";
+        String cleanAddress = rawShippingAddress != null ? rawShippingAddress : "";
+
+        if (rawShippingAddress != null && rawShippingAddress.contains("|||")) {
+            String[] parts = rawShippingAddress.split("\\|\\|\\|");
+            if (parts.length >= 4) {
+                cleanAddress = parts[3];
+            }
+        }
+
+        if (cleanAddress != null && cleanAddress.contains(" - ")) {
+            try {
+                int dashIdx = cleanAddress.indexOf(" - ");
+                String namePart = cleanAddress.substring(0, dashIdx);
+                if (namePart.contains(": ")) {
+                    customerName = namePart.substring(namePart.indexOf(": ") + 2).trim();
+                } else {
+                    customerName = namePart.trim();
+                }
+                int newlineIdx = cleanAddress.indexOf("\n", dashIdx);
+                if (newlineIdx > dashIdx) {
+                    phone = cleanAddress.substring(dashIdx + 3, newlineIdx).trim();
+                }
+            } catch (Exception e) {}
+        }
+
+        String finalPaymentMethod = paymentMethod;
+        long grandTotalNeeded = subtotal + shippingFee - appliedDiscount;
+        if (walletAmountUsed > 0 && walletAmountUsed >= grandTotalNeeded) {
+            finalPaymentMethod = "Ví TrendifyPay";
+        }
+
         Map<String, Object> order = new HashMap<>();
         order.put("orderId", orderId);
         order.put("userId", uid);
+        order.put("customerName", customerName);
+        order.put("phone", phone);
+        order.put("address", cleanAddress);
+        order.put("shippingAddress", cleanAddress);
         order.put("date", date);
         order.put("createdAt", Timestamp.now());
         order.put("status", "Chờ xác nhận");
@@ -559,17 +597,14 @@ public class OrderConfirmActivity extends AppCompatActivity {
         order.put("walletAmountUsed", walletAmountUsed);
         order.put("originalTotal", originalTotal);
         order.put("total", total);
-        order.put("paymentMethod", paymentMethod);
+        order.put("paymentMethod", finalPaymentMethod);
         if (appliedVoucher != null) {
             order.put("voucherId", appliedVoucher.getVoucherId());
             order.put("voucherCode", appliedVoucher.getCode());
             order.put("discountRate", appliedVoucher.getDiscountRate());
         }
-        String shippingAddress = getIntent().getStringExtra("shipping_address");
-        if (shippingAddress != null && !shippingAddress.isEmpty()) {
-            order.put("shippingAddress", shippingAddress);
-        }
-        order.put("items", items); // Firestore tự serialize list
+        order.put("items", items);
+
 
         FirebaseFirestore.getInstance()
                 .collection("orders")

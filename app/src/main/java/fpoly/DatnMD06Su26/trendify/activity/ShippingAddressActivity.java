@@ -71,6 +71,10 @@ public class ShippingAddressActivity extends AppCompatActivity {
                 showMessage("Vui lòng chọn địa chỉ giao hàng");
                 return;
             }
+            if (selectedAddress.getPhone() == null || selectedAddress.getPhone().trim().isEmpty()) {
+                showMessage("Bắt buộc phải có Số Điện Thoại mới được đặt hàng! Vui lòng cập nhật địa chỉ.");
+                return;
+            }
             Intent intent = new Intent(this, PaymentMethodActivity.class);
             intent.putExtra("shipping_address", buildAddressSummary(selectedAddress));
             if (getIntent().hasExtra("SELECTED_CART_ITEM_IDS")) {
@@ -78,6 +82,7 @@ public class ShippingAddressActivity extends AppCompatActivity {
             }
             startActivity(intent);
         });
+
     }
 
     private void loadAddresses() {
