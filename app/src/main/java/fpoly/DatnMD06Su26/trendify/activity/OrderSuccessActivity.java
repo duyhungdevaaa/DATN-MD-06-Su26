@@ -81,49 +81,28 @@ public class OrderSuccessActivity extends AppCompatActivity {
         TextView tvAddressCity = findViewById(R.id.tvAddressCity);
 
         String shippingAddress = getIntent().getStringExtra("shipping_address");
-        if (shippingAddress != null && shippingAddress.contains("|||")) {
-            String[] parts = shippingAddress.split("\\|\\|\\|");
-            if (parts.length >= 4) {
-                String fullAddress = parts[3];
-                if (fullAddress.contains(" - ")) {
-                    int dashIndex = fullAddress.indexOf(" - ");
-                    String recipient = fullAddress.substring(0, dashIndex).trim();
-                    String rest = fullAddress.substring(dashIndex + 3).trim();
+        if (shippingAddress != null) {
+            if (shippingAddress.contains(" - ") && shippingAddress.contains("\n")) {
+                int dashIndex = shippingAddress.indexOf(" - ");
+                int newlineIndex = shippingAddress.indexOf("\n", dashIndex);
+                if (dashIndex > 0 && newlineIndex > dashIndex) {
+                    String name = shippingAddress.substring(0, dashIndex).trim();
+                    if (name.startsWith("Khách hàng:")) name = name.replace("Khách hàng:", "").trim();
+                    String phone = shippingAddress.substring(dashIndex + 3, newlineIndex).trim();
+                    String addr = shippingAddress.substring(newlineIndex + 1).trim();
                     
-                    if (tvRecipientName != null) {
-                        tvRecipientName.setText(recipient);
-                    }
-                    
-                    if (rest.contains(", ")) {
-                        int commaIndex = rest.indexOf(", ");
-                        String phone = rest.substring(0, commaIndex).trim();
-                        String addressParts = rest.substring(commaIndex + 2).trim();
-                        
-                        if (tvAddressDetail != null) {
-                            tvAddressDetail.setText(addressParts);
-                        }
-                        if (tvAddressCity != null) {
-                            tvAddressCity.setText("SĐT: " + phone);
-                        }
-                    } else {
-                        if (tvAddressDetail != null) {
-                            tvAddressDetail.setText(rest);
-                        }
-                        if (tvAddressCity != null) {
-                            tvAddressCity.setVisibility(android.view.View.GONE);
-                        }
-                    }
+                    if (tvRecipientName != null) tvRecipientName.setText(name);
+                    if (tvAddressCity != null) tvAddressCity.setText("SĐT: " + phone);
+                    if (tvAddressDetail != null) tvAddressDetail.setText(addr);
                 } else {
-                    if (tvRecipientName != null) {
-                        tvRecipientName.setText("Người nhận");
-                    }
-                    if (tvAddressDetail != null) {
-                        tvAddressDetail.setText(fullAddress);
-                    }
-                    if (tvAddressCity != null) {
-                        tvAddressCity.setVisibility(android.view.View.GONE);
-                    }
+                    if (tvRecipientName != null) tvRecipientName.setText("Khách hàng");
+                    if (tvAddressCity != null) tvAddressCity.setVisibility(android.view.View.GONE);
+                    if (tvAddressDetail != null) tvAddressDetail.setText(shippingAddress);
                 }
+            } else {
+                if (tvRecipientName != null) tvRecipientName.setText("Khách hàng");
+                if (tvAddressCity != null) tvAddressCity.setVisibility(android.view.View.GONE);
+                if (tvAddressDetail != null) tvAddressDetail.setText(shippingAddress);
             }
         }
 

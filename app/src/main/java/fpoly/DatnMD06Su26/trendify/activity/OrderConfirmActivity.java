@@ -605,7 +605,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
         }
         order.put("items", items);
 
-
+        final String finalAddress = cleanAddress;
         FirebaseFirestore.getInstance()
                 .collection("orders")
                 .document(orderId)
@@ -622,7 +622,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
                             if (progressBar != null) progressBar.setVisibility(View.GONE);
                             Intent intent = new Intent(OrderConfirmActivity.this, OrderSuccessActivity.class);
                             intent.putExtra("order_id", orderId);
-                            intent.putExtra("shipping_address", shippingAddress);
+                            intent.putExtra("shipping_address", finalAddress);
                             intent.putExtra("payment_method", paymentMethod);
                             startActivity(intent);
                             finish();
@@ -632,7 +632,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
                             if (progressBar != null) progressBar.setVisibility(View.GONE);
                             Intent intent = new Intent(OrderConfirmActivity.this, OrderSuccessActivity.class);
                             intent.putExtra("order_id", orderId);
-                            intent.putExtra("shipping_address", shippingAddress);
+                            intent.putExtra("shipping_address", finalAddress);
                             intent.putExtra("payment_method", paymentMethod);
                             startActivity(intent);
                             finish();
