@@ -206,9 +206,9 @@ export default function App() {
           const createdDate = data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date();
           
           let status = OrderStatus.AWAITING_PAYMENT;
-          if (data.status === "Đã giao" || data.status === "Da giao") {
+          if (data.status === "Đã giao" || data.status === "Da giao" || data.status === "Đã giao hàng") {
             status = OrderStatus.DELIVERED;
-          } else if (data.status === "Đang vận chuyển" || data.status === "Dang van chuyen") {
+          } else if (data.status === "Đang vận chuyển" || data.status === "Dang van chuyen" || data.status === "Đang giao hàng") {
             status = OrderStatus.SHIPPING;
           } else if (data.status === "Đang xử lý" || data.status === "Dang xu ly") {
             status = OrderStatus.PROCESSING;
@@ -442,6 +442,58 @@ export default function App() {
   // --- Order Operations ---
   const handleUpdateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
     try {
+      const orderRef = doc(db, "orders", orderId);
+      const orderSnap = await getDoc(orderRef);
+      if (orderSnap.exists()) {
+        const orderData = orderSnap.data();
+
+        // 1. Nếu hủy đơn hàng, thực hiện hoàn tiền và hoàn kho
+        if (newStatus === OrderStatus.CANCELLED && orderData.status !== OrderStatus.CANCELLED) {
+          const paymentMethod = orderData.paymentMethod || "COD";
+          const total = parseInt(orderData.total || 0, 10);
+          const walletAmountUsed = orderData.walletAmountUsed || 0;
+          let amountToRefund = 0;
+
+          if (paymentMethod !== "COD") {
+            amountToRefund = total + walletAmountUsed;
+          } else {
+            amountToRefund = walletAmountUsed;
+          }
+
+          if (amountToRefund > 0 && orderData.userId) {
+            const userRef = doc(db, "users", orderData.userId);
+            await updateDoc(userRef, {
+              walletBalance: increment(amountToRefund)
+            });
+
+            await addDoc(collection(db, "transactions"), {
+              userId: orderData.userId,
+              amount: amountToRefund,
+              type: "REFUND",
+              description: "Hoàn tiền tự động do hủy đơn hàng " + orderId,
+              timestamp: new Date().toISOString()
+            });
+          }
+
+          const items = orderData.items || [];
+          for (const item of items) {
+            const productId = item.productId || item.cartItemId;
+            let quantity = 0;
+            if (typeof item.quantity === 'string') {
+                try { quantity = parseInt(item.quantity, 10); } catch(e) {}
+            } else {
+                quantity = item.quantity || 0;
+            }
+            if (productId && quantity > 0) {
+              const productRef = doc(db, "products", productId);
+              await updateDoc(productRef, {
+                stock: increment(quantity)
+              });
+            }
+          }
+        }
+      }
+
       await updateDoc(doc(db, "orders", orderId), { status: newStatus });
       
       // Update selected order view dynamically
