@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "488916869224-3ptihtgs6regvinbie6g2encr3deknm6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "fpoly.DatnMD06Su26.trendify",
+            "certificate_hash": "c30dc52833ac73b27ca866e968b49b9d3cac5db6"
+          }
+        },
+        {
+          "client_id": "488916869224-5ffknv8v1vtnquhr79pj8atvuato0bni.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "fpoly.DatnMD06Su26.trendify",
+            "certificate_hash": "b6572c099cd0c63eb713948c1bae01f427c8ccc8"
+          }
+        },
+        {
           "client_id": "488916869224-8n9em22igjvg79a7eju85slprhnbne1g.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -28,6 +44,14 @@
           "android_info": {
             "package_name": "fpoly.DatnMD06Su26.trendify",
             "certificate_hash": "323a0fdc69bff8a107d42c3f2b7f30c63f0481d0"
+          }
+        },
+        {
+          "client_id": "488916869224-p357c3ge44abm8i4o9hcb084p0q1hk3h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "fpoly.DatnMD06Su26.trendify",
+            "certificate_hash": "8b3a990c1e83fc2901bcadfd548814ff9b68534c"
           }
         },
         {
