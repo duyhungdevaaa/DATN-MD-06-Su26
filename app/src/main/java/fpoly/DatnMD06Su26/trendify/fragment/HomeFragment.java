@@ -121,31 +121,7 @@ public class HomeFragment extends Fragment {
             });
         }
 
-        // Flash Sale Timer Logic
-        TextView tvTimerHours = view.findViewById(R.id.tvTimerHours);
-        TextView tvTimerMinutes = view.findViewById(R.id.tvTimerMinutes);
-        TextView tvTimerSeconds = view.findViewById(R.id.tvTimerSeconds);
-        
-        if (tvTimerHours != null && tvTimerMinutes != null && tvTimerSeconds != null) {
-            // Start a 2 hour, 45 minute, 13 second countdown
-            long flashSaleTimeMillis = (2 * 3600 + 45 * 60 + 13) * 1000L;
-            new android.os.CountDownTimer(flashSaleTimeMillis, 1000) {
-                public void onTick(long millisUntilFinished) {
-                    long hours = (millisUntilFinished / (1000 * 60 * 60)) % 24;
-                    long minutes = (millisUntilFinished / (1000 * 60)) % 60;
-                    long seconds = (millisUntilFinished / 1000) % 60;
-                    
-                    tvTimerHours.setText(String.format("%02d", hours));
-                    tvTimerMinutes.setText(String.format("%02d", minutes));
-                    tvTimerSeconds.setText(String.format("%02d", seconds));
-                }
-                public void onFinish() {
-                    tvTimerHours.setText("00");
-                    tvTimerMinutes.setText("00");
-                    tvTimerSeconds.setText("00");
-                }
-            }.start();
-        }
+
 
         loadCategories();
         loadFavoriteIds();
