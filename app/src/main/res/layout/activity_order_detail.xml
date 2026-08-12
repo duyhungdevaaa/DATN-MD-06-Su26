@@ -65,7 +65,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/divider"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/llBottomActions"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -232,6 +232,15 @@
                         android:textSize="14sp"
                         android:textColor="@color/color_text_secondary"
                         android:layout_marginTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvPaymentStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Trạng thái thanh toán"
+                        android:textSize="14sp"
+                        android:textColor="@color/color_text_secondary"
+                        android:layout_marginTop="4dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -379,5 +388,44 @@
 
         </LinearLayout>
     </ScrollView>
+
+    <!-- Bottom Button Area (Shopee style) -->
+    <LinearLayout
+        android:id="@+id/llBottomActions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="8dp"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="end"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReturnRefund"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Yêu cầu Trả hàng/Hoàn tiền"
+            android:textColor="#EE4D2D"
+            app:strokeColor="#EE4D2D"
+            app:rippleColor="#20EE4D2D"
+            android:textSize="13sp"
+            android:textAllCaps="false"
+            android:layout_marginEnd="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmReceived"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#EE4D2D"
+            android:text="Đã nhận được hàng"
+            android:textColor="@android:color/white"
+            android:textSize="13sp"
+            android:textAllCaps="false" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

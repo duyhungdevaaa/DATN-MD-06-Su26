@@ -20,23 +20,16 @@ import { VoucherFormView } from "./components/VoucherFormView";
 import { NotificationsView } from "./components/NotificationsView";
 import { BannersView } from "./components/BannersView";
 
-import { collection, onSnapshot, doc, setDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, onSnapshot, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, increment } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { db, storage, auth } from "./firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import { LoginView } from "./components/LoginView";
 
+import { parseRawAddress, fetchGHNDistricts, fetchGHNWards } from "./utils/ghn";
+
 // Fallback mock users since original Firebase did not have a dedicated users collection
-const DEFAULT_USERS: User[] = [
-  {
-    id: "TRND-8291",
-    name: "Lê Minh Anh",
-    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuB1clbHOyNnTR6QDB36NmyYLKJrqsWG5-dw9EtcvafNBF-j3DmpziQAIZfwfX_jLbzC170zrvqvrK1V3Umb4rcu-tYXHCaVv7OvuCTzN8K8FVaSSoUlypyLBIsbLTrBMh72KDhnnwmFExWy9k35ioRh471TNGqYpx-oK8qd8o0GHgjNRdUaoRvCEa0hXHK4fbkHm81RR5BpFuxOi8_cFCINEXaDG5YQb1FLGF2z3G-F2etHiWFVrdmfQF0B8u42f3Tg3hpEMXYZh0A",
-    tier: UserTier.GOLD,
-    email: "minhanh.le@example.com",
-    joinedDate: "12/10/2023"
-  }
-];
+const DEFAULT_USERS: User[] = [];
 
 export default function App() {
   const [authUser, setAuthUser] = useState<FirebaseUser | null>(null);
@@ -50,7 +43,7 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [users, setUsers] = useState<User[]>(DEFAULT_USERS); // Mocked for now
+  const [users, setUsers] = useState<User[]>(DEFAULT_USERS);
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
 
   // Focus and Active detail states
@@ -64,20 +57,69 @@ export default function App() {
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [isAddingVoucher, setIsAddingVoucher] = useState(false);
 
-  // Dynamically resolve customer details for orders using loaded users database
+  useEffect(() => {
+    fetchGHNDistricts();
+  }, []);
+
+  // Dynamically resolve customer details & parse raw GHN addresses for orders
   const resolvedOrders = React.useMemo(() => {
     return orders.map(order => {
-      // Find the user whose ID matches the order's customerName (which holds the raw userId UID)
-      const user = users.find(u => u.id === order.customerName);
+      const parsed = parseRawAddress(order.address);
+      if (parsed.districtId) {
+        fetchGHNWards(parsed.districtId);
+      }
+      
+      const user = users.find(u => u.id === order.userId || u.id === order.customerName || (order.email && u.email === order.email));
+      
+      let realPhone = "";
+      if (parsed.extractedPhone && !parsed.extractedPhone.includes("x")) {
+        realPhone = parsed.extractedPhone;
+      } else if (order.phone && !order.phone.includes("x")) {
+        realPhone = order.phone;
+      } else if (user?.phone && !user.phone.includes("x")) {
+        realPhone = user.phone;
+      } else {
+        realPhone = "Chưa có SĐT";
+      }
+
+      let realName = order.customerName;
+      if (user && user.name && !user.name.startsWith("ORD-")) {
+        realName = user.name;
+      } else if (parsed.extractedName) {
+        realName = parsed.extractedName;
+      }
+
       return {
         ...order,
-        customerName: user ? user.name : order.customerName,
+        customerName: realName,
         customerAvatar: user ? user.avatar : order.customerAvatar,
         email: user ? user.email : order.email,
-        phone: user?.phone || order.phone || "09x-xxxx-xxx"
+        phone: realPhone,
+        address: parsed.cleanAddress
       };
     });
   }, [orders, users]);
+
+  // Dynamically resolve product count for categories
+  const resolvedCategories = React.useMemo(() => {
+    return categories.map(cat => {
+      const count = products.filter(p => {
+        const pCat = (p.categoryName || "").toLowerCase().trim();
+        const cId = (cat.id || "").toLowerCase().trim();
+        const cName = (cat.name || "").toLowerCase().trim();
+        const cSlug = (cat.slug || "").toLowerCase().trim();
+        return pCat === cId || pCat === cName || pCat === cSlug;
+      }).length;
+
+      return {
+        ...cat,
+        productCount: count
+      };
+    });
+  }, [categories, products]);
+
+
+
 
   // Authentication listener
   useEffect(() => {
@@ -136,59 +178,11 @@ export default function App() {
       setCategories(loadedCats);
     });
 
-    const unsubOrders = onSnapshot(collection(db, "orders"), (snapshot) => {
-      const loadedOrders: Order[] = snapshot.docs.map(docSnap => {
-        const data = docSnap.data();
-        const createdDate = data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date();
-        
-        let status = OrderStatus.AWAITING_PAYMENT;
-        if (data.status === "Đã giao" || data.status === "Da giao") {
-          status = OrderStatus.DELIVERED;
-        } else if (data.status === "Đang vận chuyển" || data.status === "Dang van chuyen") {
-          status = OrderStatus.SHIPPING;
-        } else if (data.status === "Đang xử lý" || data.status === "Dang xu ly") {
-          status = OrderStatus.PROCESSING;
-        } else if (data.status === "Đã hủy" || data.status === "Da huy") {
-          status = OrderStatus.CANCELLED;
-        } else if (data.status === "Trả hàng/Hoàn tiền" || data.status === "Tra hang/Hoan tien" || data.status === "Trả hàng/Hoàn đơn") {
-          status = OrderStatus.REFUNDED;
-        } else if (data.status === "Chờ thanh toán" || data.status === "Cho thanh toan" || data.status === "Chờ xác nhận" || data.status === "Cho xac nhan") {
-          status = OrderStatus.AWAITING_PAYMENT;
-        }
-
-        return {
-          id: docSnap.id,
-          customerName: data.userId || "Khách hàng",
-          customerAvatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAx0BytEzbLFBt7DZ-Usl9CoGOMmn3pka2w2C-VaTEzI0u9G5YDjLKH_k2SYEizcrJHowoz_uvob6rCujIkBm9_Il0bgp1yWsoaeWPAScV_-Ve4nNiMP3Ks4da4iIFLajJ48jmLkQ9e7Q09fBtq_RV8F7IBg-n31usB1gHlqxvAjEvoo0W8IC-UryWomSVJnCF8gzH2YwPvFdL5KaagiWtrQXngCpio2zGNGMEmhNKbL4c20Wfnpaf950gD4wfxNynPvx13KwqQXiM",
-          email: "",
-          phone: "",
-          address: data.address || "Tại cửa hàng",
-          subtotal: data.total || 0,
-          shippingFee: 0,
-          total: data.total || 0,
-          paymentMethod: data.paymentMethod || "COD",
-          paymentEndingCard: "",
-          status,
-          date: createdDate.toLocaleDateString(),
-          time: createdDate.toLocaleTimeString(),
-          items: data.items || [],
-          timeline: {
-            confirmed: { active: true, time: createdDate.toLocaleString() },
-            packing: { active: status !== OrderStatus.AWAITING_PAYMENT && status !== OrderStatus.CANCELLED, time: "" },
-            shipping: { active: status === OrderStatus.SHIPPING || status === OrderStatus.DELIVERED || status === OrderStatus.REFUNDED, time: "" },
-            delivered: { active: status === OrderStatus.DELIVERED || status === OrderStatus.REFUNDED, time: "" }
-          }
-        };
-      });
-      setOrders(loadedOrders);
-    });
-
     const unsubUsers = onSnapshot(collection(db, "users"), (snapshot) => {
       const loadedUsers: User[] = snapshot.docs.map(docSnap => {
         const data = docSnap.data();
         const joinedDate = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : new Date().toLocaleDateString();
         
-        // Match generic string with UserTier enum or default to GUEST
         let tierValue = UserTier.GUEST;
         if (data.tier === "GOLD") tierValue = UserTier.GOLD;
         else if (data.tier === "SILVER") tierValue = UserTier.SILVER;
@@ -198,19 +192,74 @@ export default function App() {
           name: data.fullName || data.name || data.displayName || data.email?.split('@')[0] || "Khách hàng",
           email: data.email || "Chưa cập nhật",
           avatar: data.photoURL || data.avatarUrl || data.avatar || "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
-          phone: data.phone || data.phoneNumber || "",
+          phone: data.phone || data.phoneNumber || data.sdt || "",
           tier: tierValue,
           joinedDate: joinedDate
         };
       });
-      if (loadedUsers.length > 0) {
-        setUsers(loadedUsers);
-      } else {
-        setUsers([]); // Clear defaults if no users found
-      }
-    }, (error) => {
-      console.warn("Could not load users collection, falling back.", error);
+      setUsers(loadedUsers);
+
+      // Also listen to orders and populate missing customer info from loadedUsers
+      onSnapshot(collection(db, "orders"), (orderSnapshot) => {
+        const loadedOrders: Order[] = orderSnapshot.docs.map(docSnap => {
+          const data = docSnap.data();
+          const createdDate = data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date();
+          
+          let status = OrderStatus.AWAITING_PAYMENT;
+          if (data.status === "Đã giao" || data.status === "Da giao") {
+            status = OrderStatus.DELIVERED;
+          } else if (data.status === "Đang vận chuyển" || data.status === "Dang van chuyen") {
+            status = OrderStatus.SHIPPING;
+          } else if (data.status === "Đang xử lý" || data.status === "Dang xu ly") {
+            status = OrderStatus.PROCESSING;
+          } else if (data.status === "Đã hủy" || data.status === "Da huy") {
+            status = OrderStatus.CANCELLED;
+          } else if (data.status === "Trả hàng/Hoàn tiền" || data.status === "Tra hang/Hoan tien" || data.status === "Trả hàng/Hoàn đơn") {
+            status = OrderStatus.REFUNDED;
+          } else if (data.status === "Đã hoàn tiền" || data.status === "Da hoan tien") {
+            status = OrderStatus.REFUND_COMPLETED;
+          } else if (data.status === "Chờ thanh toán" || data.status === "Cho thanh toan" || data.status === "Chờ xác nhận" || data.status === "Cho xac nhan") {
+            status = OrderStatus.AWAITING_PAYMENT;
+          }
+
+          // Cross reference with loadedUsers if order field is missing
+          const matchingUser = loadedUsers.find(u => u.id === data.userId || (data.email && u.email === data.email));
+          const customerPhone = data.phone || data.sdt || data.phoneNumber || data.recipientPhone || (matchingUser?.phone ? matchingUser.phone : "");
+          const customerName = data.customerName || data.name || data.recipientName || data.fullName || (matchingUser?.name ? matchingUser.name : "Khách hàng");
+          const customerAvatar = data.customerAvatar || data.avatar || (matchingUser?.avatar ? matchingUser.avatar : "https://lh3.googleusercontent.com/aida-public/AB6AXuAx0BytEzbLFBt7DZ-Usl9CoGOMmn3pka2w2C-VaTEzI0u9G5YDjLKH_k2SYEizcrJHowoz_uvob6rCujIkBm9_Il0bgp1yWsoaeWPAScV_-Ve4nNiMP3Ks4da4iIFLajJ48jmLkQ9e7Q09fBtq_RV8F7IBg-n31usB1gHlqxvAjEvoo0W8IC-UryWomSVJnCF8gzH2YwPvFdL5KaagiWtrQXngCpio2zGNGMEmhNKbL4c20Wfnpaf950gD4wfxNynPvx13KwqQXiM");
+          const email = data.email || (matchingUser?.email ? matchingUser.email : "");
+
+          return {
+            id: docSnap.id,
+            userId: data.userId || "",
+            customerName,
+            customerAvatar,
+            email,
+            phone: customerPhone,
+            address: data.address || data.shippingAddress || "Tại cửa hàng",
+            subtotal: data.total || 0,
+            shippingFee: data.shippingFee || 0,
+            total: data.total || 0,
+            paymentMethod: data.paymentMethod || "COD",
+            paymentEndingCard: "",
+            status,
+            date: createdDate.toLocaleDateString(),
+            time: createdDate.toLocaleTimeString(),
+            items: data.items || [],
+            timestamp: createdDate.getTime(),
+            timeline: {
+              confirmed: { active: true, time: createdDate.toLocaleString() },
+              packing: { active: status !== OrderStatus.AWAITING_PAYMENT && status !== OrderStatus.CANCELLED, time: "" },
+              shipping: { active: status === OrderStatus.SHIPPING || status === OrderStatus.DELIVERED || status === OrderStatus.REFUNDED, time: "" },
+              delivered: { active: status === OrderStatus.DELIVERED || status === OrderStatus.REFUNDED, time: "" }
+            }
+          } as Order & { timestamp: number };
+        });
+        loadedOrders.sort((a: any, b: any) => b.timestamp - a.timestamp);
+        setOrders(loadedOrders);
+      });
     });
+
 
     const unsubVouchers = onSnapshot(collection(db, "vouchers"), (snapshot) => {
       const loadedVouchers: Voucher[] = snapshot.docs.map(docSnap => {
@@ -404,6 +453,33 @@ export default function App() {
     }
   };
 
+  const handleApproveRefund = async (orderId: string) => {
+    try {
+      const orderRef = doc(db, "orders", orderId);
+      const orderSnap = await getDoc(orderRef);
+      if (orderSnap.exists()) {
+        const orderData = orderSnap.data();
+        const refundAmount = orderData.returnRefundAmount || 0;
+        const userId = orderData.userId;
+        
+        if (userId && refundAmount > 0) {
+          const userRef = doc(db, "users", userId);
+          // Increment wallet balance
+          await updateDoc(userRef, {
+            walletBalance: increment(refundAmount)
+          });
+        }
+        
+        await updateDoc(orderRef, { status: "Đã hoàn tiền" });
+        if (selectedOrder && selectedOrder.id === orderId) {
+          setSelectedOrder({ ...selectedOrder, status: OrderStatus.REFUND_COMPLETED });
+        }
+      }
+    } catch (e) {
+      console.error("Error approving refund:", e);
+    }
+  };
+
   // Switch workspace layout context dynamically
   const renderActiveView = () => {
     switch (activeTab) {
@@ -469,12 +545,13 @@ export default function App() {
         }
         return (
           <CategoryListView
-            categories={categories}
+            categories={resolvedCategories}
             onAddCategoryClick={() => setIsAddingCategory(true)}
             onEditCategoryClick={(cat) => setEditingCategory(cat)}
             onDeleteCategory={handleDeleteCategory}
             onToggleLive={handleToggleLiveCategory}
           />
+
         );
 
       case ActiveTab.USERS:
@@ -494,6 +571,7 @@ export default function App() {
               order={resolvedSelectedOrder}
               onUpdateOrderStatus={handleUpdateOrderStatus}
               onCancel={() => setSelectedOrder(null)}
+              onApproveRefund={handleApproveRefund}
             />
           );
         }
@@ -504,6 +582,7 @@ export default function App() {
             onSelectOrder={(order) => setSelectedOrder(order)}
           />
         );
+
 
       case ActiveTab.VOUCHERS:
         if (isAddingVoucher || editingVoucher) {
@@ -598,9 +677,10 @@ export default function App() {
         <Header searchText={searchText} setSearchText={setSearchText} />
 
         {/* Scaled main content view */}
-        <main className="p-8 max-w-7xl w-full mx-auto flex-1">
+        <main className="p-6 w-full flex-1 min-w-0">
           {renderActiveView()}
         </main>
+
         
       </div>
 

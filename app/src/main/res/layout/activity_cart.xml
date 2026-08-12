@@ -76,7 +76,8 @@
                     android:id="@+id/cbShop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:buttonTint="#EE4D2D" />
+                    android:buttonTint="#EE4D2D"
+                    android:visibility="gone" />
 
                 <ImageView
                     android:layout_width="16dp"
@@ -144,6 +145,7 @@
                     android:textSize="14sp" />
 
                 <Button
+                    android:id="@+id/btnShopNow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -183,7 +185,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="Shopee Voucher"
+                android:text="Trendify Voucher"
                 android:textColor="#333333"
                 android:textSize="14sp" />
 
@@ -221,7 +223,8 @@
                 android:buttonTint="#EE4D2D"
                 android:text="Tất cả"
                 android:textColor="#757575"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -257,7 +260,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nhận 0 Shopee Xu"
+                    android:text="Nhận 0 Trendify Xu"
                     android:textColor="#FF9800"
                     android:textSize="10sp" />
             </LinearLayout>

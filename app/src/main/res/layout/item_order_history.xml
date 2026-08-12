@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Mã đơn: "
-            android:textSize="13sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary" />
 
@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="#ORD"
-            android:textSize="13sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary" />
 
@@ -38,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Đang xử lý"
-            android:textSize="13sp"
+            android:textSize="14sp"
             android:textColor="#EE4D2D" />
     </LinearLayout>
 
@@ -56,8 +56,8 @@
 
         <ImageView
             android:id="@+id/ivProductImage"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:background="#FAFAFA"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_shopping_bag" />
@@ -75,7 +75,7 @@
                 android:layout_height="wrap_content"
                 android:text="Tên sản phẩm"
                 android:textColor="@color/text_primary"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:maxLines="2"
                 android:ellipsize="end" />
 
@@ -86,7 +86,7 @@
                 android:layout_marginTop="4dp"
                 android:text="Ngày đặt"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:textSize="14sp" />
 
         </LinearLayout>
 
@@ -103,7 +103,7 @@
                 android:layout_height="wrap_content"
                 android:text="x1"
                 android:textColor="@color/text_primary"
-                android:textSize="13sp" />
+                android:textSize="15sp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -125,7 +125,7 @@
             android:layout_height="wrap_content"
             android:text="Thành tiền: "
             android:textColor="@color/text_primary"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/tvProductPrice"
@@ -133,7 +133,7 @@
             android:layout_height="wrap_content"
             android:text="₫0"
             android:textColor="#EE4D2D"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -152,9 +152,9 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnViewDetails"
             android:layout_width="wrap_content"
-            android:layout_height="38dp"
+            android:layout_height="42dp"
             android:text="Xem Chi Tiết"
-            android:textSize="13sp"
+            android:textSize="14sp"
             android:textColor="#EE4D2D"
             app:backgroundTint="#FFFFFF"
             app:strokeColor="#EE4D2D"

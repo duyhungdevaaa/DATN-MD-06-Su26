@@ -11,6 +11,8 @@ public class CartItem {
     private String size = "";
     private String color = "";
     private String cartItemId = "";
+    private boolean isSelected = true;
+    private int maxQuantity = 99;
 
     public CartItem() {} // bắt buộc cho Firestore
 
@@ -60,7 +62,17 @@ public class CartItem {
     }
     public void setCartItemId(String cartItemId) { this.cartItemId = cartItemId; }
 
+    public int getMaxQuantity() { return maxQuantity; }
+    public void setMaxQuantity(int maxQuantity) { this.maxQuantity = maxQuantity; }
+
     public void setPriceAsLong(long priceAsLong) { /* Ignore - required to prevent Firestore mapping warnings */ }
+
+    public boolean isSelected() { return isSelected; }
+    public void setSelected(boolean selected) { isSelected = selected; }
+
+    private boolean isRated = false;
+    public boolean isRated() { return isRated; }
+    public void setRated(boolean rated) { isRated = rated; }
 
     // Tính giá số để cộng tổng (bỏ "đ" và dấu chấm)
     @Exclude

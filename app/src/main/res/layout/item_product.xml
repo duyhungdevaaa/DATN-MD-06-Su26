@@ -31,20 +31,6 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_shopping_bag" />
 
-            <!-- Mall/Favorite Tag overlay -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="#EE4D2D"
-                android:text="Yêu thích+"
-                android:textColor="@color/white"
-                android:textSize="9sp"
-                android:textStyle="bold"
-                android:paddingHorizontal="4dp"
-                android:paddingVertical="2dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="4dp" />
 
             <!-- Discount Tag overlay -->
             <LinearLayout

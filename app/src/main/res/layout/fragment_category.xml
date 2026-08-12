@@ -39,7 +39,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="Tìm trong ShopeeMall"
+                android:text="Tìm trong TrendifyMall"
                 android:textColor="#757575"
                 android:textSize="13sp" />
         </LinearLayout>
@@ -88,7 +88,8 @@
                 android:layout_height="100dp"
                 android:layout_marginBottom="8dp"
                 android:background="#EEEEEE"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvRightCategories"

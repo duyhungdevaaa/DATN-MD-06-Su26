@@ -194,6 +194,16 @@ public class ProductDetailActivity extends AppCompatActivity {
                                 android.util.Log.d("ProductDetailActivity", "Loaded sizes: " + loadedSizes + ", colors: " + loadedColors);
                                 setupSizesAndColors(productDetail, layoutSizes, layoutColors);
 
+                                TextView tvProductDescription = findViewById(R.id.tvProductDescription);
+                                if (tvProductDescription != null) {
+                                    String desc = productDetail.getDescription();
+                                    if (desc != null && !desc.trim().isEmpty()) {
+                                        tvProductDescription.setText(desc);
+                                    } else {
+                                        tvProductDescription.setText("Chưa có mô tả cho sản phẩm này.");
+                                    }
+                                }
+
                                 // Update real prices from Firestore
                                 TextView tvDetailPrice = findViewById(R.id.tvProductPrice);
                                 TextView tvDetailOriginalPrice = findViewById(R.id.tvProductOriginalPrice);
@@ -256,6 +266,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             }
             
             // Check variant quantity
+            int availableQuantity = 0;
             if (productDetail != null && productDetail.getVariants() != null && !productDetail.getVariants().isEmpty()) {
                 boolean variantFound = false;
                 for (ProductItem.Variant variant : productDetail.getVariants()) {
@@ -263,7 +274,8 @@ public class ProductDetailActivity extends AppCompatActivity {
                     boolean colorMatch = !productHasColors || selectedColor.equalsIgnoreCase(variant.getColor());
                     if (sizeMatch && colorMatch) {
                         variantFound = true;
-                        if (variant.getQuantity() <= 0) {
+                        availableQuantity = variant.getQuantity();
+                        if (availableQuantity <= 0) {
                             Toast.makeText(this, "Sản phẩm phân loại này đã hết hàng!", Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -274,8 +286,14 @@ public class ProductDetailActivity extends AppCompatActivity {
                     Toast.makeText(this, "Phân loại được chọn hiện không tồn tại hoặc hết hàng", Toast.LENGTH_SHORT).show();
                     return;
                 }
-            } else if (productDetail != null && productDetail.getQuantity() <= 0) {
-                Toast.makeText(this, "Sản phẩm này đã hết hàng!", Toast.LENGTH_SHORT).show();
+            } else if (productDetail != null) {
+                availableQuantity = productDetail.getQuantity();
+                if (availableQuantity <= 0) {
+                    Toast.makeText(this, "Sản phẩm này đã hết hàng!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                Toast.makeText(this, "Không thể lấy thông tin tồn kho", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -288,6 +306,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             String cartItemPrice = (productDetail != null) ? productDetail.getDiscountedPrice() : finalProductPrice;
             CartItem item = new CartItem(finalProductId, finalProductName, cartItemPrice, 1, 
                     finalImageUrl != null ? finalImageUrl : "", selectedSize, selectedColor, cartItemId);
+            item.setMaxQuantity(availableQuantity);
             
             new CartManager().addToCart(item, new CartManager.CartCallback() {
                 @Override
@@ -327,19 +346,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             }
         }
 
-        View btnWriteReview = findViewById(R.id.btnWriteReview);
-        if (btnWriteReview != null) {
-            btnWriteReview.setOnClickListener(v -> {
-                if (!SessionManager.getInstance().isLoggedIn()) {
-                    Toast.makeText(this, "Vui lòng đăng nhập để đánh giá", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(this, LoginActivity.class));
-                    return;
-                }
-                if (finalProductId != null) {
-                    showWriteReviewDialog(finalProductId);
-                }
-            });
-        }
+
         
         loadDefaultShippingFee();
     }
@@ -388,6 +395,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                     }
                     tv.setBackgroundResource(R.drawable.bg_chip_selected);
                     tv.setTextColor(Color.WHITE);
+                    updateStockQuantityDisplay();
                 });
                 layoutSizes.addView(tv);
             }
@@ -413,8 +421,73 @@ public class ProductDetailActivity extends AppCompatActivity {
                         child.setBackground(getColorDrawable(otherColor, false));
                     }
                     colorView.setBackground(getColorDrawable(color, true));
+                    updateStockQuantityDisplay();
                 });
                 layoutColors.addView(colorView);
+            }
+        }
+        updateStockQuantityDisplay();
+    }
+
+    private void updateStockQuantityDisplay() {
+        TextView tvStockQuantity = findViewById(R.id.tvStockQuantity);
+        if (tvStockQuantity == null || productDetail == null) return;
+
+        if (selectedSize.isEmpty()) {
+            tvStockQuantity.setVisibility(View.GONE);
+            return;
+        }
+
+        tvStockQuantity.setVisibility(View.VISIBLE);
+
+        List<ProductItem.Variant> variants = productDetail.getVariants();
+        if (variants == null || variants.isEmpty()) {
+            tvStockQuantity.setText("Còn " + productDetail.getQuantity() + " sản phẩm");
+            tvStockQuantity.setTextColor(0xFFEE4D2D);
+            return;
+        }
+
+        if (!selectedColor.isEmpty()) {
+            // Both size and color selected
+            int qty = 0;
+            boolean found = false;
+            for (ProductItem.Variant var : variants) {
+                if (var.getSize().equalsIgnoreCase(selectedSize) && var.getColor().equalsIgnoreCase(selectedColor)) {
+                    qty = var.getQuantity();
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                if (qty > 0) {
+                    tvStockQuantity.setText("Còn " + qty + " sản phẩm (" + selectedSize + " - " + selectedColor + ")");
+                    tvStockQuantity.setTextColor(0xFFEE4D2D);
+                } else {
+                    tvStockQuantity.setText("Hết hàng cho phân loại này (" + selectedSize + " - " + selectedColor + ")");
+                    tvStockQuantity.setTextColor(Color.RED);
+                }
+            } else {
+                tvStockQuantity.setText("Hết hàng cho phân loại này (" + selectedSize + " - " + selectedColor + ")");
+                tvStockQuantity.setTextColor(Color.RED);
+            }
+        } else {
+            // Only size selected: list quantities for each color of this size
+            StringBuilder sb = new StringBuilder();
+            sb.append("Số lượng cho cỡ ").append(selectedSize).append(":\n");
+            int totalForSize = 0;
+            for (ProductItem.Variant var : variants) {
+                if (var.getSize().equalsIgnoreCase(selectedSize)) {
+                    sb.append("• ").append(var.getColor()).append(": ").append(var.getQuantity()).append(" sản phẩm\n");
+                    totalForSize += var.getQuantity();
+                }
+            }
+            if (totalForSize == 0) {
+                tvStockQuantity.setText("Cỡ " + selectedSize + " hiện đã hết hàng!");
+                tvStockQuantity.setTextColor(Color.RED);
+            } else {
+                if (sb.length() > 0) sb.setLength(sb.length() - 1);
+                tvStockQuantity.setText(sb.toString());
+                tvStockQuantity.setTextColor(0xFF555555);
             }
         }
     }
@@ -596,93 +669,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                 });
     }
 
-    private void showWriteReviewDialog(String productId) {
-        View view = getLayoutInflater().inflate(R.layout.dialog_write_review, null);
-        RatingBar ratingBar = view.findViewById(R.id.dialogRatingBar);
-        EditText etReviewContent = view.findViewById(R.id.etComment);
 
-        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
-                .setTitle("Viết Đánh Giá")
-                .setView(view)
-                .setPositiveButton("Gửi", null) // Set null here to override default dismiss behavior
-                .setNegativeButton("Hủy", (d, w) -> d.dismiss())
-                .create();
-
-        dialog.setOnShowListener(dialogInterface -> {
-            Button button = dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE);
-            button.setOnClickListener(v -> {
-                float rating = ratingBar.getRating();
-                String content = etReviewContent.getText().toString().trim();
-
-                if (rating == 0) {
-                    Toast.makeText(this, "Vui lòng chọn số sao", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (content.isEmpty()) {
-                    Toast.makeText(this, "Vui lòng nhập nội dung đánh giá", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                String userId = SessionManager.getInstance().getUserId();
-                button.setEnabled(false);
-                button.setText("Đang gửi...");
-
-                // Lấy thông tin user từ Realtime Database
-                com.google.firebase.database.FirebaseDatabase.getInstance().getReference("users").child(userId)
-                        .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
-                            @Override
-                            public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
-                                String userName = "Người dùng";
-                                String userAvatar = "";
-                                if (snapshot.exists()) {
-                                    if (snapshot.hasChild("fullName")) {
-                                        userName = snapshot.child("fullName").getValue(String.class);
-                                    } else if (snapshot.hasChild("name")) {
-                                        userName = snapshot.child("name").getValue(String.class);
-                                    }
-                                    if (snapshot.hasChild("avatar")) {
-                                        userAvatar = snapshot.child("avatar").getValue(String.class);
-                                    } else if (snapshot.hasChild("avatarUrl")) {
-                                        userAvatar = snapshot.child("avatarUrl").getValue(String.class);
-                                    }
-                                }
-
-                                ReviewItem newReview = new ReviewItem(
-                                        "", // reviewId
-                                        productId,
-                                        userId,
-                                        userName,
-                                        userAvatar,
-                                        rating,
-                                        content,
-                                        System.currentTimeMillis()
-                                );
-
-                                FirebaseFirestore.getInstance().collection("reviews")
-                                        .add(newReview)
-                                        .addOnSuccessListener(documentReference -> {
-                                            Toast.makeText(ProductDetailActivity.this, "Đã gửi đánh giá thành công", Toast.LENGTH_SHORT).show();
-                                            dialog.dismiss();
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            button.setEnabled(true);
-                                            button.setText("Gửi");
-                                            Toast.makeText(ProductDetailActivity.this, "Lỗi khi gửi đánh giá: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                        });
-                            }
-
-                            @Override
-                            public void onCancelled(com.google.firebase.database.DatabaseError error) {
-                                button.setEnabled(true);
-                                button.setText("Gửi");
-                                Toast.makeText(ProductDetailActivity.this, "Lỗi lấy thông tin user: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
-            });
-        });
-
-        dialog.show();
-    }
 
     private void updateCartBadge() {
         new CartManager().getCartCount(new CartManager.CartCountCallback() {

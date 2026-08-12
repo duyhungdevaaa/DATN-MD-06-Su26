@@ -9,7 +9,7 @@ public class ReviewItem {
     private String userAvatar;
     private float rating;
     private String comment;
-    private long createdAt;
+    private Object createdAt;
 
     public ReviewItem() {
         // Required for Firestore deserialization
@@ -83,10 +83,17 @@ public class ReviewItem {
     }
 
     public long getCreatedAt() {
-        return createdAt;
+        if (createdAt instanceof Long) {
+            return (Long) createdAt;
+        } else if (createdAt instanceof com.google.firebase.Timestamp) {
+            return ((com.google.firebase.Timestamp) createdAt).toDate().getTime();
+        } else if (createdAt instanceof java.util.Date) {
+            return ((java.util.Date) createdAt).getTime();
+        }
+        return 0L;
     }
 
-    public void setCreatedAt(long createdAt) {
+    public void setCreatedAt(Object createdAt) {
         this.createdAt = createdAt;
     }
 }

@@ -38,80 +38,74 @@ export const Sidebar: React.FC<SidebarProps> = ({
       id: ActiveTab.DASHBOARD,
       label: "Tổng quan",
       icon: LayoutDashboard,
-      badge: null,
-      description: "Doanh thu & Thống kê"
+      badge: null
     },
     {
       id: ActiveTab.ORDERS,
       label: "Đơn hàng",
       icon: ShoppingBag,
-      badge: orderCount > 0 ? orderCount.toString() : null,
-      description: "Chi tiết & Giao nhận"
+      badge: orderCount > 0 ? orderCount.toString() : null
     },
     {
       id: ActiveTab.PRODUCTS,
       label: "Sản phẩm",
       icon: Tag,
-      badge: productCount.toString(),
-      description: "Quản lý tồn kho"
+      badge: productCount > 0 ? productCount.toString() : null
     },
     {
       id: ActiveTab.CATEGORIES,
       label: "Danh mục",
       icon: FolderGit2,
-      badge: null,
-      description: "Phân loại bộ sưu tập"
+      badge: null
     },
     {
       id: ActiveTab.VOUCHERS,
-      label: "Voucher",
+      label: "Mã giảm giá",
       icon: Ticket,
-      badge: null,
-      description: "Mã giảm giá & KM"
+      badge: null
     },
     {
       id: ActiveTab.USERS,
       label: "Khách hàng",
       icon: Users,
-      badge: null,
-      description: "Hội viên & Giao dịch"
+      badge: null
     },
     {
       id: ActiveTab.NOTIFICATIONS,
       label: "Thông báo",
       icon: Bell,
-      badge: null,
-      description: "Gửi thông báo đến App"
+      badge: null
     },
     {
       id: ActiveTab.BANNERS,
-      label: "Banner QC",
+      label: "Banner quảng cáo",
       icon: ImageIcon,
-      badge: null,
-      description: "Quản lý ảnh quảng cáo"
+      badge: null
     }
   ];
 
   return (
-    <aside className="w-72 bg-white border-r border-zinc-200/60 h-screen sticky top-0 flex flex-col z-20 overflow-y-auto font-sans">
+    <aside className="w-52 bg-white border-r border-zinc-200 h-screen sticky top-0 flex flex-col z-20 overflow-y-auto font-sans shrink-0">
       {/* Branding Header */}
-      <div className="p-8 border-b border-zinc-100">
-        <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#8c7623] animate-pulse"></span>
-          <span className="font-mono text-[9px] tracking-[0.25em] text-[#8c7623] uppercase font-bold">
-            Boutique Portal
-          </span>
+      <div className="p-4 border-b border-zinc-100 flex items-center gap-2.5">
+        <div className="w-7 h-7 rounded-lg bg-zinc-900 flex items-center justify-center text-white font-bold text-sm shadow-xs shrink-0">
+          T
         </div>
-        <h1 className="font-serif text-3xl tracking-tight text-zinc-900 mt-2 font-medium">
-          Trendify
-        </h1>
-        <p className="font-sans text-[10px] tracking-[0.15em] text-zinc-400 uppercase mt-0.5 font-medium">
-          Luxury Administration
-        </p>
+        <div className="min-w-0">
+          <h1 className="text-sm font-bold text-zinc-900 leading-tight truncate">
+            Trendify Admin
+          </h1>
+          <p className="text-[11px] text-zinc-500 font-medium truncate">
+            Quản lý hệ thống
+          </p>
+        </div>
       </div>
 
       {/* Navigation Space */}
-      <nav className="flex-1 px-4 py-8 space-y-1.5">
+      <nav className="flex-1 px-2 py-4 space-y-1">
+        <p className="px-2.5 text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">
+          Danh mục
+        </p>
         {menuItems.map((item) => {
           const IconComponent = item.icon;
           const isActive = activeTab === item.id;
@@ -119,63 +113,49 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full group flex items-start gap-4 p-3.5 rounded-xl text-left transition-all duration-300 relative ${
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-semibold transition-all ${
                 isActive 
-                  ? "bg-zinc-900 text-white shadow-md shadow-zinc-900/10" 
-                  : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
+                  ? "bg-zinc-900 text-white shadow-xs" 
+                  : "text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900"
               }`}
             >
-              {/* Highlight bar */}
-              {isActive && (
-                <div className="absolute left-0 top-3.5 bottom-3.5 w-1 bg-[#8c7623] rounded-r-full" />
-              )}
-              
-              <IconComponent 
-                className={`h-5 w-5 mt-0.5 transition-transform duration-300 ${
-                  isActive ? "text-[#8c7623] scale-110" : "text-zinc-400 group-hover:scale-105"
-                }`} 
-              />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <span className={`text-[11px] font-bold tracking-wider font-sans uppercase ${
-                    isActive ? "text-white" : "text-zinc-800"
-                  }`}>
-                    {item.label}
-                  </span>
-                  {item.badge && (
-                    <span className={`font-mono text-[9px] px-2 py-0.5 rounded-full font-bold ${
-                      isActive 
-                        ? "bg-[#8c7623] text-white" 
-                        : "bg-zinc-100 text-zinc-650"
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </div>
-                <p className={`text-[10px] font-sans mt-0.5 leading-normal ${
-                  isActive ? "text-zinc-400" : "text-zinc-450"
-                }`}>
-                  {item.description}
-                </p>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <IconComponent 
+                  className={`h-4 w-4 shrink-0 ${
+                    isActive ? "text-amber-400" : "text-zinc-400"
+                  }`} 
+                />
+                <span className="truncate">{item.label}</span>
               </div>
+              
+              {item.badge && (
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
+                  isActive 
+                    ? "bg-amber-400 text-zinc-950" 
+                    : "bg-zinc-100 text-zinc-700"
+                }`}>
+                  {item.badge}
+                </span>
+              )}
             </button>
           );
         })}
       </nav>
 
-      {/* Footer System Meta */}
-      <div className="p-6 border-t border-zinc-100 bg-zinc-50/50">
+      {/* Footer Log Out */}
+      <div className="p-3 border-t border-zinc-100 bg-zinc-50/50">
         {onLogout && (
           <button
             onClick={onLogout}
-            className="w-full flex items-center justify-center gap-2 p-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors border border-rose-100"
-            title="Đăng xuất khỏi hệ thống"
+            className="w-full flex items-center justify-center gap-2 px-2.5 py-1.5 bg-white hover:bg-rose-50 text-zinc-700 hover:text-rose-600 rounded-lg transition-colors border border-zinc-200 text-xs font-semibold shadow-xs"
           >
-            <LogOut className="h-4 w-4" />
-            <span className="text-xs font-bold uppercase tracking-wider font-sans">Đăng xuất</span>
+            <LogOut className="h-3.5 w-3.5" />
+            <span>Đăng xuất</span>
           </button>
         )}
       </div>
     </aside>
   );
 };
+
+

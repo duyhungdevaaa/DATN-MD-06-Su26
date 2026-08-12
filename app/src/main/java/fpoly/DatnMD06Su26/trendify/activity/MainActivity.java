@@ -1,6 +1,7 @@
 package fpoly.DatnMD06Su26.trendify.activity;
 
 import fpoly.DatnMD06Su26.trendify.R;
+import fpoly.DatnMD06Su26.trendify.SessionManager;
 
 import fpoly.DatnMD06Su26.trendify.activity.*;
 import fpoly.DatnMD06Su26.trendify.fragment.*;
@@ -109,6 +110,21 @@ public class MainActivity extends AppCompatActivity {
         requestNotificationPermission();
         createNotificationChannel();
         listenToAdminNotifications();
+
+        // Làm mới giỏ hàng khi khởi động/tắt app mở lại
+        if (SessionManager.getInstance().isLoggedIn()) {
+            new CartManager().clearCart(new CartManager.CartCallback() {
+                @Override
+                public void onSuccess() {
+                    Log.d("MainActivity", "Làm mới giỏ hàng thành công");
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    Log.e("MainActivity", "Lỗi làm mới giỏ hàng: " + error);
+                }
+            });
+        }
     }
 
     public void setCurrentPage(int page) {
@@ -183,16 +199,20 @@ public class MainActivity extends AppCompatActivity {
                     for (com.google.firebase.firestore.DocumentChange dc : snapshots.getDocumentChanges()) {
                         if (dc.getType() == com.google.firebase.firestore.DocumentChange.Type.ADDED) {
                             com.google.firebase.firestore.QueryDocumentSnapshot doc = dc.getDocument();
-                            com.google.firebase.Timestamp timestamp = doc.getTimestamp("createdAt");
-                            if (timestamp != null) {
-                                long notifTime = timestamp.toDate().getTime();
-                                if (notifTime > lastNotifTime) {
-                                    if (notifTime > maxTime) {
-                                        maxTime = notifTime;
-                                        newTitle = doc.getString("title");
-                                        newBody = doc.getString("body");
-                                        newImageUrl = doc.getString("imageUrl");
-                                        hasNew = true;
+                            String targetUid = doc.getString("userId");
+                            String currentUid = fpoly.DatnMD06Su26.trendify.SessionManager.getInstance().getUserId();
+                            if (targetUid == null || targetUid.isEmpty() || targetUid.equals("global") || targetUid.equals(currentUid)) {
+                                com.google.firebase.Timestamp timestamp = doc.getTimestamp("createdAt");
+                                if (timestamp != null) {
+                                    long notifTime = timestamp.toDate().getTime();
+                                    if (notifTime > lastNotifTime) {
+                                        if (notifTime > maxTime) {
+                                            maxTime = notifTime;
+                                            newTitle = doc.getString("title");
+                                            newBody = doc.getString("body");
+                                            newImageUrl = doc.getString("imageUrl");
+                                            hasNew = true;
+                                        }
                                     }
                                 }
                             }
@@ -216,8 +236,11 @@ public class MainActivity extends AppCompatActivity {
         android.app.PendingIntent pendingIntentObj = android.app.PendingIntent.getActivity(
                 this, 0, intent, pendingFlags);
 
+        android.graphics.Bitmap appLogo = android.graphics.BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+
         androidx.core.app.NotificationCompat.Builder builder = new androidx.core.app.NotificationCompat.Builder(this, "trendify_notifications")
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setLargeIcon(appLogo)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
@@ -233,7 +256,9 @@ public class MainActivity extends AppCompatActivity {
                             .submit()
                             .get();
                     runOnUiThread(() -> {
-                        builder.setStyle(new androidx.core.app.NotificationCompat.BigPictureStyle().bigPicture(bitmap));
+                        builder.setStyle(new androidx.core.app.NotificationCompat.BigPictureStyle()
+                                .bigPicture(bitmap)
+                                .bigLargeIcon((android.graphics.Bitmap) null));
                         postNotification(builder.build());
                     });
                 } catch (Exception ex) {

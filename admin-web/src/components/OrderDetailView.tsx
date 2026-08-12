@@ -26,12 +26,14 @@ interface OrderDetailViewProps {
   order: Order;
   onUpdateOrderStatus: (orderId: string, newStatus: OrderStatus) => void;
   onCancel: () => void;
+  onApproveRefund?: (orderId: string) => void;
 }
 
 export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
   order,
   onUpdateOrderStatus,
-  onCancel
+  onCancel,
+  onApproveRefund
 }) => {
   const [showInvoicePrintAlert, setShowInvoicePrintAlert] = useState(false);
 
@@ -52,6 +54,8 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
         return "bg-green-50 text-green-700 border-green-300";
       case OrderStatus.REFUNDED:
         return "bg-rose-50 text-rose-700 border-rose-300";
+      case OrderStatus.REFUND_COMPLETED:
+        return "bg-emerald-50 text-emerald-700 border-emerald-300";
       default:
         return "bg-red-50 text-red-700 border-red-300"; // Cancelled
     }
@@ -130,12 +134,6 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Đơn hàng đã hoàn thành và hạch toán doanh thu thành công.</span>
             </div>
-            <button
-              onClick={() => onUpdateOrderStatus(order.id, OrderStatus.REFUNDED)}
-              className="font-sans text-xs font-bold uppercase tracking-wider py-3 px-6 rounded-xl border border-rose-200 text-rose-600 bg-rose-50/50 hover:bg-rose-50 transition-all cursor-pointer"
-            >
-              Yêu cầu trả hàng / Hoàn tiền
-            </button>
           </div>
         );
 
@@ -149,9 +147,28 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
 
       case OrderStatus.REFUNDED:
         return (
-          <div className="text-xs text-zinc-650 font-semibold bg-zinc-50 border border-zinc-150 p-3.5 rounded-xl flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
-            <span>Đơn hàng đã được trả lại và hoàn tiền thành công.</span>
+          <div className="space-y-4">
+            <div className="text-xs text-zinc-650 font-semibold bg-zinc-50 border border-zinc-150 p-3.5 rounded-xl flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+              <span>Yêu cầu trả hàng / hoàn tiền đang chờ duyệt.</span>
+            </div>
+            {onApproveRefund && (
+              <button
+                onClick={() => onApproveRefund(order.id)}
+                className="font-sans text-xs font-bold uppercase tracking-wider py-3 px-6 rounded-xl bg-rose-600 hover:bg-rose-700 text-white transition-all cursor-pointer shadow-sm border border-transparent"
+              >
+                Duyệt hoàn trả & Hoàn tiền vào Ví
+              </button>
+            )}
+          </div>
+        );
+      case OrderStatus.REFUND_COMPLETED:
+        return (
+          <div className="space-y-4">
+            <div className="text-xs text-emerald-700 font-semibold bg-emerald-50 border border-emerald-100 p-3.5 rounded-xl flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Đã hoàn tiền vào ví TrendifyPay thành công.</span>
+            </div>
           </div>
         );
 
@@ -234,6 +251,8 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
                   ? "bg-emerald-50 text-emerald-700 border-emerald-100"
                   : order.status === OrderStatus.REFUNDED
                   ? "bg-rose-50 text-rose-700 border-rose-100"
+                  : order.status === OrderStatus.REFUND_COMPLETED
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-100"
                   : "bg-red-50 text-red-700 border-red-100"
               }`}>
                 {order.status}
@@ -389,7 +408,9 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
                 <span className="w-4 text-zinc-400 shrink-0 font-bold text-center">☎</span>
                 <div>
                   <p className="font-bold text-zinc-700">Số điện thoại liên hệ</p>
-                  <p className="text-zinc-500 mt-0.5 font-medium">{order.phone}</p>
+                  <p className="text-zinc-600 mt-0.5 font-semibold font-mono">
+                    {order.phone && order.phone.trim() ? order.phone.trim() : <span className="text-rose-500 italic font-sans font-medium">Chưa có SĐT</span>}
+                  </p>
                 </div>
               </div>
             </div>
@@ -400,22 +421,27 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
             <div className="flex items-center gap-2 border-b border-zinc-100 pb-4">
               <CreditCard className="h-4.5 w-4.5 text-[#8c7623]" />
               <h4 className="font-serif text-base text-zinc-950 font-bold">
-                Cổng thanh toán điện tử
+                Phương thức thanh toán
               </h4>
             </div>
 
             <div className="space-y-2.5 text-xs font-sans text-zinc-500 font-semibold">
               <div className="flex justify-between">
                 <span>Phương thức:</span>
-                <strong className="text-zinc-850 font-bold">{order.paymentMethod}</strong>
+                <strong className="text-zinc-850 font-bold">{order.paymentMethod || "COD (Thanh toán khi nhận hàng)"}</strong>
               </div>
-              <div className="flex justify-between">
-                <span>Chi tiết thẻ:</span>
-                <strong className="text-zinc-800 font-mono text-[11px] font-bold">{order.paymentEndingCard}</strong>
+
+              <div className="flex justify-between mt-1.5 pt-1.5 border-t border-zinc-100">
+                <span className="text-rose-500 font-bold">Tiền thu hộ (COD):</span>
+                <strong className="text-rose-600 font-bold text-sm">
+                  {order.paymentMethod === 'Thanh toán khi nhận hàng' 
+                    ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.total)
+                    : '0 ₫'}
+                </strong>
               </div>
               <div className="flex justify-between">
                 <span>Cổng xử lý:</span>
-                <strong className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md text-[10px] font-bold">Stripe Secured</strong>
+                <strong className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md text-[10px] font-bold">PayOS / Trendify</strong>
               </div>
             </div>
           </div>

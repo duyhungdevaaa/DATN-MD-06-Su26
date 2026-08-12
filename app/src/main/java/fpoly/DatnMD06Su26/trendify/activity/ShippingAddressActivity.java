@@ -65,16 +65,24 @@ public class ShippingAddressActivity extends AppCompatActivity {
 
     private void setupActions() {
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
-        btnAddAddress.setOnClickListener(v -> showAddressTypeSelector());
+        btnAddAddress.setOnClickListener(v -> showAddressForm("address", null));
         btnContinue.setOnClickListener(v -> {
             if (selectedAddress == null) {
                 showMessage("Vui lòng chọn địa chỉ giao hàng");
                 return;
             }
+            if (selectedAddress.getPhone() == null || selectedAddress.getPhone().trim().isEmpty()) {
+                showMessage("Bắt buộc phải có Số Điện Thoại mới được đặt hàng! Vui lòng cập nhật địa chỉ.");
+                return;
+            }
             Intent intent = new Intent(this, PaymentMethodActivity.class);
             intent.putExtra("shipping_address", buildAddressSummary(selectedAddress));
+            if (getIntent().hasExtra("SELECTED_CART_ITEM_IDS")) {
+                intent.putStringArrayListExtra("SELECTED_CART_ITEM_IDS", getIntent().getStringArrayListExtra("SELECTED_CART_ITEM_IDS"));
+            }
             startActivity(intent);
         });
+
     }
 
     private void loadAddresses() {
@@ -305,7 +313,7 @@ public class ShippingAddressActivity extends AppCompatActivity {
 
                     UserAddress address = existingAddress != null ? existingAddress : new UserAddress();
                     address.setType(type);
-                    address.setLabel(type.equals("home") ? "Nhà riêng" : "Văn phòng");
+                    address.setLabel("Địa chỉ");
                     address.setName(name);
                     address.setPhone(phone);
                     address.setAddress(fullAddress);
