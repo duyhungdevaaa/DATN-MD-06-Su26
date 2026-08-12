@@ -28,13 +28,13 @@ export enum UserTier {
 }
 
 export enum OrderStatus {
-  AWAITING_PAYMENT = "Chờ thanh toán",
-  PENDING = "Chờ xử lý",
+  AWAITING_PAYMENT = "Chờ xác nhận",
   PROCESSING = "Đang xử lý",
-  SHIPPING = "Đang vận chuyển",
-  DELIVERED = "Đã giao",
+  SHIPPING = "Đang giao hàng",
+  DELIVERED = "Đã giao hàng",
   CANCELLED = "Đã hủy",
   REFUNDED = "Trả hàng/Hoàn tiền",
+  REFUND_COMPLETED = "Đã hoàn tiền",
 }
 
 export interface Product {

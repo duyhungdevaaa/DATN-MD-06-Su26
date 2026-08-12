@@ -88,7 +88,8 @@
                 android:layout_height="100dp"
                 android:layout_marginBottom="8dp"
                 android:background="#EEEEEE"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvRightCategories"

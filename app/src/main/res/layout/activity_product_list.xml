@@ -15,18 +15,9 @@
         android:textStyle="bold"
         android:layout_marginTop="20dp"
         android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/ivFilter" />
-
-    <ImageView
-        android:id="@+id/ivFilter"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:src="@drawable/ic_filter"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintTop_toTopOf="@id/tvTitle"
-        app:layout_constraintBottom_toBottomOf="@id/tvTitle"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <View
