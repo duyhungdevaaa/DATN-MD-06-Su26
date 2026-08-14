@@ -69,6 +69,13 @@ public class OrderConfirmActivity extends AppCompatActivity {
     private long appliedDiscount;
     private String paymentMethod = "Thẻ tín dụng";
     
+    // Wallet
+    private android.widget.CheckBox cbUseWallet;
+    private TextView tvWalletBalanceOption;
+    private long userWalletBalance = 0;
+    private boolean isWalletUsed = false;
+    private long walletAmountUsed = 0;
+    
     // UI details
     private TextView tvDetailSubtotal;
     private TextView tvDetailShipping;
@@ -100,6 +107,26 @@ public class OrderConfirmActivity extends AppCompatActivity {
         tvDetailSubtotal = findViewById(R.id.tvDetailSubtotal);
         tvDetailShipping = findViewById(R.id.tvDetailShipping);
         tvDetailTotal = findViewById(R.id.tvDetailTotal);
+        
+        cbUseWallet = findViewById(R.id.cbUseWallet);
+        tvWalletBalanceOption = findViewById(R.id.tvWalletBalanceOption);
+
+        if (cbUseWallet != null) {
+            cbUseWallet.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                isWalletUsed = isChecked;
+                cartManager.loadCart(new CartManager.CartLoadCallback() {
+                    @Override
+                    public void onLoaded(List<CartItem> allItems) {
+                        List<CartItem> items = filterSelectedItems(allItems);
+                        updateSummary(items);
+                    }
+                    @Override
+                    public void onFailure(String error) {}
+                });
+            });
+        }
+        
+        loadWalletBalance();
 
         btnApplyVoucher.setOnClickListener(v -> applyVoucherCode());
 
@@ -132,15 +159,69 @@ public class OrderConfirmActivity extends AppCompatActivity {
         }
         loadOrderSummary();
 
+        View btnSelectVoucher = findViewById(R.id.btnSelectVoucher);
+        if (btnSelectVoucher != null) {
+            btnSelectVoucher.setOnClickListener(v -> {
+                android.content.Intent intent = new android.content.Intent(this, VoucherListActivity.class);
+                startActivityForResult(intent, 2002);
+            });
+        }
+
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
         findViewById(R.id.btnPlaceOrder).setOnClickListener(v -> placeOrder());
+    }
+
+    private void loadWalletBalance() {
+        FirestoreHelper.loadUserProfile(new FirestoreHelper.ProfileCallback() {
+            @Override
+            public void onLoaded(UserProfile profile) {
+                userWalletBalance = profile.getWalletBalance();
+                if (tvWalletBalanceOption != null) {
+                    tvWalletBalanceOption.setText("Số dư: " + formatCurrency(userWalletBalance));
+                }
+                if (userWalletBalance <= 0 && cbUseWallet != null) {
+                    cbUseWallet.setEnabled(false);
+                }
+            }
+            @Override
+            public void onFailure(String error) {
+                Log.e("OrderConfirm", "Không thể tải số dư ví: " + error);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 2002 && resultCode == RESULT_OK && data != null) {
+            String code = data.getStringExtra("selected_voucher_code");
+            if (code != null && !code.isEmpty()) {
+                if (etVoucherCode != null) {
+                    etVoucherCode.setText(code);
+                    applyVoucherCode();
+                }
+            }
+        }
+    }
+
+    private List<CartItem> filterSelectedItems(List<CartItem> allItems) {
+        java.util.ArrayList<String> selectedIds = getIntent().getStringArrayListExtra("SELECTED_CART_ITEM_IDS");
+        if (selectedIds == null || selectedIds.isEmpty()) return allItems;
+        List<CartItem> filtered = new java.util.ArrayList<>();
+        for (CartItem item : allItems) {
+            if (selectedIds.contains(item.getCartItemId())) {
+                filtered.add(item);
+            }
+        }
+        return filtered;
     }
 
     private void loadOrderSummary() {
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
         cartManager.loadCart(new CartManager.CartLoadCallback() {
             @Override
-            public void onLoaded(List<CartItem> items) {
+            public void onLoaded(List<CartItem> allItems) {
+                List<CartItem> items = filterSelectedItems(allItems);
                 calculateShippingFee(items, new Runnable() {
                     @Override
                     public void run() {
@@ -159,7 +240,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
 
     private void calculateShippingFee(List<CartItem> items, Runnable onComplete) {
         if (selectedDistrictId == -1 || selectedWardCode == null || selectedWardCode.isEmpty() || items.isEmpty()) {
-            shippingFee = 30000; // Phí mặc định
+            shippingFee = 0;
             onComplete.run();
             return;
         }
@@ -176,7 +257,8 @@ public class OrderConfirmActivity extends AppCompatActivity {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put("service_type_id", 2);
-                payload.put("from_district_id", 1442); // Giả sử cửa hàng ở Bắc Từ Liêm
+                payload.put("from_district_id", 1482); // Quận Bắc Từ Liêm, Hà Nội
+                payload.put("from_ward_code", "11013"); // Phường Xuân Tảo, Bắc Từ Liêm
                 payload.put("to_district_id", selectedDistrictId);
                 payload.put("to_ward_code", selectedWardCode);
                 payload.put("height", 10);
@@ -206,16 +288,26 @@ public class OrderConfirmActivity extends AppCompatActivity {
                     while ((line = reader.readLine()) != null) sb.append(line);
                     
                     JSONObject responseJson = new JSONObject(sb.toString());
-                    if (responseJson.has("data")) {
+                    if (responseJson.has("data") && !responseJson.isNull("data")) {
                         JSONObject data = responseJson.getJSONObject("data");
                         shippingFee = data.getLong("total");
+                    } else {
+                        shippingFee = -1;
                     }
+                } else {
+                    shippingFee = -1;
                 }
             } catch (Exception e) {
                 Log.e("GHN", "Lỗi tính phí ship", e);
-                shippingFee = 30000;
+                shippingFee = -1;
             } finally {
-                runOnUiThread(onComplete);
+                runOnUiThread(() -> {
+                    if (shippingFee == -1) {
+                        shippingFee = 0;
+                        Toast.makeText(OrderConfirmActivity.this, "Không thể tính phí vận chuyển. Vui lòng thử lại sau.", Toast.LENGTH_LONG).show();
+                    }
+                    onComplete.run();
+                });
             }
         }).start();
     }
@@ -242,7 +334,8 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 appliedDiscount = 0;
                 cartManager.loadCart(new CartManager.CartLoadCallback() {
                     @Override
-                    public void onLoaded(List<CartItem> items) {
+                    public void onLoaded(List<CartItem> allItems) {
+                        List<CartItem> items = filterSelectedItems(allItems);
                         calculateShippingFee(items, () -> {
                             updateSummary(items);
                             if (tvVoucherMessage != null) {
@@ -273,7 +366,8 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 }
                 cartManager.loadCart(new CartManager.CartLoadCallback() {
                     @Override
-                    public void onLoaded(List<CartItem> items) {
+                    public void onLoaded(List<CartItem> allItems) {
+                        List<CartItem> items = filterSelectedItems(allItems);
                         calculateShippingFee(items, () -> updateSummary(items));
                     }
                     @Override
@@ -296,6 +390,19 @@ public class OrderConfirmActivity extends AppCompatActivity {
         if (total < 0) {
             total = 0;
         }
+        
+        walletAmountUsed = 0;
+        boolean useWallet = isWalletUsed || "Ví TrendifyPay".equals(paymentMethod);
+        if (useWallet && userWalletBalance > 0) {
+            if (userWalletBalance >= total) {
+                walletAmountUsed = total;
+                total = 0;
+            } else {
+                walletAmountUsed = userWalletBalance;
+                total -= userWalletBalance;
+            }
+        }
+        
         if (tvSubtotal != null) {
             tvSubtotal.setText(formatCurrency(subtotal));
         }
@@ -385,7 +492,8 @@ public class OrderConfirmActivity extends AppCompatActivity {
         Log.d("PayOSIntegration", "Đang gọi cartManager.loadCart...");
         cartManager.loadCart(new CartManager.CartLoadCallback() {
             @Override
-            public void onLoaded(List<CartItem> items) {
+            public void onLoaded(List<CartItem> allItems) {
+                List<CartItem> items = filterSelectedItems(allItems);
                 Log.d("PayOSIntegration", "cartManager.loadCart.onLoaded() được gọi. Số lượng sản phẩm: " + items.size());
                 if (items.isEmpty()) {
                     Toast.makeText(OrderConfirmActivity.this, "Giỏ hàng trống", Toast.LENGTH_SHORT).show();
@@ -393,12 +501,40 @@ public class OrderConfirmActivity extends AppCompatActivity {
                     findViewById(R.id.btnPlaceOrder).setEnabled(true);
                     return;
                 }
-                Log.d("PayOSIntegration", "Phương thức thanh toán đã chọn: " + paymentMethod);
-                if ("Chuyển khoản ngân hàng".equals(paymentMethod)) {
-                    Log.d("PayOSIntegration", "Gọi createPayOSPaymentLink...");
-                    createPayOSPaymentLink(items);
+                if (shippingFee <= 0) {
+                    Toast.makeText(OrderConfirmActivity.this, "Không thể tính phí vận chuyển hoặc địa chỉ không hợp lệ. Vui lòng kiểm tra lại.", Toast.LENGTH_LONG).show();
+                    if (progressBar != null) progressBar.setVisibility(View.GONE);
+                    findViewById(R.id.btnPlaceOrder).setEnabled(true);
+                    return;
+                }
+                Log.d("PayOSIntegration", "Phuong thuc thanh toan da chon: " + paymentMethod);
+                
+                long subtotal = 0;
+                for (CartItem item : items) {
+                    subtotal += item.getPriceAsLong() * item.getQuantity();
+                }
+                long total = subtotal + shippingFee - appliedDiscount;
+                if (total < 0) total = 0;
+                if (walletAmountUsed > 0) total -= walletAmountUsed;
+                
+                if ("Ví TrendifyPay".equals(paymentMethod)) {
+                    if (total > 0) {
+                        Toast.makeText(OrderConfirmActivity.this, "Số dư ví không đủ để thanh toán toàn bộ đơn hàng!", Toast.LENGTH_LONG).show();
+                        if (progressBar != null) progressBar.setVisibility(View.GONE);
+                        findViewById(R.id.btnPlaceOrder).setEnabled(true);
+                        return;
+                    }
+                    Log.d("PayOSIntegration", "Goi saveOrderToFirestore...");
+                    saveOrderToFirestore(items);
+                } else if ("Chuyển khoản ngân hàng".equals(paymentMethod) || "ZaloPay".equals(paymentMethod) || "MoMo".equals(paymentMethod)) {
+                    if (total == 0) {
+                        saveOrderToFirestore(items);
+                    } else {
+                        Log.d("PayOSIntegration", "Goi createPayOSPaymentLink...");
+                        createPayOSPaymentLink(items);
+                    }
                 } else {
-                    Log.d("PayOSIntegration", "Gọi saveOrderToFirestore...");
+                    Log.d("PayOSIntegration", "Goi saveOrderToFirestore...");
                     saveOrderToFirestore(items);
                 }
             }
@@ -428,40 +564,83 @@ public class OrderConfirmActivity extends AppCompatActivity {
             total = 0;
         }
 
+        String rawShippingAddress = getIntent().getStringExtra("shipping_address");
+        String customerName = "Khách hàng";
+        String phone = "";
+        String cleanAddress = rawShippingAddress != null ? rawShippingAddress : "";
+
+        if (rawShippingAddress != null && rawShippingAddress.contains("|||")) {
+            String[] parts = rawShippingAddress.split("\\|\\|\\|");
+            if (parts.length >= 4) {
+                cleanAddress = parts[3];
+            }
+        }
+
+        if (cleanAddress != null && cleanAddress.contains(" - ")) {
+            try {
+                int dashIdx = cleanAddress.indexOf(" - ");
+                String namePart = cleanAddress.substring(0, dashIdx);
+                if (namePart.contains(": ")) {
+                    customerName = namePart.substring(namePart.indexOf(": ") + 2).trim();
+                } else {
+                    customerName = namePart.trim();
+                }
+                int newlineIdx = cleanAddress.indexOf("\n", dashIdx);
+                if (newlineIdx > dashIdx) {
+                    phone = cleanAddress.substring(dashIdx + 3, newlineIdx).trim();
+                }
+            } catch (Exception e) {}
+        }
+
+        String finalPaymentMethod = paymentMethod;
+        long grandTotalNeeded = subtotal + shippingFee - appliedDiscount;
+        if (walletAmountUsed > 0 && walletAmountUsed >= grandTotalNeeded) {
+            finalPaymentMethod = "Ví TrendifyPay";
+        }
+
         Map<String, Object> order = new HashMap<>();
         order.put("orderId", orderId);
         order.put("userId", uid);
+        order.put("customerName", customerName);
+        order.put("phone", phone);
+        order.put("address", cleanAddress);
+        order.put("shippingAddress", cleanAddress);
         order.put("date", date);
         order.put("createdAt", Timestamp.now());
-        order.put("status", "Đang xử lý");
+        order.put("status", "Chờ xác nhận");
         order.put("subtotal", subtotal);
         order.put("shippingFee", shippingFee);
         order.put("discountAmount", appliedDiscount);
+        order.put("walletAmountUsed", walletAmountUsed);
         order.put("originalTotal", originalTotal);
         order.put("total", total);
-        order.put("paymentMethod", paymentMethod);
+        order.put("paymentMethod", finalPaymentMethod);
         if (appliedVoucher != null) {
             order.put("voucherId", appliedVoucher.getVoucherId());
             order.put("voucherCode", appliedVoucher.getCode());
             order.put("discountRate", appliedVoucher.getDiscountRate());
         }
-        String shippingAddress = getIntent().getStringExtra("shipping_address");
-        if (shippingAddress != null && !shippingAddress.isEmpty()) {
-            order.put("shippingAddress", shippingAddress);
-        }
-        order.put("items", items); // Firestore tự serialize list
+        order.put("items", items);
 
+        final String finalAddress = cleanAddress;
         FirebaseFirestore.getInstance()
                 .collection("orders")
                 .document(orderId)
                 .set(order)
                 .addOnSuccessListener(v -> {
+                    deductProductStock(items);
+                    if (walletAmountUsed > 0) {
+                        deductWalletBalance(walletAmountUsed);
+                    }
                     // Xóa giỏ hàng sau khi đặt thành công
-                    cartManager.clearCart(new CartManager.CartCallback() {
+                    java.util.ArrayList<String> selectedIds = getIntent().getStringArrayListExtra("SELECTED_CART_ITEM_IDS");
+                    cartManager.clearSelectedItems(selectedIds, new CartManager.CartCallback() {
                         @Override public void onSuccess() {
                             if (progressBar != null) progressBar.setVisibility(View.GONE);
                             Intent intent = new Intent(OrderConfirmActivity.this, OrderSuccessActivity.class);
                             intent.putExtra("order_id", orderId);
+                            intent.putExtra("shipping_address", finalAddress);
+                            intent.putExtra("payment_method", paymentMethod);
                             startActivity(intent);
                             finish();
                         }
@@ -470,6 +649,8 @@ public class OrderConfirmActivity extends AppCompatActivity {
                             if (progressBar != null) progressBar.setVisibility(View.GONE);
                             Intent intent = new Intent(OrderConfirmActivity.this, OrderSuccessActivity.class);
                             intent.putExtra("order_id", orderId);
+                            intent.putExtra("shipping_address", finalAddress);
+                            intent.putExtra("payment_method", paymentMethod);
                             startActivity(intent);
                             finish();
                         }
@@ -480,6 +661,15 @@ public class OrderConfirmActivity extends AppCompatActivity {
                     findViewById(R.id.btnPlaceOrder).setEnabled(true);
                     Toast.makeText(this, "Đặt hàng thất bại: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
+    }
+
+    private void deductWalletBalance(long amount) {
+        String uid = SessionManager.getInstance().getUserId();
+        if (uid == null) return;
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(uid).update("walletBalance", com.google.firebase.firestore.FieldValue.increment(-amount))
+          .addOnSuccessListener(aVoid -> Log.d("OrderConfirm", "Đã trừ tiền trong ví: " + amount))
+          .addOnFailureListener(e -> Log.e("OrderConfirm", "Lỗi trừ tiền trong ví: ", e));
     }
 
     private void saveOrderWithPaymentLink(List<CartItem> items, String checkoutUrl, String paymentLinkId, long orderCode, String qrCode, String accountNumber, String accountName, String description, String bin) {
@@ -505,10 +695,11 @@ public class OrderConfirmActivity extends AppCompatActivity {
         order.put("userId", uid);
         order.put("date", date);
         order.put("createdAt", Timestamp.now());
-        order.put("status", "Chờ thanh toán");
+        order.put("status", "Chờ xác nhận");
         order.put("subtotal", subtotal);
         order.put("shippingFee", shippingFee);
         order.put("discountAmount", appliedDiscount);
+        order.put("walletAmountUsed", walletAmountUsed);
         order.put("originalTotal", originalTotal);
         order.put("total", total);
         order.put("paymentMethod", paymentMethod);
@@ -531,6 +722,10 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 .document(orderId)
                 .set(order)
                 .addOnSuccessListener(v -> {
+                    deductProductStock(items);
+                    if (walletAmountUsed > 0) {
+                        deductWalletBalance(walletAmountUsed);
+                    }
                     if (progressBar != null) progressBar.setVisibility(View.GONE);
                     
                     Intent paymentIntent = new Intent(OrderConfirmActivity.this, PayOSPaymentActivity.class);
@@ -543,6 +738,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
                     paymentIntent.putExtra("accountName", accountName);
                     paymentIntent.putExtra("description", description);
                     paymentIntent.putExtra("bin", bin);
+                    paymentIntent.putExtra("shipping_address", shippingAddress);
                     
                     startActivity(paymentIntent);
                     finish();
@@ -679,6 +875,53 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 });
             }
         }).start();
+    }
+
+    private void deductProductStock(List<CartItem> items) {
+        if (items == null || items.isEmpty()) return;
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        for (CartItem item : items) {
+            String prodId = item.getProductId();
+            if (prodId == null || prodId.isEmpty()) continue;
+            
+            db.collection("products").document(prodId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (!documentSnapshot.exists()) return;
+                    
+                    ProductItem product = documentSnapshot.toObject(ProductItem.class);
+                    if (product == null) return;
+                    
+                    // Deduct overall quantity
+                    int newQty = Math.max(0, product.getQuantity() - item.getQuantity());
+                    product.setQuantity(newQty);
+                    
+                    // Deduct variant quantity
+                    List<ProductItem.Variant> variants = product.getVariants();
+                    if (variants != null && !variants.isEmpty()) {
+                        String selectedSz = item.getSize();
+                        String selectedCl = item.getColor();
+                        if (selectedSz != null && selectedCl != null) {
+                            for (ProductItem.Variant var : variants) {
+                                if (var.getSize().equalsIgnoreCase(selectedSz) && var.getColor().equalsIgnoreCase(selectedCl)) {
+                                    int varQty = Math.max(0, var.getQuantity() - item.getQuantity());
+                                    var.setQuantity(varQty);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    int newSold = product.getSold() + item.getQuantity();
+                    
+                    documentSnapshot.getReference().update(
+                        "quantity", newQty,
+                        "variants", variants,
+                        "sold", newSold
+                    )
+                        .addOnSuccessListener(aVoid -> Log.d("StockUpdate", "Deducted stock for " + prodId + " successfully"))
+                        .addOnFailureListener(e -> Log.e("StockUpdate", "Failed to write back stock for " + prodId + ": " + e.getMessage()));
+                });
+        }
     }
 
     private String formatCurrency(long value) {

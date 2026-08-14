@@ -23,13 +23,24 @@ public class OrderDetailItemAdapter extends RecyclerView.Adapter<OrderDetailItem
 
     private List<CartItem> items;
 
+    public interface OnRateClickListener {
+        void onRateClick(CartItem item, int position);
+    }
+    private OnRateClickListener rateClickListener;
+    private String orderStatus = "";
+
     public OrderDetailItemAdapter() {
         this.items = new ArrayList<>();
     }
 
-    public void setItems(List<CartItem> items) {
+    public void setItems(List<CartItem> items, String orderStatus) {
         this.items = items != null ? items : new ArrayList<>();
+        this.orderStatus = orderStatus != null ? orderStatus : "";
         notifyDataSetChanged();
+    }
+
+    public void setOnRateClickListener(OnRateClickListener listener) {
+        this.rateClickListener = listener;
     }
 
     @NonNull
@@ -74,6 +85,18 @@ public class OrderDetailItemAdapter extends RecyclerView.Adapter<OrderDetailItem
         } else {
             holder.tvVariant.setVisibility(View.GONE);
         }
+
+        // Logic for "Đánh giá" button
+        if ("Đã giao".equals(orderStatus) && !item.isRated()) {
+            holder.btnRate.setVisibility(View.VISIBLE);
+            holder.btnRate.setOnClickListener(v -> {
+                if (rateClickListener != null) {
+                    rateClickListener.onRateClick(item, position);
+                }
+            });
+        } else {
+            holder.btnRate.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -87,6 +110,7 @@ public class OrderDetailItemAdapter extends RecyclerView.Adapter<OrderDetailItem
         TextView tvProductPrice;
         TextView tvQuantity;
         TextView tvVariant;
+        com.google.android.material.button.MaterialButton btnRate;
 
         public OrderDetailViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -95,6 +119,7 @@ public class OrderDetailItemAdapter extends RecyclerView.Adapter<OrderDetailItem
             tvProductPrice = itemView.findViewById(R.id.tvProductPrice);
             tvQuantity = itemView.findViewById(R.id.tvQuantity);
             tvVariant = itemView.findViewById(R.id.tvVariant);
+            btnRate = itemView.findViewById(R.id.btnRate);
         }
     }
 }

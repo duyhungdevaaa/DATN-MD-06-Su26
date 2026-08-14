@@ -49,10 +49,10 @@ public class CategoryFragment extends Fragment {
 
         ImageView ivSubCategoryBanner = view.findViewById(R.id.ivSubCategoryBanner);
         if (ivSubCategoryBanner != null) {
-            com.bumptech.glide.Glide.with(this)
-                .load("https://lh3.googleusercontent.com/aida-public/AB6AXuCAxhHQooyU8SiIwiH0Pbzuw1-uZdod_ngqcegoqttRqmzHPL_nqur3okOg4NBrK-yzBHV5e93Q3F9aKdDsai8MXvmlmuHPwCZazU_f6Bv2IHQ-KjmCI8oO-ac873DWgJdX2XZKKTRIR_hsK9p63PbP0tCXX2tS_-L3FbFQnlmCx8rxU9RVo8BRfF_DBp7RBJjbOy_h4N7H-N5AoQgvbi3LD2GWZnZGRsJD2UGfUDUpAksAejImy6j_B1zkcJmBAO6MDG7BDEb1kTw")
-                .centerCrop()
-                .into(ivSubCategoryBanner);
+            // com.bumptech.glide.Glide.with(this)
+            //     .load("https://lh3.googleusercontent.com/aida-public/AB6AXuCAxhHQooyU8SiIwiH0Pbzuw1-uZdod_ngqcegoqttRqmzHPL_nqur3okOg4NBrK-yzBHV5e93Q3F9aKdDsai8MXvmlmuHPwCZazU_f6Bv2IHQ-KjmCI8oO-ac873DWgJdX2XZKKTRIR_hsK9p63PbP0tCXX2tS_-L3FbFQnlmCx8rxU9RVo8BRfF_DBp7RBJjbOy_h4N7H-N5AoQgvbi3LD2GWZnZGRsJD2UGfUDUpAksAejImy6j_B1zkcJmBAO6MDG7BDEb1kTw")
+            //     .centerCrop()
+            //     .into(ivSubCategoryBanner);
         }
 
         RecyclerView rvLeftCategories = view.findViewById(R.id.rvLeftCategories);

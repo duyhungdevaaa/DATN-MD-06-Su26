@@ -30,138 +30,167 @@ export const CategoryListView: React.FC<CategoryListViewProps> = ({
   onDeleteCategory,
   onToggleLive
 }) => {
+  const [filterStatus, setFilterStatus] = React.useState<string>("All");
+
+  const filteredCategories = categories.filter(cat => {
+    if (filterStatus === "live") return cat.isLive;
+    if (filterStatus === "draft") return !cat.isLive;
+    return true;
+  });
 
   const handleDeleteCheck = (id: string, name: string) => {
-    const isConfirmed = window.confirm(`Bạn có chắc muốn xóa phân danh mục "${name}"? Hành động này có thể dịch chuyển các sản phẩm liên đới sang phân loại chung.`);
+    const isConfirmed = window.confirm(`Bạn có chắc chắn muốn xóa danh mục "${name}"?`);
     if (isConfirmed) {
       onDeleteCategory(id);
     }
   };
 
   return (
-    <div className="space-y-6 animate-fade-in text-left font-sans">
-      
-      {/* Search and control filter line */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-zinc-200/60 shadow-sm">
+    <div className="space-y-6 font-sans text-left">
+      {/* Header bar & controls */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-zinc-200 shadow-xs">
         <div>
-          <h3 className="font-serif text-lg text-zinc-900 font-bold">Bản phân loại Bộ sưu tập</h3>
-          <p className="font-sans text-xs text-zinc-400 mt-1">
-            Giao diện cấu hình danh mục cha, định tuyến khách hàng, và kiểm dịch hiển thị thị trường trực tuyến.
-          </p>
+          <h2 className="text-xl font-bold text-zinc-900">Quản lý danh mục sản phẩm</h2>
+          <p className="text-xs text-zinc-500 mt-0.5">Danh sách các danh mục và phân loại sản phẩm trên ứng dụng</p>
         </div>
 
-        {/* Category Add Button */}
         <button
           onClick={onAddCategoryClick}
-          className="flex items-center justify-center gap-2 bg-zinc-900 text-white hover:bg-[#8c7623] px-5 py-3 rounded-xl text-xs font-bold tracking-wider uppercase font-sans transition-all duration-200 shadow-md shadow-zinc-900/5 whitespace-nowrap"
+          className="flex items-center justify-center gap-2 bg-zinc-900 hover:bg-zinc-800 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-xs shrink-0"
         >
           <Plus className="h-4 w-4" />
-          Bổ sung danh mục mới
+          Thêm danh mục mới
         </button>
       </div>
 
-      {categories.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-zinc-200/60 p-16 text-center shadow-sm">
-          <div className="mx-auto w-12 h-12 rounded-full bg-zinc-50 border border-zinc-150 flex items-center justify-center mb-4">
-            <FolderGit2 className="h-5 w-5 text-zinc-400" />
+      {/* Filter Tabs */}
+      <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-zinc-200 shadow-xs">
+        <div className="flex bg-zinc-100 p-1 rounded-lg">
+          <button
+            onClick={() => setFilterStatus("All")}
+            className={`text-xs font-semibold px-3 py-1.5 rounded-md transition-all ${
+              filterStatus === "All" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-600 hover:text-zinc-900"
+            }`}
+          >
+            Tất cả ({categories.length})
+          </button>
+          <button
+            onClick={() => setFilterStatus("live")}
+            className={`text-xs font-semibold px-3 py-1.5 rounded-md transition-all ${
+              filterStatus === "live" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-600 hover:text-zinc-900"
+            }`}
+          >
+            Đang hiển thị ({categories.filter(c => c.isLive).length})
+          </button>
+          <button
+            onClick={() => setFilterStatus("draft")}
+            className={`text-xs font-semibold px-3 py-1.5 rounded-md transition-all ${
+              filterStatus === "draft" ? "bg-white text-zinc-900 shadow-xs" : "text-zinc-600 hover:text-zinc-900"
+            }`}
+          >
+            Đang ẩn ({categories.filter(c => !c.isLive).length})
+          </button>
+        </div>
+      </div>
+
+      {/* Data Table */}
+      <div className="bg-white rounded-xl border border-zinc-200 shadow-xs overflow-hidden">
+        {filteredCategories.length === 0 ? (
+          <div className="p-12 text-center">
+            <FolderGit2 className="h-8 w-8 text-zinc-300 mx-auto mb-3" />
+            <p className="text-sm font-semibold text-zinc-700">Chưa có danh mục nào</p>
+            <p className="text-xs text-zinc-500 mt-1">Bấm nút "Thêm danh mục mới" ở trên để tạo danh mục đầu tiên</p>
           </div>
-          <h3 className="font-serif text-lg text-zinc-800 font-medium">Chưa có danh mục nào được lưu</h3>
-          <p className="font-sans text-xs text-zinc-500 mt-2 max-w-sm mx-auto leading-relaxed">
-            Vui lòng nhấn nút góc bên phải để thêm phân nhóm danh mục cha đầu tiên của bạn.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categories.map((category) => {
-            return (
-              <div 
-                key={category.id}
-                className="bg-white rounded-2xl border border-zinc-200/50 shadow-sm overflow-hidden flex flex-col justify-between group hover:border-[#8c7623]/40 hover:shadow-md transition-all duration-350"
-              >
-                {/* Visual Cover Frame */}
-                <div className="relative aspect-[4/3] bg-zinc-50 overflow-hidden border-b border-zinc-100">
-                  <img
-                    src={category.imageUrl}
-                    alt={category.name}
-                    className="w-full h-full object-cover editorial-img group-hover:scale-102"
-                    referrerPolicy="no-referrer"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=600";
-                    }}
-                  />
-                  {/* Item counter count */}
-                  <span className="absolute top-3 left-3 bg-zinc-900/80 backdrop-blur-sm text-white text-[9px] font-mono font-bold tracking-widest px-2.5 py-1 rounded-full uppercase">
-                    {category.productCount} SẢN PHẨM
-                  </span>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr className="bg-zinc-50/80 border-b border-zinc-200 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                  <th className="py-3.5 px-4">Danh mục</th>
+                  <th className="py-3.5 px-4 text-center">Số lượng sản phẩm</th>
+                  <th className="py-3.5 px-4 text-center">Trạng thái</th>
+                  <th className="py-3.5 px-4">Cập nhật lần cuối</th>
+                  <th className="py-3.5 px-4 text-right">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100">
+                {filteredCategories.map((category) => {
+                  return (
+                    <tr key={category.id} className="hover:bg-zinc-50/60 transition-colors">
+                      {/* Thumbnail & Name */}
+                      <td className="py-2.5 px-4">
+                        <div className="flex items-center gap-2.5">
+                          <img
+                            src={category.imageUrl}
+                            alt={category.name}
+                            className="w-8 h-8 rounded-md object-cover border border-zinc-200 shrink-0"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=600";
+                            }}
+                          />
+                          <div>
+                            <p className="font-semibold text-zinc-900 text-xs">{category.name}</p>
+                            <span className="font-mono text-[10px] text-zinc-400">/{category.slug}</span>
+                          </div>
+                        </div>
+                      </td>
 
-                  {/* Slug label overlay */}
-                  <span className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm shadow-sm text-zinc-700 px-2 py-0.5 rounded text-[8px] font-mono tracking-widest uppercase">
-                    /{category.slug}
-                  </span>
-                </div>
+                      {/* Product Count */}
+                      <td className="py-2.5 px-4 text-center">
+                        <span className="font-mono text-xs font-bold text-zinc-800 bg-zinc-100 px-2 py-0.5 rounded-full">
+                          {category.productCount} sản phẩm
+                        </span>
+                      </td>
 
-                {/* Body Meta Details */}
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-serif text-base text-zinc-900 font-bold tracking-tight">
-                        {category.name}
-                      </h4>
-                      {/* Active Status Toggle */}
-                      <button
-                        onClick={() => onToggleLive(category.id)}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-bold font-sans tracking-wide border transition-all ${
-                          category.isLive 
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-zinc-100" 
-                            : "bg-zinc-50 text-zinc-400 border-zinc-200 hover:bg-emerald-50"
-                        }`}
-                        title="Click để đổi trạng thái"
-                      >
-                        <span className={`w-1.5 h-1.5 rounded-full ${category.isLive ? 'bg-emerald-600 animate-pulse' : 'bg-zinc-400'}`} />
-                        {category.isLive ? "LIVE" : "DRAFT"}
-                      </button>
-                    </div>
 
-                    <p className="font-sans text-xs text-zinc-400 min-h-[32px] line-clamp-2 leading-relaxed">
-                      {category.description || "Chưa thiết lập ghi chú chi tiết cho nhóm này."}
-                    </p>
-                  </div>
+                      {/* Live Status Toggle */}
+                      <td className="py-2.5 px-4 text-center">
+                        <button
+                          onClick={() => onToggleLive(category.id)}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
+                            category.isLive 
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" 
+                              : "bg-zinc-100 text-zinc-500 border-zinc-200 hover:bg-zinc-200"
+                          }`}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full ${category.isLive ? 'bg-emerald-600' : 'bg-zinc-400'}`} />
+                          {category.isLive ? "Đang hiển thị" : "Đã ẩn"}
+                        </button>
+                      </td>
 
-                  <div className="space-y-3 pt-3 border-t border-zinc-100">
-                    <div className="flex flex-col text-left space-y-0.5">
-                      <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest leading-none font-bold">Chỉnh lý bởi:</span>
-                      <strong className="text-[10px] text-zinc-650 font-sans tracking-tight">
-                        {category.updatedBy} ({category.lastUpdated})
-                      </strong>
-                    </div>
+                      {/* Last updated */}
+                      <td className="py-2.5 px-4 text-xs text-zinc-500">
+                        {category.lastUpdated || "Mới đây"}
+                      </td>
 
-                    {/* Operational Actions Card */}
-                    <div className="flex items-center justify-end gap-1.5 pt-1">
-                      <button
-                        onClick={() => onEditCategoryClick(category)}
-                        className="p-1 px-2.5 bg-zinc-50 hover:bg-[#8c7623]/10 text-zinc-650 hover:text-[#8c7623] text-[10px] uppercase font-bold tracking-wider font-sans rounded-lg border border-zinc-200/80 transition-colors duration-200 flex items-center gap-1"
-                        title="Điều chỉnh nhóm"
-                      >
-                        <Edit2 className="h-3 w-3" />
-                        Sửa
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCheck(category.id, category.name)}
-                        className="p-1 px-2.5 bg-zinc-50 hover:bg-rose-50 text-zinc-400 hover:text-rose-600 text-[10px] uppercase font-bold tracking-wider font-sans rounded-lg border border-zinc-200/80 transition-colors duration-200 flex items-center gap-1"
-                        title="Gỡ bỏ hoàn toàn"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                        Xóa
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            );
-          })}
-        </div>
-      )}
+                      {/* Actions */}
+                      <td className="py-2.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => onEditCategoryClick(category)}
+                            className="p-1 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded transition-colors"
+                            title="Sửa danh mục"
+                          >
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCheck(category.id, category.name)}
+                            className="p-1 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                            title="Xóa danh mục"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
+

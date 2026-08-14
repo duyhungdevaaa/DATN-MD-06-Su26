@@ -26,12 +26,14 @@ interface OrderDetailViewProps {
   order: Order;
   onUpdateOrderStatus: (orderId: string, newStatus: OrderStatus) => void;
   onCancel: () => void;
+  onApproveRefund?: (orderId: string) => void;
 }
 
 export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
   order,
   onUpdateOrderStatus,
-  onCancel
+  onCancel,
+  onApproveRefund
 }) => {
   const [showInvoicePrintAlert, setShowInvoicePrintAlert] = useState(false);
 
@@ -52,6 +54,8 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
         return "bg-green-50 text-green-700 border-green-300";
       case OrderStatus.REFUNDED:
         return "bg-rose-50 text-rose-700 border-rose-300";
+      case OrderStatus.REFUND_COMPLETED:
+        return "bg-emerald-50 text-emerald-700 border-emerald-300";
       default:
         return "bg-red-50 text-red-700 border-red-300"; // Cancelled
     }
@@ -130,12 +134,6 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Đơn hàng đã hoàn thành và hạch toán doanh thu thành công.</span>
             </div>
-            <button
-              onClick={() => onUpdateOrderStatus(order.id, OrderStatus.REFUNDED)}
-              className="font-sans text-xs font-bold uppercase tracking-wider py-3 px-6 rounded-xl border border-rose-200 text-rose-600 bg-rose-50/50 hover:bg-rose-50 transition-all cursor-pointer"
-            >
-              Yêu cầu trả hàng / Hoàn tiền
-            </button>
           </div>
         );
 
@@ -149,9 +147,28 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
 
       case OrderStatus.REFUNDED:
         return (
-          <div className="text-xs text-zinc-650 font-semibold bg-zinc-50 border border-zinc-150 p-3.5 rounded-xl flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
-            <span>Đơn hàng đã được trả lại và hoàn tiền thành công.</span>
+          <div className="space-y-4">
+            <div className="text-xs text-zinc-650 font-semibold bg-zinc-50 border border-zinc-150 p-3.5 rounded-xl flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+              <span>Yêu cầu trả hàng / hoàn tiền đang chờ duyệt.</span>
+            </div>
+            {onApproveRefund && (
+              <button
+                onClick={() => onApproveRefund(order.id)}
+                className="font-sans text-xs font-bold uppercase tracking-wider py-3 px-6 rounded-xl bg-rose-600 hover:bg-rose-700 text-white transition-all cursor-pointer shadow-sm border border-transparent"
+              >
+                Duyệt hoàn trả & Hoàn tiền vào Ví
+              </button>
+            )}
+          </div>
+        );
+      case OrderStatus.REFUND_COMPLETED:
+        return (
+          <div className="space-y-4">
+            <div className="text-xs text-emerald-700 font-semibold bg-emerald-50 border border-emerald-100 p-3.5 rounded-xl flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Đã hoàn tiền vào ví TrendifyPay thành công.</span>
+            </div>
           </div>
         );
 
@@ -191,7 +208,7 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
             <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto animate-bounce border border-emerald-100">
               <Printer className="h-6 w-6" />
             </div>
-            <h4 className="font-serif text-lg font-bold text-zinc-900">Đang khởi tạo máy in...</h4>
+            <h4 className="font-sans text-lg font-bold text-zinc-900">Đang khởi tạo máy in...</h4>
             <p className="font-sans text-xs text-zinc-500 leading-relaxed font-medium">
               Dữ liệu của vận đơn #{order.id} đang được kết dịch sang định dạng văn bản hóa đơn đóng dấu đỏ Trendify.
             </p>
@@ -214,7 +231,7 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
                     Mã chuẩn giao dịch
                   </span>
                 </div>
-                <h3 className="font-serif text-2xl tracking-normal text-zinc-950 font-bold mt-2">
+                <h3 className="font-sans text-2xl tracking-normal text-zinc-950 font-bold mt-2">
                   Mã số: #{order.id}
                 </h3>
                 <span className="font-sans text-xs text-zinc-400 mt-1 block font-bold">
@@ -234,6 +251,8 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
                   ? "bg-emerald-50 text-emerald-700 border-emerald-100"
                   : order.status === OrderStatus.REFUNDED
                   ? "bg-rose-50 text-rose-700 border-rose-100"
+                  : order.status === OrderStatus.REFUND_COMPLETED
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-100"
                   : "bg-red-50 text-red-700 border-red-100"
               }`}>
                 {order.status}
@@ -264,7 +283,7 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
 
                     {/* Meta information */}
                     <div className="flex-1 min-w-0 text-left">
-                      <h4 className="font-serif text-base text-zinc-900 font-bold tracking-tight">
+                      <h4 className="font-sans text-base text-zinc-900 font-bold tracking-tight">
                         {item.name}
                       </h4>
                       <p className="font-mono text-[9px] text-zinc-400 mt-1 uppercase tracking-widest font-bold">
@@ -322,7 +341,7 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
               <div className="h-[1px] bg-zinc-200/60 my-2" />
 
               <div className="flex items-center justify-between">
-                <span className="font-serif text-base font-bold text-zinc-950">TỔNG KHẨU TRỪ:</span>
+                <span className="font-sans text-base font-bold text-zinc-950">TỔNG KHẨU TRỪ:</span>
                 <span className="font-mono text-lg font-bold text-[#8c7623]">{formatVND(order.total)}</span>
               </div>
             </div>
@@ -331,7 +350,7 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
 
           {/* Workflow Status Manager controls */}
           <div className="bg-white p-8 rounded-2xl border border-zinc-200/50 shadow-sm space-y-4">
-            <h4 className="font-serif text-lg text-zinc-900 font-bold">
+            <h4 className="font-sans text-lg text-zinc-900 font-bold">
               Chuyển tiếp giai đoạn xử lý Đơn hàng
             </h4>
             <p className="font-sans text-xs text-zinc-400 leading-relaxed font-medium">
@@ -352,7 +371,7 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
           <div className="bg-white p-6 rounded-2xl border border-zinc-200/50 shadow-sm space-y-6">
             <div className="flex items-center gap-2 border-b border-zinc-100 pb-4">
               <UserCheck className="h-4.5 w-4.5 text-[#8c7623]" />
-              <h4 className="font-serif text-base text-zinc-950 font-bold">
+              <h4 className="font-sans text-base text-zinc-950 font-bold">
                 Thông tin người nhận
               </h4>
             </div>
@@ -389,7 +408,9 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
                 <span className="w-4 text-zinc-400 shrink-0 font-bold text-center">☎</span>
                 <div>
                   <p className="font-bold text-zinc-700">Số điện thoại liên hệ</p>
-                  <p className="text-zinc-500 mt-0.5 font-medium">{order.phone}</p>
+                  <p className="text-zinc-600 mt-0.5 font-semibold font-mono">
+                    {order.phone && order.phone.trim() ? order.phone.trim() : <span className="text-rose-500 italic font-sans font-medium">Chưa có SĐT</span>}
+                  </p>
                 </div>
               </div>
             </div>
@@ -399,23 +420,15 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
           <div className="bg-white p-6 rounded-2xl border border-zinc-200/50 shadow-sm space-y-4 text-left">
             <div className="flex items-center gap-2 border-b border-zinc-100 pb-4">
               <CreditCard className="h-4.5 w-4.5 text-[#8c7623]" />
-              <h4 className="font-serif text-base text-zinc-950 font-bold">
-                Cổng thanh toán điện tử
+              <h4 className="font-sans text-base text-zinc-950 font-bold">
+                Phương thức thanh toán
               </h4>
             </div>
 
             <div className="space-y-2.5 text-xs font-sans text-zinc-500 font-semibold">
               <div className="flex justify-between">
                 <span>Phương thức:</span>
-                <strong className="text-zinc-850 font-bold">{order.paymentMethod}</strong>
-              </div>
-              <div className="flex justify-between">
-                <span>Chi tiết thẻ:</span>
-                <strong className="text-zinc-800 font-mono text-[11px] font-bold">{order.paymentEndingCard}</strong>
-              </div>
-              <div className="flex justify-between">
-                <span>Cổng xử lý:</span>
-                <strong className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md text-[10px] font-bold">Stripe Secured</strong>
+                <strong className="text-zinc-850 font-bold">{order.paymentMethod || "COD (Thanh toán khi nhận hàng)"}</strong>
               </div>
             </div>
           </div>
@@ -424,14 +437,14 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
           <div className="bg-white p-6 rounded-2xl border border-zinc-200/50 shadow-sm space-y-6 text-left">
             <div className="flex items-center gap-2 border-b border-zinc-100 pb-4">
               <Truck className="h-4.5 w-4.5 text-[#8c7623]" />
-              <h4 className="font-serif text-base text-zinc-950 font-bold">
-                Thời trình hoàn thiện vận đơn
+              <h4 className="font-sans text-base text-zinc-950 font-bold">
+                Vòng đời đơn hàng
               </h4>
             </div>
 
             <div className="space-y-6 pt-2">
               
-              {/* Stage 1: Khởi tạo Vận đơn */}
+              {/* Stage 1: Khởi tạo đơn hàng */}
               <div className="flex gap-4">
                 <div className="flex flex-col items-center">
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm ${
@@ -448,18 +461,16 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
                   }`} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-zinc-800">Giai đoạn 1: Khởi tạo Vận đơn (Created)</p>
+                  <p className="text-xs font-bold text-zinc-800">Khởi tạo đơn hàng</p>
                   <p className="text-[10px] text-zinc-450 font-sans mt-0.5 font-bold">
                     {order.status === OrderStatus.CANCELLED
                       ? "Đã hủy đơn"
-                      : order.status !== OrderStatus.AWAITING_PAYMENT
-                      ? `Mã vận đơn: TRN-${order.id.substring(0, 8).toUpperCase()} (Chờ lấy hàng)`
-                      : "Chờ xác nhận đơn hàng"}
+                      : "Chờ xác nhận"}
                   </p>
                 </div>
               </div>
 
-              {/* Stage 2: Chuẩn bị & Dán nhãn */}
+              {/* Stage 2: Đang xử lý */}
               <div className="flex gap-4">
                 <div className="flex flex-col items-center">
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm ${
@@ -474,105 +485,107 @@ export const OrderDetailView: React.FC<OrderDetailViewProps> = ({
                     }`} />
                   </div>
                   <div className={`w-[2px] h-10 ${
-                    order.status === OrderStatus.SHIPPING || order.status === OrderStatus.DELIVERED || order.status === OrderStatus.REFUNDED ? 'bg-[#8c7623]' : 'bg-zinc-200/60'
+                    order.status === OrderStatus.SHIPPING || order.status === OrderStatus.DELIVERED || order.status === OrderStatus.REFUNDED || order.status === OrderStatus.REFUND_COMPLETED ? 'bg-[#8c7623]' : 'bg-zinc-200/60'
                   }`} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-zinc-800">Giai đoạn 2: Chuẩn bị & Dán nhãn (Packed)</p>
+                  <p className="text-xs font-bold text-zinc-800">Đang xử lý</p>
                   <p className="text-[10px] text-zinc-450 font-sans mt-0.5 font-bold">
                     {order.status === OrderStatus.CANCELLED
-                      ? "Đã đình bản đóng gói"
+                      ? "Đã hủy"
                       : order.status !== OrderStatus.AWAITING_PAYMENT
-                      ? "Trạng thái: Sẵn sàng bàn giao (Đã dán nhãn)"
-                      : "Chờ hoàn tất đóng gói"}
+                      ? "Đã xác nhận & đang đóng gói"
+                      : "Chờ duyệt đơn"}
                   </p>
                 </div>
               </div>
 
-              {/* Stage 3: Bàn giao vận chuyển */}
+              {/* Stage 3: Đang giao hàng */}
               <div className="flex gap-4">
                 <div className="flex flex-col items-center">
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm ${
-                    order.status === OrderStatus.SHIPPING || order.status === OrderStatus.DELIVERED || order.status === OrderStatus.REFUNDED
+                    order.status === OrderStatus.SHIPPING || order.status === OrderStatus.DELIVERED || order.status === OrderStatus.REFUNDED || order.status === OrderStatus.REFUND_COMPLETED
                       ? 'bg-[#8c7623]'
                       : 'bg-zinc-100 border border-zinc-200 text-zinc-400'
                   }`}>
                     <Truck className={`h-3 w-3 ${
-                      order.status === OrderStatus.SHIPPING || order.status === OrderStatus.DELIVERED || order.status === OrderStatus.REFUNDED ? 'text-white' : 'text-zinc-400'
+                      order.status === OrderStatus.SHIPPING || order.status === OrderStatus.DELIVERED || order.status === OrderStatus.REFUNDED || order.status === OrderStatus.REFUND_COMPLETED ? 'text-white' : 'text-zinc-400'
                     }`} />
                   </div>
                   <div className={`w-[2px] h-10 ${
-                    order.status === OrderStatus.DELIVERED || order.status === OrderStatus.REFUNDED ? 'bg-[#8c7623]' : 'bg-zinc-200/60'
+                    order.status === OrderStatus.DELIVERED || order.status === OrderStatus.REFUNDED || order.status === OrderStatus.REFUND_COMPLETED ? 'bg-[#8c7623]' : 'bg-zinc-200/60'
                   }`} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-zinc-800">Giai đoạn 3: Bàn giao vận chuyển (Dispatched)</p>
+                  <p className="text-xs font-bold text-zinc-800">Đang giao hàng</p>
                   <p className="text-[10px] text-zinc-450 font-sans mt-0.5 font-bold">
-                    {order.status === OrderStatus.SHIPPING || order.status === OrderStatus.DELIVERED || order.status === OrderStatus.REFUNDED
-                      ? "Trạng thái: Đang vận chuyển (In Transit)"
-                      : order.status === OrderStatus.CANCELLED
-                      ? "Đã thu hồi vận đơn"
-                      : "Chờ đối tác vận chuyển GHTK VIP quét mã lấy hàng"}
+                    {order.status === OrderStatus.SHIPPING || order.status === OrderStatus.DELIVERED || order.status === OrderStatus.REFUNDED || order.status === OrderStatus.REFUND_COMPLETED
+                      ? "Đã bàn giao cho đơn vị vận chuyển"
+                      : "Chờ lấy hàng"}
                   </p>
                 </div>
               </div>
 
-              {/* Stage 4: Phát hàng thành công */}
+              {/* Stage 4: Đã giao hàng / Trả hàng */}
               <div className="flex gap-4">
                 <div className="flex flex-col items-center">
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm ${
                     order.status === OrderStatus.DELIVERED
                       ? 'bg-emerald-600'
-                      : order.status === OrderStatus.REFUNDED
+                      : order.status === OrderStatus.REFUNDED || order.status === OrderStatus.REFUND_COMPLETED
                       ? 'bg-rose-500'
                       : 'bg-zinc-100 border border-zinc-200 text-zinc-400'
                   }`}>
                     <CheckCircle2 className={`h-3 w-3 ${
-                      order.status === OrderStatus.DELIVERED || order.status === OrderStatus.REFUNDED ? 'text-white' : 'text-zinc-400'
+                      order.status === OrderStatus.DELIVERED || order.status === OrderStatus.REFUNDED || order.status === OrderStatus.REFUND_COMPLETED ? 'text-white' : 'text-zinc-400'
                     }`} />
                   </div>
-                  <div className={`w-[2px] h-10 ${
-                    order.status === OrderStatus.DELIVERED || order.status === OrderStatus.REFUNDED ? 'bg-emerald-600' : 'bg-zinc-200/60'
-                  }`} />
+                  
+                  {/* Connect line to stage 5 if it's a refund flow */}
+                  {(order.status === OrderStatus.REFUNDED || order.status === OrderStatus.REFUND_COMPLETED) && (
+                    <div className={`w-[2px] h-10 ${
+                      order.status === OrderStatus.REFUND_COMPLETED ? 'bg-rose-500' : 'bg-zinc-200/60'
+                    }`} />
+                  )}
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-zinc-800">Giai đoạn 4: Phát hàng thành công (Delivered)</p>
+                  <p className="text-xs font-bold text-zinc-800">
+                    {order.status === OrderStatus.REFUNDED || order.status === OrderStatus.REFUND_COMPLETED ? "Xử lý trả hàng" : "Hoàn tất"}
+                  </p>
                   <p className="text-[10px] text-zinc-450 font-sans mt-0.5 font-bold">
                     {order.status === OrderStatus.DELIVERED
-                      ? "Trạng thái: Giao thành công (Khách đã ký nhận)"
-                      : order.status === OrderStatus.REFUNDED
-                      ? "Trạng thái: Giao hàng thất bại / Trả hàng hoàn về kho"
-                      : "Chờ bàn giao khách hàng"}
+                      ? "Đã giao thành công"
+                      : order.status === OrderStatus.REFUNDED || order.status === OrderStatus.REFUND_COMPLETED
+                      ? "Khách yêu cầu trả hàng / hoàn tiền"
+                      : "Chờ giao hàng"}
                   </p>
                 </div>
               </div>
 
-              {/* Stage 5: Đối soát & Đóng vận đơn */}
-              <div className="flex gap-4">
-                <div className="flex flex-col items-center">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm ${
-                    order.status === OrderStatus.DELIVERED
-                      ? 'bg-emerald-600'
-                      : order.status === OrderStatus.REFUNDED
-                      ? 'bg-zinc-500'
-                      : 'bg-zinc-100 border border-zinc-200 text-zinc-400'
-                  }`}>
-                    <Coins className={`h-3 w-3 ${
-                      order.status === OrderStatus.DELIVERED || order.status === OrderStatus.REFUNDED ? 'text-white' : 'text-zinc-400'
-                    }`} />
+              {/* Stage 5: Duyệt hoàn tiền (Only visible if refund flow) */}
+              {(order.status === OrderStatus.REFUNDED || order.status === OrderStatus.REFUND_COMPLETED) && (
+                <div className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm ${
+                      order.status === OrderStatus.REFUND_COMPLETED
+                        ? 'bg-emerald-600'
+                        : 'bg-zinc-100 border border-zinc-200 text-zinc-400'
+                    }`}>
+                      <Coins className={`h-3 w-3 ${
+                        order.status === OrderStatus.REFUND_COMPLETED ? 'text-white' : 'text-zinc-400'
+                      }`} />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-zinc-800">Duyệt hoàn tiền vào ví</p>
+                    <p className="text-[10px] text-zinc-450 font-sans mt-0.5 font-bold">
+                      {order.status === OrderStatus.REFUND_COMPLETED
+                        ? "Đã chuyển tiền vào ví TrendifyPay"
+                        : "Chờ Admin duyệt hoàn tiền"}
+                    </p>
                   </div>
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-zinc-800">Giai đoạn 5: Đối soát tài chính (Closed)</p>
-                  <p className="text-[10px] text-zinc-450 font-sans mt-0.5 font-bold">
-                    {order.status === OrderStatus.DELIVERED
-                      ? "Trạng thái: Đã đối soát tiền COD & Đóng vận đơn"
-                      : order.status === OrderStatus.REFUNDED
-                      ? "Trạng thái: Đã hoàn tiền khách hàng & Thu hồi kho"
-                      : "Chờ đối soát doanh thu & phí vận chuyển"}
-                  </p>
-                </div>
-              </div>
+              )}
 
             </div>
           </div>

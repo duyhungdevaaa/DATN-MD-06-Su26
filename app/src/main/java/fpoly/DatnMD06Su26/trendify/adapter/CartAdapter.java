@@ -21,16 +21,29 @@ import java.util.List;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
 
+    public interface OnCartItemSelectionChangedListener {
+        void onSelectionChanged();
+    }
+
     private List<CartItem> items = new ArrayList<>();
     private final CartManager cartManager;
+    private OnCartItemSelectionChangedListener selectionListener;
 
     public CartAdapter(CartManager cartManager) {
         this.cartManager = cartManager;
     }
 
+    public void setSelectionListener(OnCartItemSelectionChangedListener listener) {
+        this.selectionListener = listener;
+    }
+
     public void setItems(List<CartItem> items) {
         this.items = items;
         notifyDataSetChanged();
+    }
+
+    public List<CartItem> getItems() {
+        return items;
     }
 
     @NonNull
@@ -69,12 +82,28 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 .centerCrop()
                 .into(holder.ivItemImage);
 
+        holder.cbSelect.setOnCheckedChangeListener(null);
+        holder.cbSelect.setChecked(item.isSelected());
+        holder.cbSelect.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            item.setSelected(isChecked);
+            if (selectionListener != null) {
+                selectionListener.onSelectionChanged();
+            }
+        });
+
         holder.btnIncrease.setOnClickListener(v -> {
             int newQty = item.getQuantity() + 1;
+            if (newQty > item.getMaxQuantity()) {
+                android.widget.Toast.makeText(holder.itemView.getContext(), "Đã đạt giới hạn tồn kho (" + item.getMaxQuantity() + ")", android.widget.Toast.LENGTH_SHORT).show();
+                return;
+            }
             cartManager.updateQuantity(item.getCartItemId(), newQty, new CartManager.CartCallback() {
                 @Override public void onSuccess() {
                     item.setQuantity(newQty);
                     notifyItemChanged(position);
+                    if (selectionListener != null) {
+                        selectionListener.onSelectionChanged();
+                    }
                 }
                 @Override public void onFailure(String error) {}
             });
@@ -91,22 +120,13 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                         item.setQuantity(newQty);
                         notifyItemChanged(position);
                     }
+                    if (selectionListener != null) {
+                        selectionListener.onSelectionChanged();
+                    }
                 }
                 @Override public void onFailure(String error) {}
             });
         });
-
-        /*
-        holder.btnDelete.setOnClickListener(v -> {
-            cartManager.removeFromCart(item.getCartItemId(), new CartManager.CartCallback() {
-                @Override public void onSuccess() {
-                    items.remove(position);
-                    notifyItemRemoved(position);
-                }
-                @Override public void onFailure(String error) {}
-            });
-        });
-        */
     }
 
     @Override
@@ -115,7 +135,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     static class CartViewHolder extends RecyclerView.ViewHolder {
         TextView tvItemName, tvItemPrice, tvQuantity, tvItemVariant;
         TextView btnIncrease, btnDecrease;
-        // ImageView btnDelete;
+        android.widget.CheckBox cbSelect;
         ImageView ivItemImage;
 
         CartViewHolder(View view) {
@@ -126,7 +146,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             tvItemVariant = view.findViewById(R.id.tvItemVariant);
             btnIncrease = view.findViewById(R.id.btnIncrease);
             btnDecrease = view.findViewById(R.id.btnDecrease);
-            // btnDelete   = view.findViewById(R.id.btnDelete);
+            cbSelect    = view.findViewById(R.id.cbSelect);
             ivItemImage = view.findViewById(R.id.ivItemImage);
         }
     }

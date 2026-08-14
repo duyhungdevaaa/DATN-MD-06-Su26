@@ -56,11 +56,7 @@ public class ProductListActivity extends AppCompatActivity {
             tvTitle.setText("Hàng Mới");
         }
 
-        ImageView ivFilter = findViewById(R.id.ivFilter);
-        ivFilter.setOnClickListener(v -> {
-            FilterBottomSheetFragment filterSheet = new FilterBottomSheetFragment();
-            filterSheet.show(getSupportFragmentManager(), filterSheet.getTag());
-        });
+
 
         RecyclerView rvProducts = findViewById(R.id.rvProducts);
         rvProducts.setLayoutManager(new GridLayoutManager(this, 2));

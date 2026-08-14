@@ -16,6 +16,8 @@ public class ProductItem {
     private List<Variant> variants = new ArrayList<>();
     private Long createdAt = 0L;
     private int sold = 0;
+    private String description = "";
+    private List<String> tags = new ArrayList<>();
 
     public static class Variant {
         private String size = "";
@@ -239,6 +241,28 @@ public class ProductItem {
 
     public void setVariants(List<Variant> variants) {
         this.variants = variants;
+    }
+
+    public String getDescription() {
+        if (description != null && !description.trim().isEmpty()) {
+            return description;
+        }
+        if (tags != null && !tags.isEmpty()) {
+            return tags.get(0);
+        }
+        return "";
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<String> getTags() {
+        return tags != null ? tags : new ArrayList<>();
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 
     private String generateIdFromName(String name) {
