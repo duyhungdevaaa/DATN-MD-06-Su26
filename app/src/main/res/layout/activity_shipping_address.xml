@@ -25,7 +25,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="#1E293B" />
+            app:tint="#EE4D2D" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -88,23 +88,22 @@
             android:layout_height="48dp"
             android:backgroundTint="#FFFFFF"
             android:text="+ Thêm Địa Chỉ Mới"
-            android:textColor="#3B82F6"
+            android:textColor="#EE4D2D"
             android:textSize="14sp"
-            app:cornerRadius="8dp"
-            app:strokeColor="#3B82F6"
+            app:cornerRadius="2dp"
+            app:strokeColor="#EE4D2D"
             app:strokeWidth="1dp"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginBottom="8dp" />
 
         <Button
             android:id="@+id/btnContinue"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:backgroundTint="#0F172A"
-            android:text="TIẾP TỤC"
+            android:layout_height="48dp"
+            android:backgroundTint="#EE4D2D"
+            android:text="XÁC NHẬN"
             android:textColor="@color/white"
             android:textSize="14sp"
-            android:textStyle="bold"
-            app:cornerRadius="8dp" />
+            app:cornerRadius="2dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
