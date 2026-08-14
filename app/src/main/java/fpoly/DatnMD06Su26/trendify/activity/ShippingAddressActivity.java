@@ -133,9 +133,6 @@ public class ShippingAddressActivity extends AppCompatActivity {
             TextView tvName = itemView.findViewById(R.id.tvName);
             TextView tvPhone = itemView.findViewById(R.id.tvPhone);
             TextView tvDetail = itemView.findViewById(R.id.tvAddress);
-            android.widget.RadioButton rbSelect = itemView.findViewById(R.id.rbSelect);
-            android.widget.ImageView ivEdit = itemView.findViewById(R.id.ivEdit);
-            com.google.android.material.card.MaterialCardView cardAddress = itemView.findViewById(R.id.cardAddress);
 
             tvDefaultBadge.setVisibility(address.isDefault() ? View.VISIBLE : View.GONE);
             tvName.setText(address.getName());
@@ -143,13 +140,9 @@ public class ShippingAddressActivity extends AppCompatActivity {
             tvDetail.setText(address.getAddress());
 
             boolean isSelected = selectedAddress != null && selectedAddress.getId() != null && selectedAddress.getId().equals(address.getId());
-            rbSelect.setChecked(isSelected);
-            cardAddress.setStrokeColor(android.graphics.Color.parseColor(isSelected ? "#3B82F6" : "#E2E8F0"));
-            cardAddress.setStrokeWidth(isSelected ? 4 : 2);
-            cardAddress.setCardBackgroundColor(android.graphics.Color.parseColor(isSelected ? "#F8FAFC" : "#FFFFFF"));
+            itemView.setBackgroundColor(getColor(isSelected ? R.color.trend_bg : R.color.white));
 
-            ivEdit.setOnClickListener(v -> showAddressForm("address", address));
-            cardAddress.setOnClickListener(v -> selectAddress(address));
+            itemView.setOnClickListener(v -> selectAddress(address));
             addressContainer.addView(itemView);
         }
     }
@@ -195,17 +188,20 @@ public class ShippingAddressActivity extends AppCompatActivity {
         TextInputEditText etPhone = dialogView.findViewById(R.id.etAddressPhone);
         TextInputEditText etAddress = dialogView.findViewById(R.id.etAddressDetail);
 
-        android.widget.AutoCompleteTextView spinnerProvince = dialogView.findViewById(R.id.spinnerProvince);
-        android.widget.AutoCompleteTextView spinnerDistrict = dialogView.findViewById(R.id.spinnerDistrict);
-        android.widget.AutoCompleteTextView spinnerWard = dialogView.findViewById(R.id.spinnerWard);
+        Spinner spinnerProvince = dialogView.findViewById(R.id.spinnerProvince);
+        Spinner spinnerDistrict = dialogView.findViewById(R.id.spinnerDistrict);
+        Spinner spinnerWard = dialogView.findViewById(R.id.spinnerWard);
 
-        ArrayAdapter<GHNLocationHelper.Province> provinceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line);
+        ArrayAdapter<GHNLocationHelper.Province> provinceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+        provinceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerProvince.setAdapter(provinceAdapter);
 
-        ArrayAdapter<GHNLocationHelper.District> districtAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line);
+        ArrayAdapter<GHNLocationHelper.District> districtAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+        districtAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerDistrict.setAdapter(districtAdapter);
 
-        ArrayAdapter<GHNLocationHelper.Ward> wardAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line);
+        ArrayAdapter<GHNLocationHelper.Ward> wardAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+        wardAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerWard.setAdapter(wardAdapter);
 
         tempDistrictId = -1;
@@ -221,49 +217,61 @@ public class ShippingAddressActivity extends AppCompatActivity {
             public void onFailure(String error) { showMessage(error); }
         });
 
-        spinnerProvince.setOnItemClickListener((parent, view, position, id) -> {
-            GHNLocationHelper.Province p = provinceAdapter.getItem(position);
-            if (p != null) {
-                GHNLocationHelper.getDistricts(p.id, new GHNLocationHelper.LocationCallback<GHNLocationHelper.District>() {
-                    @Override
-                    public void onSuccess(List<GHNLocationHelper.District> items) {
-                        districtAdapter.clear();
-                        districtAdapter.addAll(items);
-                        spinnerDistrict.setText("", false);
-                        wardAdapter.clear();
-                        spinnerWard.setText("", false);
-                        tempDistrictId = -1;
-                        tempWardCode = "";
-                    }
-                    @Override
-                    public void onFailure(String error) { showMessage(error); }
-                });
+        spinnerProvince.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                GHNLocationHelper.Province p = provinceAdapter.getItem(position);
+                if (p != null) {
+                    GHNLocationHelper.getDistricts(p.id, new GHNLocationHelper.LocationCallback<GHNLocationHelper.District>() {
+                        @Override
+                        public void onSuccess(List<GHNLocationHelper.District> items) {
+                            districtAdapter.clear();
+                            districtAdapter.addAll(items);
+                            wardAdapter.clear();
+                            tempDistrictId = -1;
+                            tempWardCode = "";
+                        }
+                        @Override
+                        public void onFailure(String error) { showMessage(error); }
+                    });
+                }
             }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        spinnerDistrict.setOnItemClickListener((parent, view, position, id) -> {
-            GHNLocationHelper.District d = districtAdapter.getItem(position);
-            if (d != null) {
-                tempDistrictId = d.id;
-                GHNLocationHelper.getWards(d.id, new GHNLocationHelper.LocationCallback<GHNLocationHelper.Ward>() {
-                    @Override
-                    public void onSuccess(List<GHNLocationHelper.Ward> items) {
-                        wardAdapter.clear();
-                        wardAdapter.addAll(items);
-                        spinnerWard.setText("", false);
-                        tempWardCode = "";
-                    }
-                    @Override
-                    public void onFailure(String error) { showMessage(error); }
-                });
+        spinnerDistrict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                GHNLocationHelper.District d = districtAdapter.getItem(position);
+                if (d != null) {
+                    tempDistrictId = d.id;
+                    GHNLocationHelper.getWards(d.id, new GHNLocationHelper.LocationCallback<GHNLocationHelper.Ward>() {
+                        @Override
+                        public void onSuccess(List<GHNLocationHelper.Ward> items) {
+                            wardAdapter.clear();
+                            wardAdapter.addAll(items);
+                            tempWardCode = "";
+                        }
+                        @Override
+                        public void onFailure(String error) { showMessage(error); }
+                    });
+                }
             }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        spinnerWard.setOnItemClickListener((parent, view, position, id) -> {
-            GHNLocationHelper.Ward w = wardAdapter.getItem(position);
-            if (w != null) {
-                tempWardCode = w.code;
+        spinnerWard.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                GHNLocationHelper.Ward w = wardAdapter.getItem(position);
+                if (w != null) {
+                    tempWardCode = w.code;
+                }
             }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
         if (existingAddress != null) {
@@ -282,64 +290,54 @@ public class ShippingAddressActivity extends AppCompatActivity {
             tempWardCode = existingAddress.getWardCode();
         }
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this)
                 .setTitle(existingAddress == null ? "Thêm địa chỉ" : "Sửa địa chỉ")
                 .setView(dialogView)
-                .setPositiveButton("Lưu", null)
-                .setNegativeButton("Hủy", null)
-                .create();
-
-        dialog.show();
-        android.widget.Button btnSave = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        btnSave.setOnClickListener(v -> {
-            String name = etName.getText() != null ? etName.getText().toString().trim() : "";
-            String phone = etPhone.getText() != null ? etPhone.getText().toString().trim() : "";
-            String addressText = etAddress.getText() != null ? etAddress.getText().toString().trim() : "";
-
-            if (name.isEmpty() || phone.isEmpty() || addressText.isEmpty()) {
-                showMessage("Vui lòng nhập đầy đủ thông tin");
-                return;
-            } 
-            if (tempDistrictId == -1 || tempWardCode.isEmpty()) {
-                showMessage("Vui lòng chọn Tỉnh/Huyện/Xã");
-                return;
-            }
-
-            String fullAddress = addressText;
-            String prov = spinnerProvince.getText().toString();
-            String dist = spinnerDistrict.getText().toString();
-            String ward = spinnerWard.getText().toString();
-
-            if (!ward.isEmpty() && !dist.isEmpty() && !prov.isEmpty()) {
-                 fullAddress = addressText + ", " + ward + ", " + dist + ", " + prov;
-            }
-
-            UserAddress address = existingAddress != null ? existingAddress : new UserAddress();
-            address.setType(type);
-            address.setLabel("Địa chỉ");
-            address.setName(name);
-            address.setPhone(phone);
-            address.setAddress(fullAddress);
-            if (tempDistrictId != -1) address.setDistrictId(tempDistrictId);
-            if (!tempWardCode.isEmpty()) address.setWardCode(tempWardCode);
-
-            FirestoreHelper.saveAddress(address, new FirestoreHelper.SimpleCallback() {
-                @Override
-                public void onSuccess() {
-                    showMessage("Lưu địa chỉ thành công");
-                    if (selectedAddress == null || (selectedAddress.getId() != null && selectedAddress.getId().equals(address.getId()))) {
-                        selectedAddress = address;
+                .setPositiveButton("Lưu", (dialog, which) -> {
+                    String name = etName.getText() != null ? etName.getText().toString().trim() : "";
+                    String phone = etPhone.getText() != null ? etPhone.getText().toString().trim() : "";
+                    String addressText = etAddress.getText() != null ? etAddress.getText().toString().trim() : "";
+                    if (name.isEmpty() || phone.isEmpty() || addressText.isEmpty()) {
+                        showMessage("Vui lòng nhập đầy đủ thông tin địa chỉ");
+                        return;
                     }
-                    loadAddresses();
-                    dialog.dismiss();
-                }
+                    if (tempDistrictId == -1 || tempWardCode.isEmpty()) {
+                        showMessage("Vui lòng chọn Tỉnh/Huyện/Xã");
+                        return;
+                    }
 
-                @Override
-                public void onFailure(String error) {
-                    showMessage("Lưu địa chỉ thất bại: " + error);
-                }
-            });
-        });
+                    String fullAddress = addressText;
+                    if (spinnerWard.getSelectedItem() != null && spinnerDistrict.getSelectedItem() != null && spinnerProvince.getSelectedItem() != null) {
+                         fullAddress = addressText + ", " + spinnerWard.getSelectedItem().toString() + ", " + spinnerDistrict.getSelectedItem().toString() + ", " + spinnerProvince.getSelectedItem().toString();
+                    }
+
+                    UserAddress address = existingAddress != null ? existingAddress : new UserAddress();
+                    address.setType(type);
+                    address.setLabel("Địa chỉ");
+                    address.setName(name);
+                    address.setPhone(phone);
+                    address.setAddress(fullAddress);
+                    address.setDistrictId(tempDistrictId);
+                    address.setWardCode(tempWardCode);
+
+                    FirestoreHelper.saveAddress(address, new FirestoreHelper.SimpleCallback() {
+                        @Override
+                        public void onSuccess() {
+                            showMessage("Lưu địa chỉ thành công");
+                            if (selectedAddress == null || (selectedAddress.getId() != null && selectedAddress.getId().equals(address.getId()))) {
+                                selectedAddress = address;
+                            }
+                            loadAddresses();
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            showMessage("Lưu địa chỉ thất bại: " + error);
+                        }
+                    });
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
     }
 
     private String formatAddressSummary(UserAddress address) {

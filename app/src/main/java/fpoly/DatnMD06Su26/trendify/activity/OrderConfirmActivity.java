@@ -240,7 +240,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
 
     private void calculateShippingFee(List<CartItem> items, Runnable onComplete) {
         if (selectedDistrictId == -1 || selectedWardCode == null || selectedWardCode.isEmpty() || items.isEmpty()) {
-            shippingFee = 0;
+            shippingFee = 30000; // Phí mặc định
             onComplete.run();
             return;
         }
@@ -257,8 +257,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put("service_type_id", 2);
-                payload.put("from_district_id", 1482); // Quận Bắc Từ Liêm, Hà Nội
-                payload.put("from_ward_code", "11013"); // Phường Xuân Tảo, Bắc Từ Liêm
+                payload.put("from_district_id", 1442); // Giả sử cửa hàng ở Bắc Từ Liêm
                 payload.put("to_district_id", selectedDistrictId);
                 payload.put("to_ward_code", selectedWardCode);
                 payload.put("height", 10);
@@ -288,26 +287,16 @@ public class OrderConfirmActivity extends AppCompatActivity {
                     while ((line = reader.readLine()) != null) sb.append(line);
                     
                     JSONObject responseJson = new JSONObject(sb.toString());
-                    if (responseJson.has("data") && !responseJson.isNull("data")) {
+                    if (responseJson.has("data")) {
                         JSONObject data = responseJson.getJSONObject("data");
                         shippingFee = data.getLong("total");
-                    } else {
-                        shippingFee = -1;
                     }
-                } else {
-                    shippingFee = -1;
                 }
             } catch (Exception e) {
                 Log.e("GHN", "Lỗi tính phí ship", e);
-                shippingFee = -1;
+                shippingFee = 30000;
             } finally {
-                runOnUiThread(() -> {
-                    if (shippingFee == -1) {
-                        shippingFee = 0;
-                        Toast.makeText(OrderConfirmActivity.this, "Không thể tính phí vận chuyển. Vui lòng thử lại sau.", Toast.LENGTH_LONG).show();
-                    }
-                    onComplete.run();
-                });
+                runOnUiThread(onComplete);
             }
         }).start();
     }
@@ -497,12 +486,6 @@ public class OrderConfirmActivity extends AppCompatActivity {
                 Log.d("PayOSIntegration", "cartManager.loadCart.onLoaded() được gọi. Số lượng sản phẩm: " + items.size());
                 if (items.isEmpty()) {
                     Toast.makeText(OrderConfirmActivity.this, "Giỏ hàng trống", Toast.LENGTH_SHORT).show();
-                    if (progressBar != null) progressBar.setVisibility(View.GONE);
-                    findViewById(R.id.btnPlaceOrder).setEnabled(true);
-                    return;
-                }
-                if (shippingFee <= 0) {
-                    Toast.makeText(OrderConfirmActivity.this, "Không thể tính phí vận chuyển hoặc địa chỉ không hợp lệ. Vui lòng kiểm tra lại.", Toast.LENGTH_LONG).show();
                     if (progressBar != null) progressBar.setVisibility(View.GONE);
                     findViewById(R.id.btnPlaceOrder).setEnabled(true);
                     return;
