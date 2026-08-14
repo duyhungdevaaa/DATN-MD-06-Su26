@@ -247,89 +247,73 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto animate-fade-in text-left font-sans">
-      
-      {/* Return button */}
+    <div className="space-y-6 max-w-4xl mx-auto font-sans text-left">
+
+      {/* Return button & header */}
       <div className="flex items-center justify-between">
         <button
           onClick={onCancel}
-          className="flex items-center gap-2 text-xs font-bold text-zinc-500 hover:text-zinc-900 uppercase tracking-wider font-sans transition-all"
+          className="flex items-center gap-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Quay lại danh sách kho
+          Quay lại kho sản phẩm
         </button>
-        <span className="font-mono text-[9px] text-zinc-400 uppercase font-bold">
-          {editingProduct ? "Bản sửa đổi: ID " + editingProduct.id : "Khởi tạo thiết kế mới"}
-        </span>
       </div>
 
-      <div className="bg-white rounded-2xl border border-zinc-200/50 shadow-sm overflow-hidden">
-        
-        {/* Visual Title Banner */}
-        <div className="p-8 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-[#8c7623]" />
-              <span className="font-mono text-[9px] tracking-[0.2em] text-[#8c7623] uppercase font-bold">
-                Luxury curation
-              </span>
-            </div>
-            <h3 className="font-serif text-2xl tracking-normal text-zinc-950 font-bold mt-2">
-              {editingProduct ? "Cắt Sửa Chi Tiết Sản Phẩm" : "Tuyển Chọn Thiết Kế Sang Trọng"}
-            </h3>
-            <p className="font-sans text-xs text-zinc-450 mt-1 leading-relaxed">
-              Điền các thông số sản xuất, mã nhận diện (SKU) và gắn tệp hình ảnh phác thảo của bộ sưu tập sang trọng này.
-            </p>
-          </div>
+      <div className="bg-white rounded-xl border border-zinc-200 shadow-xs overflow-hidden">
+        {/* Title */}
+        <div className="p-6 border-b border-zinc-100 bg-zinc-50/50">
+          <h3 className="text-xl font-bold text-zinc-900">
+            {editingProduct ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}
+          </h3>
+          <p className="text-xs text-zinc-500 mt-1">
+            Điền đầy đủ thông tin bên dưới để lưu sản phẩm vào hệ thống
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-8">
-          
-          {/* Notifications logs inside form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {errorMsg && (
-            <div className="p-4 bg-rose-50 border border-rose-100 rounded-xl text-rose-700 text-xs font-semibold flex items-center gap-2.5">
+            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs font-semibold flex items-center gap-2">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {successMsg && (
-            <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-700 text-xs font-semibold flex items-center gap-2.5">
+            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 text-xs font-semibold flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 shrink-0" />
               <span>{successMsg}</span>
             </div>
           )}
 
-          {/* Dual blocks layout */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            {/* Left Block: Product Details fields */}
-            <div className="space-y-6">
-              
-              <div className="grid grid-cols-2 gap-4">
+          {/* Form grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Left Block: Product Details */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
                 {/* SKU Code Input */}
                 <div>
-                  <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
-                    Mã sản xuất (SKU)
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                    Mã SKU
                   </label>
                   <input
                     type="text"
                     value={sku}
                     onChange={(e) => setSku(e.target.value)}
-                    placeholder="TRN-XXXX"
-                    className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3 text-xs font-mono tracking-widest uppercase focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-800 font-bold"
+                    placeholder="TRN-1001"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2.5 text-xs font-mono font-semibold uppercase focus:outline-none focus:border-zinc-900 focus:bg-white transition-all text-zinc-900"
                   />
                 </div>
                 
                 {/* Category Dropdown */}
                 <div>
-                  <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
-                    Phân nhóm danh mục
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                    Danh mục *
                   </label>
                   <select
                     value={categoryName}
                     onChange={(e) => setCategoryName(e.target.value)}
-                    className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-700 font-bold"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2.5 text-xs font-medium focus:outline-none focus:border-zinc-900 focus:bg-white transition-all text-zinc-800"
                   >
                     {categories.map((catName) => (
                       <option key={catName} value={catName}>{catName}</option>
@@ -338,65 +322,61 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                 </div>
               </div>
 
-              {/* Product Design Name Input */}
+              {/* Product Name */}
               <div>
-                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
-                  Tên sản phẩm thiết kế *
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                  Tên sản phẩm *
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Ví dụ: Silk Evening Blazer..."
-                  className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3.5 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-850 font-bold"
+                  placeholder="Nhập tên sản phẩm..."
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2.5 text-sm font-semibold focus:outline-none focus:border-zinc-900 focus:bg-white transition-all text-zinc-900"
                 />
               </div>
 
-              {/* Price, Discount, and Stock levels inputs */}
-              <div className="grid grid-cols-3 gap-4">
-                {/* Price */}
+              {/* Price, Discount, Stock */}
+              <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
-                    Giá niêm yết (VND) *
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                    Giá niêm yết (VNĐ) *
                   </label>
                   <input
                     type="number"
                     value={price || ""}
                     onChange={(e) => setPrice(Number(e.target.value))}
-                    placeholder="Ví dụ: 450"
-                    className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3 text-xs font-mono font-bold focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-850"
+                    placeholder="450000"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2.5 text-xs font-semibold focus:outline-none focus:border-zinc-900 focus:bg-white transition-all text-zinc-900"
                     min="0"
-                    step="any"
                   />
                 </div>
 
-                {/* Discount */}
                 <div>
-                  <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
-                    Giảm giá Săn Sale (%)
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                    Giảm giá (%)
                   </label>
                   <input
                     type="number"
                     value={discount || ""}
                     onChange={(e) => setDiscount(Number(e.target.value))}
-                    placeholder="Ví dụ: 15"
-                    className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3 text-xs font-mono font-bold focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-850"
+                    placeholder="10"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2.5 text-xs font-semibold focus:outline-none focus:border-zinc-900 focus:bg-white transition-all text-zinc-900"
                     min="0"
                     max="100"
                   />
                 </div>
 
-                {/* Remaining Stock */}
                 <div>
-                  <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
-                    Kho hàng *
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                    Số lượng tồn *
                   </label>
                   <input
                     type="number"
                     value={stock}
                     onChange={(e) => setStock(Number(e.target.value))}
-                    placeholder="Ví dụ: 12"
-                    className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3 text-xs font-mono font-bold focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-850"
+                    placeholder="10"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2.5 text-xs font-semibold focus:outline-none focus:border-zinc-900 focus:bg-white transition-all text-zinc-900"
                     min="0"
                   />
                 </div>
@@ -404,19 +384,19 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
 
               {/* Status Selector */}
               <div>
-                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">
                   Trạng thái bày bán
                 </label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   {Object.values(ProductStatus).map((statOption) => (
                     <button
                       key={statOption}
                       type="button"
                       onClick={() => setStatus(statOption)}
-                      className={`font-sans text-[10px] font-bold uppercase tracking-wider py-3 px-3 rounded-xl border text-center transition-all ${
+                      className={`text-xs font-semibold py-2 px-3 rounded-lg border text-center transition-all ${
                         status === statOption
-                          ? "bg-zinc-900 text-white border-transparent shadow-sm"
-                          : "bg-zinc-55 border-zinc-200 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800"
+                          ? "bg-zinc-900 text-white border-transparent shadow-xs"
+                          : "bg-zinc-50 border-zinc-200 text-zinc-600 hover:bg-zinc-100"
                       }`}
                     >
                       {statOption === ProductStatus.ACTIVE ? "Đang bán" : statOption === ProductStatus.DRAFT ? "Lưu nháp" : "Lưu trữ"}
@@ -425,173 +405,121 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                 </div>
               </div>
 
-              {/* Long Description Textarea */}
+              {/* Description */}
               <div>
-                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
-                  Mô tả phong cách & Vật liệu
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                  Mô tả sản phẩm
                 </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Lịch sử sáng tác phong cách thượng lưu, tay nghề dệt may, chất lượng lụa tự nhiên..."
+                  placeholder="Mô tả kiểu dáng, chất liệu sản phẩm..."
                   rows={4}
-                  className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3.5 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-700 leading-relaxed font-medium"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2.5 text-xs font-medium focus:outline-none focus:border-zinc-900 focus:bg-white transition-all text-zinc-800 leading-relaxed"
                 />
               </div>
-
             </div>
 
-            {/* Right Block: Image drop zone and remote URL reference */}
-            <div className="space-y-6 flex flex-col justify-between">
-              
-              {/* Image Input Selection Container */}
-              <div className="space-y-4">
-                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans">
-                  Hình ảnh trưng bày bộ sưu tập *
-                </label>
+            {/* Right Block: Image drop zone */}
+            <div className="space-y-4">
+              <label className="block text-xs font-semibold text-zinc-700">
+                Hình ảnh sản phẩm *
+              </label>
 
-                {/* Drag and drop interactive area with file loading capabilities */}
-                <div 
-                  onDragEnter={handleDrag}
-                  onDragOver={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 relative ${
-                    dragActive 
-                      ? "border-[#8c7623] bg-[#8c7623]/5" 
-                      : "border-zinc-200 bg-zinc-50/50 hover:bg-zinc-100/50"
-                  }`}
-                >
-                  <input
-                    type="file"
-                    id="image-file-upload"
-                    multiple={false}
-                    accept="image/*"
-                    onChange={handleFileInput}
-                    className="hidden"
-                  />
-                  
-                  {imageUrl ? (
-                    <div className="space-y-4">
-                      <div className="aspect-[3/4] max-w-[190px] mx-auto rounded-xl overflow-hidden border border-zinc-200/60 shadow-md bg-white">
-                        <img 
-                          src={imageUrl} 
-                          alt="Layout Curation Draft" 
-                          className="w-full h-full object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                      </div>
-                      <p className="font-sans text-[10px] text-zinc-450 font-medium">
-                        Phác thảo hình ảnh tải lên thành công. Kéo thả file khác để thay đổi.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setImageUrl("")}
-                        className="text-[9px] font-mono text-rose-500 font-bold uppercase hover:underline"
-                      >
-                        Gỡ bỏ ảnh phác thảo
-                      </button>
+              <div 
+                onDragEnter={handleDrag}
+                onDragOver={handleDrag}
+                onDragLeave={handleDrag}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-xl p-6 text-center transition-all ${
+                  dragActive 
+                    ? "border-zinc-900 bg-zinc-100" 
+                    : "border-zinc-200 bg-zinc-50/50 hover:bg-zinc-100/50"
+                }`}
+              >
+                <input
+                  type="file"
+                  id="image-file-upload"
+                  accept="image/*"
+                  onChange={handleFileInput}
+                  className="hidden"
+                />
+                
+                {imageUrl ? (
+                  <div className="space-y-3">
+                    <div className="aspect-[3/4] max-w-[160px] mx-auto rounded-lg overflow-hidden border border-zinc-200 shadow-xs bg-white">
+                      <img 
+                        src={imageUrl} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
                     </div>
-                  ) : (
-                    <label htmlFor="image-file-upload" className="cursor-pointer space-y-3 block">
-                      <div className="mx-auto w-12 h-12 rounded-full bg-white border border-zinc-150 flex items-center justify-center text-[#8c7623] shadow-sm">
-                        <UploadCloud className="h-6 w-6" />
-                      </div>
-                      <div className="space-y-1">
-                        <span className="font-sans text-xs font-bold text-zinc-700 block">
-                          Tải ảnh phác thảo từ thiết bị
-                        </span>
-                        <span className="font-sans text-[10px] text-zinc-400 block pb-1">
-                          hoặc thả tập tin vào khung này
-                        </span>
-                        <span className="inline-block bg-white border border-zinc-200 text-[9px] font-bold uppercase tracking-wider font-sans px-4 py-2 rounded-xl shadow-sm hover:border-[#8c7623] transition-colors">
-                          Chọn File ảnh
-                        </span>
-                      </div>
-                    </label>
-                  )}
-                </div>
-
-                <div className="relative flex items-center justify-center my-4">
-                  <div className="absolute inset-y-1/2 left-0 right-0 h-[1px] bg-zinc-100" />
-                  <span className="relative bg-white px-3 font-mono text-[9px] text-zinc-300 uppercase font-bold tracking-wider">Hoặc dán URL ảnh trực tiếp</span>
-                </div>
-
-                {/* Direct image input URL box */}
-                <div className="flex gap-2">
-                  <span className="inline-flex items-center px-3 bg-zinc-100 rounded-xl text-zinc-400 border border-zinc-200">
-                    <ImageIcon className="h-4 w-4" />
-                  </span>
-                  <input
-                    type="url"
-                    value={imageUrl.startsWith("data:") ? "" : imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="Chèn URL ảnh trực tuyến..."
-                    className="flex-1 bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-800 font-medium"
-                  />
-                </div>
-              </div>
-
-              {/* Sample suggestions widgets */}
-              {!imageUrl && (
-                <div className="p-4 bg-[#8c7623]/5 border border-[#8c7623]/10 rounded-2xl space-y-2.5 text-left">
-                  <p className="font-sans text-[10px] font-bold text-[#8c7623] uppercase tracking-wider">Mẫu ảnh gợi ý có sẵn:</p>
-                  <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
-                      onClick={() => setImageUrl("https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600")}
-                      className="text-[9px] font-sans text-zinc-650 bg-white hover:bg-[#8c7623]/10 hover:text-[#8c7623] hover:border-[#8c7623]/30 p-2.5 rounded-lg border border-zinc-200 truncate block text-left font-bold transition-all"
+                      onClick={() => setImageUrl("")}
+                      className="text-xs text-rose-600 font-semibold hover:underline"
                     >
-                      Bộ váy thiết kế lụa vàng
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setImageUrl("https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=600")}
-                      className="text-[9px] font-sans text-zinc-650 bg-white hover:bg-[#8c7623]/10 hover:text-[#8c7623] hover:border-[#8c7623]/30 p-2.5 rounded-lg border border-zinc-200 truncate block text-left font-bold transition-all"
-                    >
-                      Bốt da cao cấp
+                      Đổi ảnh khác
                     </button>
                   </div>
-                </div>
-              )}
+                ) : (
+                  <label htmlFor="image-file-upload" className="cursor-pointer space-y-2 block">
+                    <UploadCloud className="h-8 w-8 text-zinc-400 mx-auto" />
+                    <span className="text-xs font-semibold text-zinc-700 block">
+                      Nhấp để tải ảnh lên hoặc kéo thả vào đây
+                    </span>
+                    <span className="text-[11px] text-zinc-400 block">Hỗ trợ PNG, JPG, WEBP</span>
+                  </label>
+                )}
+              </div>
 
+              {/* Direct image input URL box */}
+              <div>
+                <label className="block text-xs font-semibold text-zinc-600 mb-1">
+                  Hoặc nhập URL hình ảnh trực tiếp:
+                </label>
+                <input
+                  type="url"
+                  value={imageUrl.startsWith("data:") ? "" : imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2 text-xs font-medium focus:outline-none focus:border-zinc-900 focus:bg-white transition-all text-zinc-800"
+                />
+              </div>
             </div>
-
           </div>
 
-          {/* Variants Management Card */}
-          <div className="bg-white p-8 rounded-2xl border border-zinc-200/50 shadow-sm space-y-6">
-            <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
+          {/* Variants Management Section */}
+          <div className="pt-6 border-t border-zinc-200 space-y-4">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Package className="h-4.5 w-4.5 text-[#8c7623]" />
-                <h4 className="font-serif text-base text-zinc-950 font-bold">
-                  Phân Loại Biến Thể Sản Phẩm (Kích cỡ & Màu sắc)
+                <Package className="h-4 w-4 text-zinc-700" />
+                <h4 className="text-sm font-bold text-zinc-900">
+                  Biến thể sản phẩm (Kích cỡ & Màu sắc)
                 </h4>
               </div>
               
-              {/* Variant toggle button */}
-              <label className="relative inline-flex items-center cursor-pointer select-none">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input 
                   type="checkbox" 
                   checked={hasVariants}
                   onChange={(e) => setHasVariants(e.target.checked)}
-                  className="sr-only peer"
+                  className="w-4 h-4 rounded text-zinc-900 border-zinc-300 focus:ring-zinc-900"
                 />
-                <div className="w-11 h-6 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8c7623]"></div>
-                <span className="ml-3 text-xs font-bold text-zinc-700 uppercase tracking-wider flex-shrink-0">
-                  Có nhiều kích cỡ/màu sắc
+                <span className="text-xs font-semibold text-zinc-700">
+                  Phân loại theo Size / Màu
                 </span>
               </label>
             </div>
 
             {hasVariants && (
-              <div className="space-y-6 animate-fade-in">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
-                  {/* Sizes Tag input */}
+              <div className="space-y-4 pt-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Sizes */}
                   <div className="space-y-2">
-                    <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans">
-                      Quản lý kích cỡ (Sizes)
+                    <label className="block text-xs font-semibold text-zinc-600">
+                      Kích cỡ (Sizes)
                     </label>
                     <div className="flex gap-2">
                       <input
@@ -599,42 +527,37 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                         value={newSize}
                         onChange={(e) => setNewSize(e.target.value)}
                         onKeyDown={handleAddSize}
-                        placeholder="Nhập kích cỡ (ví dụ: S, M, L, 39, 40) rồi Enter"
-                        className="flex-1 bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-800 font-medium"
+                        placeholder="Ví dụ: S, M, L, XL"
+                        className="flex-1 bg-zinc-50 border border-zinc-200 rounded-lg p-2 text-xs font-medium focus:outline-none focus:border-zinc-900"
                       />
                       <button
                         type="button"
                         onClick={handleAddSize}
-                        className="bg-zinc-900 hover:bg-[#8c7623] text-white px-4 rounded-xl text-xs font-bold uppercase transition-colors cursor-pointer"
+                        className="bg-zinc-900 hover:bg-zinc-800 text-white px-3 rounded-lg text-xs font-semibold"
                       >
                         Thêm
                       </button>
                     </div>
-                    
-                    {/* Sizes list tags wrapper */}
-                    <div className="flex flex-wrap gap-1.5 pt-2">
+                    <div className="flex flex-wrap gap-1.5 pt-1">
                       {sizes.map(size => (
-                        <span key={size} className="inline-flex items-center gap-1 bg-zinc-100 hover:bg-zinc-200/60 text-zinc-700 font-sans text-[11px] font-bold px-2.5 py-1 rounded-lg transition-colors">
+                        <span key={size} className="inline-flex items-center gap-1 bg-zinc-100 text-zinc-800 text-xs font-semibold px-2.5 py-1 rounded-md">
                           {size}
                           <button
                             type="button"
                             onClick={() => handleRemoveSize(size)}
-                            className="text-zinc-450 hover:text-rose-500 font-bold ml-1 cursor-pointer focus:outline-none"
+                            className="text-zinc-400 hover:text-rose-600 font-bold ml-1"
                           >
                             ×
                           </button>
                         </span>
                       ))}
-                      {sizes.length === 0 && (
-                        <span className="text-[11px] text-zinc-405 font-semibold italic">Chưa khai báo kích cỡ nào</span>
-                      )}
                     </div>
                   </div>
 
-                  {/* Colors Tag input */}
+                  {/* Colors */}
                   <div className="space-y-2">
-                    <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans">
-                      Quản lý màu sắc (Colors)
+                    <label className="block text-xs font-semibold text-zinc-600">
+                      Màu sắc (Colors)
                     </label>
                     <div className="flex gap-2">
                       <input
@@ -642,69 +565,62 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                         value={newColor}
                         onChange={(e) => setNewColor(e.target.value)}
                         onKeyDown={handleAddColor}
-                        placeholder="Nhập màu sắc (ví dụ: Đen, Trắng, Kem) rồi Enter"
-                        className="flex-1 bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-800 font-medium"
+                        placeholder="Ví dụ: Đen, Trắng, Xanh"
+                        className="flex-1 bg-zinc-50 border border-zinc-200 rounded-lg p-2 text-xs font-medium focus:outline-none focus:border-zinc-900"
                       />
                       <button
                         type="button"
                         onClick={handleAddColor}
-                        className="bg-zinc-900 hover:bg-[#8c7623] text-white px-4 rounded-xl text-xs font-bold uppercase transition-colors cursor-pointer"
+                        className="bg-zinc-900 hover:bg-zinc-800 text-white px-3 rounded-lg text-xs font-semibold"
                       >
                         Thêm
                       </button>
                     </div>
-
-                    {/* Colors list tags wrapper */}
-                    <div className="flex flex-wrap gap-1.5 pt-2">
+                    <div className="flex flex-wrap gap-1.5 pt-1">
                       {colors.map(color => (
-                        <span key={color} className="inline-flex items-center gap-1 bg-zinc-100 hover:bg-zinc-200/60 text-zinc-700 font-sans text-[11px] font-bold px-2.5 py-1 rounded-lg transition-colors">
+                        <span key={color} className="inline-flex items-center gap-1 bg-zinc-100 text-zinc-800 text-xs font-semibold px-2.5 py-1 rounded-md">
                           {color}
                           <button
                             type="button"
                             onClick={() => handleRemoveColor(color)}
-                            className="text-zinc-450 hover:text-rose-500 font-bold ml-1 cursor-pointer focus:outline-none"
+                            className="text-zinc-400 hover:text-rose-600 font-bold ml-1"
                           >
                             ×
                           </button>
                         </span>
                       ))}
-                      {colors.length === 0 && (
-                        <span className="text-[11px] text-zinc-405 font-semibold italic">Chưa khai báo màu sắc nào</span>
-                      )}
                     </div>
                   </div>
-
                 </div>
 
-                {/* Variants Combinations Inventory Allocation list */}
+                {/* Variants Combinations table */}
                 {variants.length > 0 && (
-                  <div className="pt-4 border-t border-zinc-100 space-y-3">
-                    <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans">
-                      Bảng phân bổ số lượng tồn kho theo biến thể
+                  <div className="pt-3 space-y-2">
+                    <label className="block text-xs font-semibold text-zinc-600">
+                      Phân bổ số lượng tồn kho theo biến thể:
                     </label>
                     
-                    <div className="max-h-72 overflow-y-auto border border-zinc-200 rounded-xl divide-y divide-zinc-100 shadow-inner">
+                    <div className="max-h-60 overflow-y-auto border border-zinc-200 rounded-lg">
                       <table className="w-full text-left text-xs font-sans">
-                        <thead className="bg-zinc-50 text-zinc-500 font-bold uppercase tracking-wider text-[9px]">
+                        <thead className="bg-zinc-50 text-zinc-500 font-bold uppercase text-[10px]">
                           <tr>
-                            <th className="p-3">Biến thể kích cỡ / màu sắc</th>
-                            <th className="p-3 text-right">Số lượng nhập kho</th>
+                            <th className="p-2.5">Biến thể (Size - Màu)</th>
+                            <th className="p-2.5 text-right">Tồn kho</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-zinc-100">
                           {variants.map((v, index) => (
-                            <tr key={index} className="hover:bg-zinc-50/40 transition-colors">
-                              <td className="p-3 font-semibold text-zinc-800">
-                                Size <span className="bg-zinc-100 px-2 py-0.5 rounded text-zinc-600 font-bold font-mono mr-1.5">{v.size}</span>
-                                — Màu <span className="bg-zinc-100 px-2 py-0.5 rounded text-zinc-600 font-bold mr-1.5">{v.color}</span>
+                            <tr key={index}>
+                              <td className="p-2.5 font-medium text-zinc-800">
+                                Size {v.size} — Màu {v.color}
                               </td>
-                              <td className="p-3 text-right">
+                              <td className="p-2.5 text-right">
                                 <input
                                   type="number"
                                   value={v.quantity}
                                   onChange={(e) => handleVariantQuantityChange(v.size, v.color, Number(e.target.value))}
                                   min="0"
-                                  className="w-24 bg-zinc-50 border border-zinc-200 rounded-lg p-2 text-right font-mono font-bold focus:outline-none focus:border-[#8c7623] focus:bg-white transition-all text-zinc-800"
+                                  className="w-20 bg-zinc-50 border border-zinc-200 rounded-md p-1.5 text-right font-semibold focus:outline-none focus:border-zinc-900"
                                 />
                               </td>
                             </tr>
@@ -712,37 +628,32 @@ export const ProductFormView: React.FC<ProductFormViewProps> = ({
                         </tbody>
                       </table>
                     </div>
-                    
-                    <p className="text-[10px] text-zinc-455 font-bold text-right italic pt-1">
-                      Tổng số lượng tự động tính gộp: <strong className="text-zinc-700 font-mono">{stock}</strong> sản phẩm.
-                    </p>
                   </div>
                 )}
               </div>
             )}
           </div>
 
-          {/* Action submission buttons block */}
-          <div className="flex items-center gap-4 pt-6 border-t border-zinc-150 justify-end">
+          {/* Action buttons */}
+          <div className="flex items-center gap-3 pt-4 border-t border-zinc-200 justify-end">
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-3 border border-zinc-300 rounded-xl text-zinc-700 hover:bg-zinc-50 font-sans text-xs font-bold tracking-wider uppercase transition-colors cursor-pointer"
+              className="px-5 py-2.5 border border-zinc-200 rounded-lg text-zinc-700 hover:bg-zinc-50 text-xs font-semibold transition-colors"
             >
-              Hủy bỏ
+              Hủy
             </button>
             <button
               type="submit"
-              className="flex items-center gap-2 bg-zinc-900 hover:bg-[#8c7623] text-white px-7 py-3 rounded-xl text-xs font-bold tracking-wider uppercase font-sans transition-all duration-300 shadow-md shadow-zinc-900/5 cursor-pointer"
+              className="flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 text-white px-6 py-2.5 rounded-lg text-xs font-semibold transition-all shadow-sm"
             >
               <Save className="h-4 w-4" />
-              {editingProduct ? "Lưu thay đổi thiết kế" : "Bắt đầu niêm yết"}
+              {editingProduct ? "Lưu thay đổi" : "Thêm sản phẩm"}
             </button>
           </div>
-
         </form>
       </div>
-
     </div>
   );
 };
+

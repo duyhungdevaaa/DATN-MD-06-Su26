@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react";
+import React, { useState } from "react";
 import { 
   TrendingUp, 
   CircleDollarSign, 
@@ -30,87 +30,76 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigateToTab,
   onSelectOrder
 }) => {
-  // Calculations
   const formatVND = (num: number) => {
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(num);
   };
 
-  const totalRevenue = orders
-    .filter(o => o.status !== "Đã hủy")
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const filteredOrders = orders.filter(o => {
+    if (!startDate && !endDate) return true;
+    try {
+      const datePart = o.date.split(" ")[0];
+      let dStr = datePart;
+      if (datePart.includes("/")) {
+        const [day, month, year] = datePart.split("/");
+        dStr = `${year}-${month}-${day}`;
+      }
+      const oDate = new Date(dStr).getTime();
+      const sDate = startDate ? new Date(startDate).getTime() : 0;
+      const eDate = endDate ? new Date(endDate).getTime() : Infinity;
+      return oDate >= sDate && oDate <= eDate;
+    } catch {
+      return true;
+    }
+  });
+
+  const totalRevenue = filteredOrders
+    .filter(o => o.status !== "Đã hủy" && o.status !== "Trả hàng/Hoàn tiền")
     .reduce((sum, o) => sum + o.total, 0);
 
-  const pendingOrders = orders.filter(o => o.status === "Đang xử lý");
-  const shippingOrders = orders.filter(o => o.status === "Đang vận chuyển");
+  const pendingOrders = filteredOrders.filter(o => o.status === "Đang xử lý" || o.status === "Chờ xác nhận");
+  const lowStockProducts = products.filter(p => p.stock <= 5);
 
-  // Premium metrics
   const stats = [
     {
       id: "revenue",
-      title: "Tổng Doanh Thu Lũy Kế",
+      title: "Tổng doanh thu",
       value: formatVND(totalRevenue),
-      change: "+18.4%",
-      isPositive: true,
-      subtext: "Từ khởi đầu kỳ",
+      subtext: "Doanh số thực tế",
       icon: CircleDollarSign,
-      color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+      color: "bg-emerald-50 text-emerald-700 border-emerald-200"
     },
     {
       id: "orders",
-      title: "Khối Lượng Đơn Hàng",
-      value: `${orders.length} Đơn hàng`,
-      change: `+6.8%`,
-      isPositive: true,
-      subtext: `${pendingOrders.length} Đơn đang chờ xử lý`,
+      title: "Khối lượng đơn hàng",
+      value: `${filteredOrders.length} đơn`,
+      subtext: `${pendingOrders.length} đơn chờ duyệt`,
       icon: ShoppingBag,
-      color: "bg-[#8c7623]/10 text-[#8c7623] border-[#8c7623]/20"
+      color: "bg-amber-50 text-amber-700 border-amber-200"
+    },
+    {
+      id: "products",
+      title: "Tổng số sản phẩm",
+      value: `${products.length} sản phẩm`,
+      subtext: `${lowStockProducts.length} sản phẩm sắp hết hàng`,
+      icon: TrendingUp,
+      color: "bg-sky-50 text-sky-700 border-sky-200"
     },
     {
       id: "users",
-      title: "Thành Viên Độc Quyền",
-      value: `${users.length} Hội viên`,
-      change: "Hạng VIP Gold",
-      isPositive: true,
-      subtext: `${users.filter(u => u.tier === "GOLD").length} khách hàng VIP Gold`,
+      title: "Khách hàng",
+      value: `${users.length} tài khoản`,
+      subtext: "Đã đăng ký hệ thống",
       icon: Award,
-      color: "bg-amber-500/10 text-amber-600 border-amber-500/20"
+      color: "bg-purple-50 text-purple-700 border-purple-200"
     }
   ];
 
-  // Live premium system events (derived from real orders)
-  const recentEvents = orders
-    .slice(0, 5) // Get latest 5
-    .map(o => {
-      let actionText = "đã đặt một đơn hàng mới";
-      let badgeLabel = "Đơn hàng mới";
-      let colorClass = "text-sky-600 bg-sky-50";
-
-      if (o.status === "Đang xử lý") {
-        actionText = "vừa tạo yêu cầu mua sắm";
-        badgeLabel = "Chờ duyệt";
-        colorClass = "text-amber-600 bg-amber-50";
-      } else if (o.status === "Đã giao") {
-        actionText = "đã nhận được kiện hàng thành công";
-        badgeLabel = "Hoàn tất";
-        colorClass = "text-green-600 bg-green-50";
-      } else if (o.status === "Đã hủy") {
-        actionText = "đã hủy giao dịch";
-        badgeLabel = "Đã hủy";
-        colorClass = "text-rose-600 bg-rose-50";
-      }
-
-      return {
-        user: o.customerName,
-        action: actionText,
-        time: o.date,
-        badge: badgeLabel,
-        color: colorClass
-      };
-    });
-
-  const daysOfWeek = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+  // Revenue chart calculation
   const revenueByDay = [0, 0, 0, 0, 0, 0, 0];
-
-  orders.filter(o => o.status !== "Đã hủy").forEach(o => {
+  filteredOrders.filter(o => o.status !== "Đã hủy").forEach(o => {
     try {
       const datePart = o.date.split(" ")[0];
       const [day, month, year] = datePart.split("/");
@@ -142,264 +131,195 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   const chartHeight = 120;
   const chartYOffset = 10;
-  const barWidth = 24;
-  const xPositions = [45, 125, 205, 285, 365, 445, 525]; // 7 points
+  const barWidth = 28;
+  const xPositions = [45, 125, 205, 285, 365, 445, 525];
 
   return (
-    <div className="space-y-8 animate-fade-in font-sans">
-      {/* Editorial Greetings Banner */}
-      <section className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-800 text-white p-8 rounded-2xl border-none shadow-lg relative overflow-hidden">
-        {/* Subtle mesh background effect */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(140,118,35,0.15),transparent_45%)] pointer-events-none" />
-        
-        <div className="relative z-10">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-[#8c7623]" />
-            <span className="font-mono text-[9px] tracking-[0.25em] text-[#8c7623] uppercase font-bold">
-              Bảng quản trị tối cao
-            </span>
-          </div>
-          <h2 className="font-serif text-3xl tracking-normal text-white uppercase mt-2.5 font-light">
-            Cảm hứng Sáng tạo <span className="font-normal italic text-[#8c7623]">Trendify v1.0</span>
-          </h2>
-          <p className="font-sans text-xs text-zinc-400 mt-2.5 max-w-2xl leading-relaxed">
-            Nơi kết tinh dịch vụ may đo thời trang Haute Couture cùng hệ thống quản lý dữ liệu bán hàng trực quan. 
-            Mọi sửa đổi tồn kho hay cập nhật trạng thái hóa đơn sẽ ngay lập tức có hiệu lực trên toàn chuỗi boutique.
-          </p>
+    <div className="space-y-6 font-sans text-left">
+      {/* Header section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-zinc-200 shadow-xs">
+        <div>
+          <h2 className="text-xl font-bold text-zinc-900">Tổng quan kinh doanh</h2>
+          <p className="text-xs text-zinc-500 mt-0.5">Báo cáo doanh số và hoạt động bán hàng theo thời gian thực</p>
         </div>
-        <div className="flex gap-3 relative z-10">
-          <button 
-            onClick={() => onNavigateToTab("products")}
-            className="font-sans text-[11px] font-bold tracking-widest text-white uppercase border border-zinc-700 px-5 py-3 rounded-xl hover:bg-zinc-800 hover:border-zinc-650 transition-all duration-200"
-          >
-            Quản lý kho
-          </button>
-          <button 
-            onClick={() => onNavigateToTab("orders")}
-            className="font-sans text-[11px] font-bold tracking-widest text-zinc-950 uppercase bg-white px-5 py-3 rounded-xl hover:bg-[#8c7623] hover:text-white transition-all duration-200"
-          >
-            Danh sách đơn hàng
-          </button>
-        </div>
-      </section>
 
-      {/* Numerical Insights */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Date Filter */}
+        <div className="flex items-center gap-2">
+          <input 
+            type="date" 
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="text-xs border border-zinc-200 rounded-lg px-3 py-1.5 text-zinc-700 outline-none focus:border-zinc-900"
+          />
+          <span className="text-zinc-400 text-xs">-</span>
+          <input 
+            type="date" 
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="text-xs border border-zinc-200 rounded-lg px-3 py-1.5 text-zinc-700 outline-none focus:border-zinc-900"
+          />
+          {(startDate || endDate) && (
+            <button 
+              onClick={() => { setStartDate(""); setEndDate(""); }}
+              className="text-xs text-rose-600 font-semibold hover:underline"
+            >
+              Xóa
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
             <div 
               key={stat.id}
-              className="bg-white p-6 rounded-2xl border border-zinc-200/50 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow duration-300"
+              className="bg-white p-5 rounded-xl border border-zinc-200 shadow-xs flex flex-col justify-between"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-sans text-[11px] font-semibold text-zinc-400 tracking-wider uppercase">
-                    {stat.title}
-                  </p>
-                  <p className="font-serif text-2xl font-bold text-zinc-900 mt-2">
-                    {stat.value}
-                  </p>
+                  <p className="text-xs font-semibold text-zinc-500">{stat.title}</p>
+                  <p className="text-xl font-bold text-zinc-900 mt-1">{stat.value}</p>
                 </div>
-                <div className={`p-3 rounded-xl border ${stat.color}`}>
+                <div className={`p-2.5 rounded-lg border ${stat.color}`}>
                   <Icon className="h-5 w-5" />
                 </div>
               </div>
-              <div className="flex items-center gap-2 mt-4 pt-4 border-t border-zinc-100">
-                <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  stat.isPositive ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
-                }`}>
-                  {stat.change}
-                </span>
-                <span className="font-sans text-[10px] text-zinc-400">
-                  {stat.subtext}
-                </span>
-              </div>
+              <p className="text-[11px] text-zinc-400 mt-3 pt-2 border-t border-zinc-100 font-medium">
+                {stat.subtext}
+              </p>
             </div>
           );
         })}
-      </section>
+      </div>
 
-      {/* Main Structural Bento Row */}
+      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Brand Editorial Statement Card (Left Panel) */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Performance Flow */}
-          <div className="bg-white p-6 rounded-2xl border border-zinc-200/50 shadow-sm text-left hover:shadow-md transition-shadow duration-300">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h4 className="font-serif text-lg text-zinc-900 font-medium">
-                  Hiệu suất dòng tiền giao dịch
-                </h4>
-                <p className="font-sans text-[10px] text-zinc-400 mt-0.5">
-                  Thống kê doanh số bán ra theo thứ trong tuần (VNĐ)
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-sm bg-[#8c7623]" />
-                  <span className="text-[10px] font-sans text-zinc-500 font-semibold">Doanh số thực</span>
-                </div>
-              </div>
+        {/* Left Column: Revenue Chart */}
+        <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-zinc-200 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-zinc-900">Doanh số theo tuần</h3>
+              <p className="text-xs text-zinc-500">Doanh thu thống kê theo các ngày trong tuần</p>
             </div>
-
-            {/* Custom SVG Bar Chart */}
-            <div className="h-44 w-full">
-              <svg viewBox="0 0 570 160" className="w-full h-full overflow-visible">
-                {/* Grid Lines */}
-                <line x1="30" y1="10" x2="570" y2="10" stroke="#f4f4f5" strokeWidth="1" strokeDasharray="3,3" />
-                <line x1="30" y1="50" x2="570" y2="50" stroke="#f4f4f5" strokeWidth="1" strokeDasharray="3,3" />
-                <line x1="30" y1="90" x2="570" y2="90" stroke="#f4f4f5" strokeWidth="1" strokeDasharray="3,3" />
-                <line x1="30" y1="130" x2="570" y2="130" stroke="#e4e4e7" strokeWidth="1" />
-
-                {/* Bars */}
-                {chartData.map((data, index) => {
-                  const barH = (data.value / maxChartValue) * chartHeight;
-                  const xPos = xPositions[index];
-                  const yPos = chartYOffset + chartHeight - barH;
-                  return (
-                    <g key={index}>
-                      {barH > 0 && (
-                        <rect 
-                          x={xPos - barWidth/2} 
-                          y={yPos} 
-                          width={barWidth} 
-                          height={barH} 
-                          fill="url(#goldGradient)" 
-                          rx="4" 
-                          ry="4"
-                          className="hover:opacity-80 transition-opacity"
-                        />
-                      )}
-                      <text x={xPos} y="148" textAnchor="middle" className="font-mono text-[9px] fill-zinc-400 font-bold">{data.label}</text>
-                      {barH > 0 && (
-                        <text x={xPos} y={yPos - 5} textAnchor="middle" className="font-mono text-[8px] fill-zinc-500 font-bold">
-                          {formatShortValue(data.value)}
-                        </text>
-                      )}
-                    </g>
-                  );
-                })}
-
-                {/* Gradients */}
-                <defs>
-                  <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#8c7623" />
-                    <stop offset="100%" stopColor="#d4af37" />
-                  </linearGradient>
-                </defs>
-
-                {/* Y-axis Labels */}
-                <text x="15" y="12" textAnchor="middle" className="font-mono text-[8px] fill-zinc-300 font-bold">{formatShortValue(maxChartValue)}</text>
-                <text x="15" y="52" textAnchor="middle" className="font-mono text-[8px] fill-zinc-300 font-bold">{formatShortValue(maxChartValue * 2 / 3)}</text>
-                <text x="15" y="92" textAnchor="middle" className="font-mono text-[8px] fill-zinc-300 font-bold">{formatShortValue(maxChartValue / 3)}</text>
-                <text x="15" y="133" textAnchor="middle" className="font-mono text-[8px] fill-zinc-300 font-bold">0</text>
-              </svg>
+            <div className="flex items-center gap-1.5 text-xs text-zinc-600 font-medium">
+              <span className="w-2.5 h-2.5 rounded-xs bg-zinc-900" />
+              <span>VNĐ</span>
             </div>
+          </div>
+
+          {/* SVG Bar Chart */}
+          <div className="h-48 w-full pt-4">
+            <svg viewBox="0 0 570 160" className="w-full h-full overflow-visible">
+              <line x1="30" y1="10" x2="570" y2="10" stroke="#f4f4f5" strokeWidth="1" strokeDasharray="3,3" />
+              <line x1="30" y1="50" x2="570" y2="50" stroke="#f4f4f5" strokeWidth="1" strokeDasharray="3,3" />
+              <line x1="30" y1="90" x2="570" y2="90" stroke="#f4f4f5" strokeWidth="1" strokeDasharray="3,3" />
+              <line x1="30" y1="130" x2="570" y2="130" stroke="#e4e4e7" strokeWidth="1" />
+
+              {chartData.map((data, index) => {
+                const barH = (data.value / maxChartValue) * chartHeight;
+                const xPos = xPositions[index];
+                const yPos = chartYOffset + chartHeight - barH;
+                return (
+                  <g key={index}>
+                    {barH > 0 && (
+                      <rect 
+                        x={xPos - barWidth/2} 
+                        y={yPos} 
+                        width={barWidth} 
+                        height={barH} 
+                        fill="#18181b" 
+                        rx="4" 
+                        ry="4"
+                      />
+                    )}
+                    <text x={xPos} y="148" textAnchor="middle" className="text-[10px] fill-zinc-500 font-semibold">{data.label}</text>
+                    {barH > 0 && (
+                      <text x={xPos} y={yPos - 5} textAnchor="middle" className="text-[9px] fill-zinc-600 font-bold">
+                        {formatShortValue(data.value)}
+                      </text>
+                    )}
+                  </g>
+                );
+              })}
+
+              <text x="15" y="12" textAnchor="middle" className="text-[9px] fill-zinc-400 font-medium">{formatShortValue(maxChartValue)}</text>
+              <text x="15" y="52" textAnchor="middle" className="text-[9px] fill-zinc-400 font-medium">{formatShortValue(maxChartValue * 2 / 3)}</text>
+              <text x="15" y="92" textAnchor="middle" className="text-[9px] fill-zinc-400 font-medium">{formatShortValue(maxChartValue / 3)}</text>
+              <text x="15" y="133" textAnchor="middle" className="text-[9px] fill-zinc-400 font-medium">0</text>
+            </svg>
           </div>
         </div>
 
-        {/* Live Client Order Action feed (Right Panel) */}
-        <div className="space-y-6 text-left">
-          {/* Active Orders List */}
-          <div className="bg-white p-6 rounded-2xl border border-zinc-200/50 shadow-sm flex flex-col justify-between h-[360px] hover:shadow-md transition-shadow duration-300">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="font-serif text-lg text-zinc-900 font-medium">
-                  Đơn hàng live
-                </h4>
-                <button 
-                  onClick={() => onNavigateToTab("orders")}
-                  className="text-[10px] text-[#8c7623] hover:underline flex items-center gap-1 font-sans font-bold uppercase tracking-wider"
-                >
-                  Tất cả <ArrowUpRight className="h-3.5 w-3.5" />
-                </button>
+        {/* Right Column: Low Stock Alert & Recent Orders */}
+        <div className="space-y-6">
+          {/* Low Stock Warning */}
+          {lowStockProducts.length > 0 && (
+            <div className="bg-amber-50/70 border border-amber-200 p-4 rounded-xl space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Cảnh báo sắp hết hàng</span>
+                <span className="text-xs bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded-full">{lowStockProducts.length}</span>
               </div>
-
-              <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
-                {orders.slice(0, 4).map((order) => {
-                  return (
-                    <div 
-                      key={order.id}
-                      onClick={() => {
-                        onSelectOrder(order);
-                        onNavigateToTab("orders");
-                      }}
-                      className="p-3 border border-zinc-100 rounded-xl hover:border-[#8c7623]/30 hover:bg-zinc-50/50 cursor-pointer transition-all duration-300 flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8.5 h-8.5 rounded-full overflow-hidden bg-zinc-100 ring-2 ring-zinc-100">
-                          <img 
-                            src={order.customerAvatar} 
-                            alt={order.customerName}
-                            className="w-full h-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-zinc-800 font-sans truncate max-w-[100px]">
-                            {order.customerName}
-                          </p>
-                          <span className="font-mono text-[9px] text-zinc-400 block mt-0.5">
-                            #{order.id.substring(0, 6)} • {order.items.length} món
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs font-bold text-zinc-900 font-mono">
-                          {formatVND(order.total)}
-                        </p>
-                        <span className={`text-[9px] font-sans px-2.5 py-0.5 rounded-full inline-block mt-1 font-semibold ${
-                          order.status === "Đang xử lý" 
-                            ? "bg-amber-50 text-amber-700" 
-                            : order.status === "Đang vận chuyển" 
-                            ? "bg-sky-50 text-sky-700" 
-                            : order.status === "Đã hủy"
-                            ? "bg-rose-50 text-rose-705"
-                            : "bg-emerald-50 text-emerald-705"
-                        }`}>
-                          {order.status}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="space-y-2">
+                {lowStockProducts.slice(0, 3).map((prod) => (
+                  <div key={prod.id} className="flex items-center justify-between text-xs bg-white p-2.5 rounded-lg border border-amber-100">
+                    <span className="font-semibold text-zinc-900 truncate max-w-[150px]">{prod.name}</span>
+                    <span className="text-amber-700 font-bold">Còn {prod.stock} sp</span>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          )}
 
-          {/* System event feeds log */}
-          <div className="bg-white p-6 rounded-2xl border border-zinc-200/50 shadow-sm hover:shadow-md transition-shadow duration-300">
-            <h4 className="font-serif text-lg text-zinc-900 font-medium mb-4">
-              Nhật ký hệ thống live
-            </h4>
-            <div className="space-y-4">
-              {recentEvents.map((evt, idx) => (
-                <div key={idx} className="flex gap-3 text-left">
-                  <div className="mt-1.5">
-                    <span className="w-1.5 h-1.5 block rounded-full bg-[#8c7623] animate-pulse" />
+          {/* Recent Orders */}
+          <div className="bg-white p-5 rounded-xl border border-zinc-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-zinc-900">Đơn hàng vừa đặt</h3>
+              <button 
+                onClick={() => onNavigateToTab("orders")}
+                className="text-xs text-zinc-600 hover:text-zinc-900 font-semibold"
+              >
+                Xem tất cả &rarr;
+              </button>
+            </div>
+
+            <div className="space-y-2.5">
+              {filteredOrders.slice(0, 4).map((order) => (
+                <div 
+                  key={order.id}
+                  onClick={() => {
+                    onSelectOrder(order);
+                    onNavigateToTab("orders");
+                  }}
+                  className="p-3 border border-zinc-100 hover:border-zinc-300 rounded-lg cursor-pointer transition-colors flex items-center justify-between"
+                >
+                  <div>
+                    <p className="text-xs font-semibold text-zinc-900 truncate max-w-[120px]">{order.customerName}</p>
+                    <p className="text-[11px] text-zinc-400 font-mono">#{order.id.substring(0, 6)} • {order.items.length} món</p>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-xs text-zinc-700 leading-relaxed font-sans font-medium">
-                      <strong className="text-zinc-900 font-bold">{evt.user}</strong> {evt.action}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="font-mono text-[9px] text-zinc-400">
-                        {evt.time}
-                      </span>
-                      <span className={`text-[8px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded ${evt.color}`}>
-                        {evt.badge}
-                      </span>
-                    </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-zinc-900">{formatVND(order.total)}</p>
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full inline-block mt-0.5 ${
+                      order.status === "Đang xử lý" || order.status === "Chờ xác nhận"
+                        ? "bg-amber-50 text-amber-700" 
+                        : order.status === "Đang vận chuyển" 
+                        ? "bg-sky-50 text-sky-700" 
+                        : order.status === "Đã hủy"
+                        ? "bg-rose-50 text-rose-700"
+                        : "bg-emerald-50 text-emerald-700"
+                    }`}>
+                      {order.status}
+                    </span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-
         </div>
       </div>
     </div>
   );
 };
+

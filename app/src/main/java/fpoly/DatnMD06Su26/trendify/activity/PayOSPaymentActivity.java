@@ -32,7 +32,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
+import com.google.firebase.firestore.FirebaseFirestore;
 public class PayOSPaymentActivity extends AppCompatActivity {
 
     private static final String TAG = "PayOSPayment";
@@ -55,6 +55,7 @@ public class PayOSPaymentActivity extends AppCompatActivity {
     private String accountName;
     private String description;
     private String bin;
+    private String shippingAddress;
 
     private CartManager cartManager;
     private final Handler pollHandler = new Handler(Looper.getMainLooper());
@@ -95,6 +96,7 @@ public class PayOSPaymentActivity extends AppCompatActivity {
         accountName = intent.getStringExtra("accountName");
         description = intent.getStringExtra("description");
         bin = intent.getStringExtra("bin");
+        shippingAddress = intent.getStringExtra("shipping_address");
 
         Log.d(TAG, "onCreate: orderCode=" + orderCode + ", amount=" + amount + ", bin=" + bin);
 
@@ -236,23 +238,36 @@ public class PayOSPaymentActivity extends AppCompatActivity {
         pollHandler.removeCallbacks(pollRunnable);
         Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
 
-        // Clear cart and redirect
-        cartManager.clearCart(new CartManager.CartCallback() {
-            @Override
-            public void onSuccess() {
-                navigateToSuccess();
-            }
+        // Update order status in Firestore
+        FirebaseFirestore.getInstance().collection("orders").document(orderId)
+            .update("status", "Đang xử lý", "paymentStatus", "PAID")
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "Order status updated to PAID in Firestore");
+                } else {
+                    Log.e(TAG, "Failed to update order status in Firestore", task.getException());
+                }
+                
+                // Clear cart and redirect
+                cartManager.clearCart(new CartManager.CartCallback() {
+                    @Override
+                    public void onSuccess() {
+                        navigateToSuccess();
+                    }
 
-            @Override
-            public void onFailure(String error) {
-                navigateToSuccess(); // Transition even if cart clear fails to prevent stuck user
-            }
-        });
+                    @Override
+                    public void onFailure(String error) {
+                        navigateToSuccess(); // Transition even if cart clear fails to prevent stuck user
+                    }
+                });
+            });
     }
 
     private void navigateToSuccess() {
         Intent intent = new Intent(PayOSPaymentActivity.this, OrderSuccessActivity.class);
         intent.putExtra("order_id", orderId);
+        intent.putExtra("shipping_address", shippingAddress);
+        intent.putExtra("payment_method", "PayOS");
         startActivity(intent);
         finish();
     }

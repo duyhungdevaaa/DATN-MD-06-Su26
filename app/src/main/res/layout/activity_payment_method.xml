@@ -92,6 +92,48 @@
                 android:background="#EEEEEE"
                 android:layout_marginStart="52dp" />
 
+            <!-- Ví TrendifyPay -->
+            <LinearLayout
+                android:id="@+id/layoutTrendifyPay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/iconTrendifyPay"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_credit_card"
+                    app:tint="#EE4D2D" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:text="Ví TrendifyPay"
+                    android:textColor="#333333"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/checkTrendifyPay"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_check"
+                    app:tint="#EE4D2D"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE"
+                android:layout_marginStart="52dp" />
+
+
             <!-- Bank Transfer -->
             <LinearLayout
                 android:id="@+id/layoutBankTransfer"

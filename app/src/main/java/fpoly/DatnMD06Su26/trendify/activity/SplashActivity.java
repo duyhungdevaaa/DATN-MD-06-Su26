@@ -28,8 +28,8 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                // Chuyển sang màn hình Đăng nhập luôn
-                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+                // Chuyển sang màn hình chính
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
                 finish();
             }
 

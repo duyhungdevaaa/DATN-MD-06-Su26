@@ -54,10 +54,10 @@ public class HomeFragment extends Fragment {
         // Bind Banner Image
         ImageView ivBanner = view.findViewById(R.id.ivBanner);
         if (ivBanner != null) {
-            Glide.with(this)
-                .load("https://lh3.googleusercontent.com/aida-public/AB6AXuCdMsc48mhR6FbFhVwf2WdVDCG3ETwd3L4ScSptSVOWhfBa5kC-jyrBzd-l5OIffblyBmtB_1CFC2TLR8WIgRjuYIHr7-wQF3R1gogD8R5vyn6fYEqV66sSFIFEf8uhqZtBwrwO2xICtxWX-8llozsrh0OhsDcO8uVP0CQBRbGuMD59wNtlUXON-ru1REYEgEr0mN_5SmekY0n1Tw9vo5BDOunX_gq8CH1dQnD-NYlwccoW655tFgTCr8wYr6mqYaXsM06DDc8zNso")
-                .centerCrop()
-                .into(ivBanner);
+            // Glide.with(this)
+            //     .load("https://lh3.googleusercontent.com/aida-public/AB6AXuCdMsc48mhR6FbFhVwf2WdVDCG3ETwd3L4ScSptSVOWhfBa5kC-jyrBzd-l5OIffblyBmtB_1CFC2TLR8WIgRjuYIHr7-wQF3R1gogD8R5vyn6fYEqV66sSFIFEf8uhqZtBwrwO2xICtxWX-8llozsrh0OhsDcO8uVP0CQBRbGuMD59wNtlUXON-ru1REYEgEr0mN_5SmekY0n1Tw9vo5BDOunX_gq8CH1dQnD-NYlwccoW655tFgTCr8wYr6mqYaXsM06DDc8zNso")
+            //     .centerCrop()
+            //     .into(ivBanner);
         }
 
         // Search trigger
@@ -74,6 +74,11 @@ public class HomeFragment extends Fragment {
         ImageView ivCart = view.findViewById(R.id.ivCart);
         if (ivCart != null) {
             ivCart.setOnClickListener(v -> {
+                if (!SessionManager.getInstance().isLoggedIn()) {
+                    Toast.makeText(requireContext(), "Vui lòng đăng nhập để xem giỏ hàng", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(requireContext(), LoginActivity.class));
+                    return;
+                }
                 if (getActivity() != null) {
                     startActivity(new Intent(requireContext(), CartActivity.class));
                 }
@@ -116,31 +121,7 @@ public class HomeFragment extends Fragment {
             });
         }
 
-        // Flash Sale Timer Logic
-        TextView tvTimerHours = view.findViewById(R.id.tvTimerHours);
-        TextView tvTimerMinutes = view.findViewById(R.id.tvTimerMinutes);
-        TextView tvTimerSeconds = view.findViewById(R.id.tvTimerSeconds);
-        
-        if (tvTimerHours != null && tvTimerMinutes != null && tvTimerSeconds != null) {
-            // Start a 2 hour, 45 minute, 13 second countdown
-            long flashSaleTimeMillis = (2 * 3600 + 45 * 60 + 13) * 1000L;
-            new android.os.CountDownTimer(flashSaleTimeMillis, 1000) {
-                public void onTick(long millisUntilFinished) {
-                    long hours = (millisUntilFinished / (1000 * 60 * 60)) % 24;
-                    long minutes = (millisUntilFinished / (1000 * 60)) % 60;
-                    long seconds = (millisUntilFinished / 1000) % 60;
-                    
-                    tvTimerHours.setText(String.format("%02d", hours));
-                    tvTimerMinutes.setText(String.format("%02d", minutes));
-                    tvTimerSeconds.setText(String.format("%02d", seconds));
-                }
-                public void onFinish() {
-                    tvTimerHours.setText("00");
-                    tvTimerMinutes.setText("00");
-                    tvTimerSeconds.setText("00");
-                }
-            }.start();
-        }
+
 
         loadCategories();
         loadFavoriteIds();
@@ -296,7 +277,11 @@ public class HomeFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             ProductItem item = items.get(position);
-            holder.tvPrice.setText(formatPrice(item.getPrice()));
+            if (item.getDiscount() > 0) {
+                holder.tvPrice.setText(formatPrice(item.getDiscountedPrice()));
+            } else {
+                holder.tvPrice.setText(formatPrice(item.getPrice()));
+            }
             
             String imgUrl = item.getImageUrl();
             if (imgUrl != null && !imgUrl.isEmpty()) {
