@@ -100,288 +100,62 @@
             android:padding="20dp"
             android:layout_marginTop="24dp">
 
-            <!-- Milestone 1: Đã Đặt Hàng (Active) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="top">
-
-                <!-- Timeline Left -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal">
-
-                    <FrameLayout
-                        android:layout_width="24dp"
-                        android:layout_height="24dp">
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@drawable/bg_circle_black" />
-
-                        <View
-                            android:layout_width="8dp"
-                            android:layout_height="8dp"
-                            android:layout_gravity="center"
-                            android:background="@drawable/bg_circle_white" />
-                    </FrameLayout>
-
-                    <View
-                        android:layout_width="2dp"
-                        android:layout_height="60dp"
-                        android:background="#000000" />
+            <!-- Milestone 1: Chờ xác nhận -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="top">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center_horizontal">
+                    <ImageView android:id="@+id/ivStep1" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/bg_circle_grey" />
+                    <View android:id="@+id/line1" android:layout_width="2dp" android:layout_height="60dp" android:background="#E0E0E0" />
                 </LinearLayout>
-
-                <!-- Timeline Right -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Đã Đặt Hàng"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black" />
-
-                    <TextView
-                        android:id="@+id/tvDaDatHangTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="19/5, 10:30 SA"
-                        android:textSize="14sp"
-                        android:textColor="@color/color_text_secondary"
-                        android:layout_marginTop="4dp" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="16dp">
+                    <TextView android:id="@+id/tvStep1Title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chờ xác nhận" android:textSize="16sp" android:textStyle="bold" android:textColor="#BDBDBD" />
+                    <TextView android:id="@+id/tvDaDatHangTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đang chờ" android:textSize="14sp" android:textColor="#BDBDBD" android:layout_marginTop="4dp" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Milestone 2: Đang Xử Lý (Active) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="top"
-                android:layout_marginTop="8dp">
-
-                <!-- Timeline Left -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal">
-
-                    <FrameLayout
-                        android:layout_width="24dp"
-                        android:layout_height="24dp">
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@drawable/bg_circle_black" />
-
-                        <View
-                            android:layout_width="8dp"
-                            android:layout_height="8dp"
-                            android:layout_gravity="center"
-                            android:background="@drawable/bg_circle_white" />
-                    </FrameLayout>
-
-                    <View
-                        android:layout_width="2dp"
-                        android:layout_height="60dp"
-                        android:background="#000000" />
+            <!-- Milestone 2: Đang xử lý -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="top" android:layout_marginTop="8dp">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center_horizontal">
+                    <ImageView android:id="@+id/ivStep2" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/bg_circle_grey" />
+                    <View android:id="@+id/line2" android:layout_width="2dp" android:layout_height="60dp" android:background="#E0E0E0" />
                 </LinearLayout>
-
-                <!-- Timeline Right -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Đang Xử Lý"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black" />
-
-                    <TextView
-                        android:id="@+id/tvDangXuLyTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Đang chờ"
-                        android:textSize="14sp"
-                        android:textColor="@color/color_text_secondary"
-                        android:layout_marginTop="4dp" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="16dp">
+                    <TextView android:id="@+id/tvStep2Title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đang xử lý" android:textSize="16sp" android:textStyle="bold" android:textColor="#BDBDBD" />
+                    <TextView android:id="@+id/tvDangXuLyTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đang chờ" android:textSize="14sp" android:textColor="#BDBDBD" android:layout_marginTop="4dp" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Milestone 3: Đã Gửi Hàng (Active) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="top"
-                android:layout_marginTop="8dp">
-
-                <!-- Timeline Left -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal">
-
-                    <FrameLayout
-                        android:layout_width="24dp"
-                        android:layout_height="24dp">
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@drawable/bg_circle_black" />
-
-                        <View
-                            android:layout_width="8dp"
-                            android:layout_height="8dp"
-                            android:layout_gravity="center"
-                            android:background="@drawable/bg_circle_white" />
-                    </FrameLayout>
-
-                    <View
-                        android:layout_width="2dp"
-                        android:layout_height="60dp"
-                        android:background="#E0E0E0" />
+            <!-- Milestone 3: Đang giao hàng -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="top" android:layout_marginTop="8dp">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center_horizontal">
+                    <ImageView android:id="@+id/ivStep3" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/bg_circle_grey" />
+                    <View android:id="@+id/line3" android:layout_width="2dp" android:layout_height="60dp" android:background="#E0E0E0" />
                 </LinearLayout>
-
-                <!-- Timeline Right -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Đã Gửi Hàng"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black" />
-
-                    <TextView
-                        android:id="@+id/tvDaGuiHangTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Đang chờ"
-                        android:textSize="14sp"
-                        android:textColor="@color/color_text_secondary"
-                        android:layout_marginTop="4dp" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="16dp">
+                    <TextView android:id="@+id/tvStep3Title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đang giao hàng" android:textSize="16sp" android:textStyle="bold" android:textColor="#BDBDBD" />
+                    <TextView android:id="@+id/tvDaGuiHangTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đang chờ" android:textSize="14sp" android:textColor="#BDBDBD" android:layout_marginTop="4dp" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Milestone 4: Đang Giao Hàng (Inactive) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="top"
-                android:layout_marginTop="8dp">
-
-                <!-- Timeline Left -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal">
-
-                    <View
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:background="@drawable/bg_circle_grey" />
-
-                    <View
-                        android:layout_width="2dp"
-                        android:layout_height="60dp"
-                        android:background="#E0E0E0" />
+            <!-- Milestone 4: Đã giao -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="top" android:layout_marginTop="8dp">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center_horizontal">
+                    <ImageView android:id="@+id/ivStep4" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/bg_circle_grey" />
+                    <View android:id="@+id/line4" android:layout_width="2dp" android:layout_height="60dp" android:background="#E0E0E0" />
                 </LinearLayout>
-
-                <!-- Timeline Right -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Đang Giao Hàng"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="#BDBDBD" />
-
-                    <TextView
-                        android:id="@+id/tvDangGiaoHangTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Đang chờ"
-                        android:textSize="14sp"
-                        android:textColor="#BDBDBD"
-                        android:layout_marginTop="4dp" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="16dp">
+                    <TextView android:id="@+id/tvStep4Title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đã giao" android:textSize="16sp" android:textStyle="bold" android:textColor="#BDBDBD" />
+                    <TextView android:id="@+id/tvDangGiaoHangTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đang chờ" android:textSize="14sp" android:textColor="#BDBDBD" android:layout_marginTop="4dp" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Milestone 5: Đã Giao (Inactive - Last) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="top"
-                android:layout_marginTop="8dp">
-
-                <!-- Timeline Left -->
-                <View
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@drawable/bg_circle_grey" />
-
-                <!-- Timeline Right -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Đã Giao"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="#BDBDBD" />
-
-                    <TextView
-                        android:id="@+id/tvDaGiaoTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Đang chờ"
-                        android:textSize="14sp"
-                        android:textColor="#BDBDBD"
-                        android:layout_marginTop="4dp" />
+            <!-- Milestone 5: Hoàn tất -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="top" android:layout_marginTop="8dp">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center_horizontal">
+                    <ImageView android:id="@+id/ivStep5" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/bg_circle_grey" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="16dp">
+                    <TextView android:id="@+id/tvStep5Title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hoàn tất" android:textSize="16sp" android:textStyle="bold" android:textColor="#BDBDBD" />
+                    <TextView android:id="@+id/tvDaGiaoTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đang chờ" android:textSize="14sp" android:textColor="#BDBDBD" android:layout_marginTop="4dp" />
                 </LinearLayout>
             </LinearLayout>
 

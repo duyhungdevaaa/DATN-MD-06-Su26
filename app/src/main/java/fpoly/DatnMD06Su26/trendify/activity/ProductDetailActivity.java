@@ -527,7 +527,8 @@ public class ProductDetailActivity extends AppCompatActivity {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put("service_type_id", 2);
-                payload.put("from_district_id", 1442);
+                payload.put("from_district_id", 1482);
+                payload.put("from_ward_code", "11013");
                 payload.put("to_district_id", districtId);
                 payload.put("to_ward_code", wardCode);
                 payload.put("height", 10);
@@ -557,17 +558,19 @@ public class ProductDetailActivity extends AppCompatActivity {
                     while ((line = reader.readLine()) != null) sb.append(line);
                     
                     JSONObject responseJson = new JSONObject(sb.toString());
-                    if (responseJson.has("data")) {
+                    if (responseJson.has("data") && !responseJson.isNull("data")) {
                         long fee = responseJson.getJSONObject("data").getLong("total");
                         runOnUiThread(() -> {
                             tvShippingFee.setText(String.format("%,dđ", fee).replace(",", "."));
                         });
+                    } else {
+                        runOnUiThread(() -> tvShippingFee.setText("Chưa xác định"));
                     }
                 } else {
-                    runOnUiThread(() -> tvShippingFee.setText("30.000đ"));
+                    runOnUiThread(() -> tvShippingFee.setText("Chưa xác định"));
                 }
             } catch (Exception e) {
-                runOnUiThread(() -> tvShippingFee.setText("30.000đ"));
+                runOnUiThread(() -> tvShippingFee.setText("Chưa xác định"));
             }
         }).start();
     }
@@ -598,12 +601,12 @@ public class ProductDetailActivity extends AppCompatActivity {
                 if (defaultAddress != null && defaultAddress.getDistrictId() != -1 && defaultAddress.getWardCode() != null && !defaultAddress.getWardCode().isEmpty()) {
                     calculateShippingFeeForProduct(defaultAddress.getDistrictId(), defaultAddress.getWardCode());
                 } else {
-                    tvShippingFee.setText("30.000đ");
+                    tvShippingFee.setText("Chưa xác định");
                 }
             }
             @Override
             public void onFailure(String error) {
-                tvShippingFee.setText("30.000đ");
+                tvShippingFee.setText("Chưa xác định");
             }
         });
     }

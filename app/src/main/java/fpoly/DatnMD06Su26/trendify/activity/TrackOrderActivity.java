@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import com.google.firebase.Timestamp;
+import android.view.View;
 
 public class TrackOrderActivity extends AppCompatActivity {
 
@@ -47,6 +48,7 @@ public class TrackOrderActivity extends AppCompatActivity {
             .get().addOnSuccessListener(doc -> {
                 if (doc.exists()) {
                     String status = doc.getString("status");
+                    if (status == null) status = "Chờ xác nhận";
                     Timestamp createdAt = doc.getTimestamp("createdAt");
                     if (createdAt != null) {
                         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM, hh:mm a", new Locale("vi", "VN"));
@@ -62,20 +64,61 @@ public class TrackOrderActivity extends AppCompatActivity {
                             tvEstimatedDelivery.setText("DỰ KIẾN GIAO HÀNG: " + sdfEst.format(cal.getTime()));
                         }
                     }
-                    
-                    // Simple text update for status
-                    if (status != null) {
-                        if (status.equalsIgnoreCase("Đang xử lý") || status.equalsIgnoreCase("Đã xác nhận")) {
-                            if (tvDangXuLyTime != null) tvDangXuLyTime.setText("Đang tiến hành");
-                        } else if (status.equalsIgnoreCase("Đang giao hàng") || status.equalsIgnoreCase("Đã gửi hàng")) {
-                            if (tvDangXuLyTime != null) tvDangXuLyTime.setText("Hoàn tất");
-                            if (tvDaGuiHangTime != null) tvDaGuiHangTime.setText("Hoàn tất");
-                            if (tvDangGiaoHangTime != null) tvDangGiaoHangTime.setText("Đang tiến hành");
-                        } else if (status.equalsIgnoreCase("Đã giao") || status.equalsIgnoreCase("Thành công") || status.equalsIgnoreCase("Hoàn thành")) {
-                            if (tvDangXuLyTime != null) tvDangXuLyTime.setText("Hoàn tất");
-                            if (tvDaGuiHangTime != null) tvDaGuiHangTime.setText("Hoàn tất");
-                            if (tvDangGiaoHangTime != null) tvDangGiaoHangTime.setText("Hoàn tất");
-                            if (tvDaGiaoTime != null) tvDaGiaoTime.setText("Hoàn tất");
+
+                    int currentStep = 1;
+                    if (status.equalsIgnoreCase("Đang xử lý") || status.equalsIgnoreCase("Đang chuẩn bị hàng")) {
+                        currentStep = 2;
+                    } else if (status.equalsIgnoreCase("Đang giao hàng") || status.equalsIgnoreCase("Đang vận chuyển")) {
+                        currentStep = 3;
+                    } else if (status.equalsIgnoreCase("Đã giao") || status.equalsIgnoreCase("Giao hàng thành công")) {
+                        currentStep = 4;
+                    } else if (status.equalsIgnoreCase("Đã hủy") || status.equalsIgnoreCase("Hoàn tất đối soát")) {
+                        currentStep = 5;
+                    }
+
+                    // Define UI elements
+                    ImageView[] icons = {
+                        findViewById(R.id.ivStep1), findViewById(R.id.ivStep2), 
+                        findViewById(R.id.ivStep3), findViewById(R.id.ivStep4), 
+                        findViewById(R.id.ivStep5)
+                    };
+                    TextView[] titles = {
+                        findViewById(R.id.tvStep1Title), findViewById(R.id.tvStep2Title),
+                        findViewById(R.id.tvStep3Title), findViewById(R.id.tvStep4Title),
+                        findViewById(R.id.tvStep5Title)
+                    };
+                    TextView[] times = {
+                        tvDaDatHangTime, tvDangXuLyTime, tvDaGuiHangTime, tvDangGiaoHangTime, tvDaGiaoTime
+                    };
+                    View[] lines = {
+                        findViewById(R.id.line1), findViewById(R.id.line2), 
+                        findViewById(R.id.line3), findViewById(R.id.line4)
+                    };
+
+                    // Handle Cancellation dynamically
+                    if (currentStep == 5 && status.equalsIgnoreCase("Đã hủy")) {
+                        if (titles[4] != null) titles[4].setText("Đã hủy đơn hàng");
+                    }
+
+                    // Apply UI logic
+                    for (int i = 0; i < 5; i++) {
+                        boolean isActive = i < currentStep;
+                        if (icons[i] != null) {
+                            icons[i].setImageResource(isActive ? R.drawable.bg_circle_black : R.drawable.bg_circle_light_grey);
+                        }
+                        if (titles[i] != null) {
+                            titles[i].setTextColor(android.graphics.Color.parseColor(isActive ? "#000000" : "#BDBDBD"));
+                        }
+                        if (times[i] != null) {
+                            times[i].setTextColor(android.graphics.Color.parseColor(isActive ? "#000000" : "#BDBDBD"));
+                            if (isActive && i > 0 && i < currentStep - 1) {
+                                times[i].setText("Hoàn tất");
+                            } else if (isActive && i == currentStep - 1 && i > 0) {
+                                times[i].setText("Đang tiến hành");
+                            }
+                        }
+                        if (i < 4 && lines[i] != null) {
+                            lines[i].setBackgroundColor(android.graphics.Color.parseColor(isActive ? "#000000" : "#E0E0E0"));
                         }
                     }
                 }
