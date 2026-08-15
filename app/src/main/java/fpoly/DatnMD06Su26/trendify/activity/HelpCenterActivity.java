@@ -42,6 +42,11 @@ public class HelpCenterActivity extends AppCompatActivity {
         setupCategoryActions();
         setupContactActions();
         setupPrimaryAction();
+
+        androidx.compose.ui.platform.ComposeView composeBottomNav = findViewById(R.id.composeBottomNav);
+        if (composeBottomNav != null) {
+            TrendifyNavHelper.bind(composeBottomNav, 4, this);
+        }
     }
 
     private void initViews() {

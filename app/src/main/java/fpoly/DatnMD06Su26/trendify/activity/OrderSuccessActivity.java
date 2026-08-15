@@ -39,6 +39,11 @@ public class OrderSuccessActivity extends AppCompatActivity {
         // Close button
         ivClose.setOnClickListener(v -> finish());
 
+        androidx.compose.ui.platform.ComposeView composeBottomNav = findViewById(R.id.composeBottomNav);
+        if (composeBottomNav != null) {
+            TrendifyNavHelper.bind(composeBottomNav, 0, this);
+        }
+
         // Show order ID from the checkout screen
         String orderId = getIntent().getStringExtra("order_id");
         if (orderId != null) {

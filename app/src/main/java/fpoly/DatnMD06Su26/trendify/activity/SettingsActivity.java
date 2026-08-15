@@ -41,6 +41,11 @@ public class SettingsActivity extends AppCompatActivity {
         ImageView ivBack = findViewById(R.id.ivBack);
         ivBack.setOnClickListener(v -> finish());
 
+        androidx.compose.ui.platform.ComposeView composeBottomNav = findViewById(R.id.composeBottomNav);
+        if (composeBottomNav != null) {
+            TrendifyNavHelper.bind(composeBottomNav, 4, this);
+        }
+
         View btnLogout = findViewById(R.id.btnLogout);
         if (btnLogout != null) {
             btnLogout.setOnClickListener(v -> {

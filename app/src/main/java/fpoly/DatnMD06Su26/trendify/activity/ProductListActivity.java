@@ -56,6 +56,11 @@ public class ProductListActivity extends AppCompatActivity {
             tvTitle.setText("Hàng Mới");
         }
 
+        androidx.compose.ui.platform.ComposeView composeBottomNav = findViewById(R.id.composeBottomNav);
+        if (composeBottomNav != null) {
+            TrendifyNavHelper.bind(composeBottomNav, 2, this);
+        }
+
 
 
         RecyclerView rvProducts = findViewById(R.id.rvProducts);
