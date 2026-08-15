@@ -104,27 +104,6 @@ public class FirestoreHelper {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
-    public static com.google.firebase.firestore.ListenerRegistration listenToFavoriteIds(@NonNull FavoriteIdsCallback callback) {
-        if (!SessionManager.getInstance().isLoggedIn()) {
-            callback.onFailure("Người dùng chưa đăng nhập");
-            return null;
-        }
-        return getFavoritesCollection()
-                .addSnapshotListener((snapshot, error) -> {
-                    if (error != null) {
-                        callback.onFailure(error.getMessage());
-                        return;
-                    }
-                    if (snapshot != null) {
-                        List<String> favoriteIds = new ArrayList<>();
-                        for (DocumentSnapshot document : snapshot.getDocuments()) {
-                            favoriteIds.add(document.getId());
-                        }
-                        callback.onLoaded(favoriteIds);
-                    }
-                });
-    }
-
     public static void loadFavoriteIds(@NonNull FavoriteIdsCallback callback) {
         getFavoritesCollection()
                 .get()
@@ -285,30 +264,6 @@ public class FirestoreHelper {
         return profile;
     }
 
-    public static com.google.firebase.firestore.ListenerRegistration listenToUserProfile(@NonNull ProfileCallback callback) {
-        if (!SessionManager.getInstance().isLoggedIn()) {
-            callback.onFailure("Người dùng chưa đăng nhập");
-            return null;
-        }
-        return getUsersCollection().document(getCurrentUserId())
-                .addSnapshotListener((snapshot, error) -> {
-                    if (error != null) {
-                        callback.onFailure(error.getMessage());
-                        return;
-                    }
-                    if (snapshot != null && snapshot.exists()) {
-                        UserProfile profile = snapshot.toObject(UserProfile.class);
-                        if (profile != null) {
-                            callback.onLoaded(profile);
-                        } else {
-                            callback.onFailure("Không tìm thấy dữ liệu người dùng");
-                        }
-                    } else {
-                        callback.onFailure("Không tìm thấy hồ sơ người dùng");
-                    }
-                });
-    }
-
     public static void loadUserProfile(@NonNull ProfileCallback callback) {
         getUsersCollection().document(getCurrentUserId())
                 .get()
@@ -332,31 +287,6 @@ public class FirestoreHelper {
                 .set(updates, SetOptions.merge())
                 .addOnSuccessListener(v -> callback.onSuccess())
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
-    }
-
-    public static com.google.firebase.firestore.ListenerRegistration listenToAddresses(@NonNull AddressesCallback callback) {
-        if (!SessionManager.getInstance().isLoggedIn()) {
-            callback.onFailure("Người dùng chưa đăng nhập");
-            return null;
-        }
-        return getAddressesCollection()
-                .addSnapshotListener((snapshot, error) -> {
-                    if (error != null) {
-                        callback.onFailure(error.getMessage());
-                        return;
-                    }
-                    if (snapshot != null) {
-                        List<UserAddress> addresses = new ArrayList<>();
-                        for (DocumentSnapshot document : snapshot.getDocuments()) {
-                            UserAddress address = document.toObject(UserAddress.class);
-                            if (address != null) {
-                                address.setId(document.getId());
-                                addresses.add(address);
-                            }
-                        }
-                        callback.onLoaded(addresses);
-                    }
-                });
     }
 
     public static void loadAddresses(@NonNull AddressesCallback callback) {
@@ -397,26 +327,6 @@ public class FirestoreHelper {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
-    public static com.google.firebase.firestore.ListenerRegistration listenToVouchers(@NonNull VouchersCallback callback) {
-        return getDb().collection("vouchers")
-                .addSnapshotListener((snapshot, error) -> {
-                    if (error != null) {
-                        callback.onFailure(error.getMessage());
-                        return;
-                    }
-                    if (snapshot != null) {
-                        List<Voucher> vouchers = new ArrayList<>();
-                        for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                            Voucher voucher = Voucher.fromDocument(doc);
-                            if (!voucher.isExpired()) {
-                                vouchers.add(voucher);
-                            }
-                        }
-                        callback.onLoaded(vouchers);
-                    }
-                });
-    }
-
     public static void loadVouchers(@NonNull VouchersCallback callback) {
         getDb().collection("vouchers")
                 .get()
@@ -432,27 +342,6 @@ public class FirestoreHelper {
                     callback.onLoaded(vouchers);
                 })
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
-    }
-
-    public static com.google.firebase.firestore.ListenerRegistration listenToCategories(@NonNull CategoriesCallback callback) {
-        return getDb().collection(COLLECTION_CATEGORIES)
-                .addSnapshotListener((snapshot, error) -> {
-                    if (error != null) {
-                        callback.onFailure(error.getMessage());
-                        return;
-                    }
-                    if (snapshot != null) {
-                        List<CategoryItem> categories = new ArrayList<>();
-                        for (DocumentSnapshot document : snapshot.getDocuments()) {
-                            CategoryItem category = document.toObject(CategoryItem.class);
-                            if (category != null) {
-                                category.setId(document.getId());
-                                categories.add(category);
-                            }
-                        }
-                        callback.onLoaded(categories);
-                    }
-                });
     }
 
     public static void loadCategories(@NonNull CategoriesCallback callback) {
@@ -472,39 +361,12 @@ public class FirestoreHelper {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
-    public static com.google.firebase.firestore.ListenerRegistration listenToProducts(@NonNull String categoryId, @NonNull ProductsCallback callback) {
-        return getDb().collection(COLLECTION_PRODUCTS)
-                .whereEqualTo("categoryId", categoryId)
-                .addSnapshotListener((snapshot, error) -> {
-                    if (error != null) {
-                        callback.onFailure(error.getMessage());
-                        return;
-                    }
-                    if (snapshot != null) {
-                        callback.onLoaded(parseProducts(snapshot));
-                    }
-                });
-    }
-
     public static void loadProducts(@NonNull String categoryId, @NonNull ProductsCallback callback) {
         getDb().collection(COLLECTION_PRODUCTS)
                 .whereEqualTo("categoryId", categoryId)
                 .get()
                 .addOnSuccessListener(snapshot -> callback.onLoaded(parseProducts(snapshot)))
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
-    }
-
-    public static com.google.firebase.firestore.ListenerRegistration listenToAllProducts(@NonNull ProductsCallback callback) {
-        return getDb().collection(COLLECTION_PRODUCTS)
-                .addSnapshotListener((snapshot, error) -> {
-                    if (error != null) {
-                        callback.onFailure(error.getMessage());
-                        return;
-                    }
-                    if (snapshot != null) {
-                        callback.onLoaded(parseProducts(snapshot));
-                    }
-                });
     }
 
     public static void loadAllProducts(@NonNull ProductsCallback callback) {

@@ -27,7 +27,7 @@
         android:id="@+id/tvRegisterSubtitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Đăng ký tài khoản để trải nghiệm mua sắm tiện lợi."
+        android:text="Tạo tài khoản để bắt đầu hành trình của bạn."
         android:textColor="@color/text_secondary"
         android:textSize="15sp"
         android:layout_marginTop="8dp"
