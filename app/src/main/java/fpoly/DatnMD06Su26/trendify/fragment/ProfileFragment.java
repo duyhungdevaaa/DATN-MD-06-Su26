@@ -48,7 +48,6 @@ public class ProfileFragment extends Fragment {
     private LinearLayout llDeliveryAddress;
     private LinearLayout llPaymentMethods;
     private LinearLayout llNotifications;
-    private LinearLayout btnHelpCenter;
     private LinearLayout btnPrivacyPolicy;
     private LinearLayout btnTermsOfService;
     private LinearLayout llSettings;
@@ -92,7 +91,8 @@ public class ProfileFragment extends Fragment {
         LinearLayout llWaitingConfirm = view.findViewById(R.id.llWaitingConfirm);
         LinearLayout llWaitingPickup = view.findViewById(R.id.llWaitingPickup);
         LinearLayout llShipping = view.findViewById(R.id.llShipping);
-        LinearLayout llRate = view.findViewById(R.id.llRate);
+        LinearLayout llDelivered = view.findViewById(R.id.llDelivered);
+        LinearLayout llReturns = view.findViewById(R.id.llReturns);
 
         if (llWaitingConfirm != null) {
             llWaitingConfirm.setOnClickListener(v -> openOrderHistoryWithFilter("CHO_XAC_NHAN"));
@@ -103,8 +103,11 @@ public class ProfileFragment extends Fragment {
         if (llShipping != null) {
             llShipping.setOnClickListener(v -> openOrderHistoryWithFilter("DANG_GIAO"));
         }
-        if (llRate != null) {
-            llRate.setOnClickListener(v -> openPlayStoreForRating());
+        if (llDelivered != null) {
+            llDelivered.setOnClickListener(v -> openOrderHistoryWithFilter("DA_GIAO"));
+        }
+        if (llReturns != null) {
+            llReturns.setOnClickListener(v -> openOrderHistoryWithFilter("TRA_HANG_HOAN_TIEN"));
         }
 
         ivUserAvatar = view.findViewById(R.id.ivUserAvatar);

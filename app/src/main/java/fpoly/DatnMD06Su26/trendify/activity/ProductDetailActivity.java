@@ -182,10 +182,12 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         if (finalProductId != null) {
             FirebaseFirestore.getInstance().collection("products").document(finalProductId)
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        android.util.Log.d("ProductDetailActivity", "Firestore doc snapshot exists: " + documentSnapshot.exists());
-                        if (documentSnapshot.exists()) {
+                    .addSnapshotListener((documentSnapshot, error) -> {
+                        if (error != null) {
+                            Toast.makeText(this, "Lỗi cập nhật sản phẩm: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        if (documentSnapshot != null && documentSnapshot.exists()) {
                             productDetail = documentSnapshot.toObject(ProductItem.class);
                             if (productDetail != null) {
                                 productDetail.setId(documentSnapshot.getId());
@@ -222,15 +224,8 @@ public class ProductDetailActivity extends AppCompatActivity {
                                         }
                                     }
                                 }
-                            } else {
-                                Toast.makeText(this, "Lỗi: Dữ liệu sản phẩm rỗng!", Toast.LENGTH_LONG).show();
                             }
-                        } else {
-                            Toast.makeText(this, "Lỗi: Sản phẩm không tồn tại trên hệ thống! (ID: " + finalProductId + ")", Toast.LENGTH_LONG).show();
                         }
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Không thể tải chi tiết sản phẩm: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     });
         } else {
             Toast.makeText(this, "Lỗi: PRODUCT_ID bị null!", Toast.LENGTH_LONG).show();

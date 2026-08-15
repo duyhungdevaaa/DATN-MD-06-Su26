@@ -72,6 +72,11 @@ public class OrderDetailActivity extends AppCompatActivity {
 
         ivBack.setOnClickListener(v -> finish());
 
+        androidx.compose.ui.platform.ComposeView composeBottomNav = findViewById(R.id.composeBottomNav);
+        if (composeBottomNav != null) {
+            TrendifyNavHelper.bind(composeBottomNav, 4, this);
+        }
+
         RecyclerView rvItems = findViewById(R.id.rvOrderItems);
         adapter = new OrderDetailItemAdapter();
         adapter.setOnRateClickListener((item, position) -> {
@@ -83,7 +88,29 @@ public class OrderDetailActivity extends AppCompatActivity {
         loadOrderDetails();
     }
 
+    private com.google.firebase.firestore.ListenerRegistration orderDetailListener;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loadOrderDetails();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (orderDetailListener != null) {
+            orderDetailListener.remove();
+            orderDetailListener = null;
+        }
+    }
+
     private void loadOrderDetails() {
+        if (orderDetailListener != null) {
+            orderDetailListener.remove();
+            orderDetailListener = null;
+        }
+
         String orderId = getIntent().getStringExtra("orderId");
         if (orderId == null || orderId.isEmpty()) {
             finish();
@@ -92,14 +119,16 @@ public class OrderDetailActivity extends AppCompatActivity {
 
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
 
-        FirebaseFirestore.getInstance()
+        orderDetailListener = FirebaseFirestore.getInstance()
                 .collection("orders")
                 .whereEqualTo("orderId", orderId)
-                .get()
-                .addOnSuccessListener(snapshot -> {
+                .addSnapshotListener((snapshot, error) -> {
                     if (progressBar != null) progressBar.setVisibility(View.GONE);
-                    if (snapshot.isEmpty()) {
-                        finish();
+                    if (error != null) {
+                        Toast.makeText(this, "Lỗi tải chi tiết đơn hàng: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (snapshot == null || snapshot.isEmpty()) {
                         return;
                     }
 
@@ -117,8 +146,24 @@ public class OrderDetailActivity extends AppCompatActivity {
                     String paymentStatus = doc.getString("paymentStatus");
                     Long total = doc.getLong("total");
                     Long shippingFee = doc.getLong("shippingFee");
-                    Long discount = doc.getLong("discount");
+                    Long discount = doc.getLong("discountAmount");
+                    if (discount == null) {
+                        discount = doc.getLong("discount");
+                    }
+                    Long docSubtotal = doc.getLong("subtotal");
                     List<?> itemsData = (List<?>) doc.get("items");
+                    if (itemsData == null || itemsData.isEmpty()) {
+                        Object alt = doc.get("orderItems");
+                        if (alt instanceof List) itemsData = (List<?>) alt;
+                    }
+                    if (itemsData == null || itemsData.isEmpty()) {
+                        Object alt = doc.get("products");
+                        if (alt instanceof List) itemsData = (List<?>) alt;
+                    }
+                    if (itemsData == null || itemsData.isEmpty()) {
+                        Object alt = doc.get("cartItems");
+                        if (alt instanceof List) itemsData = (List<?>) alt;
+                    }
 
                     if (date == null) {
                         Timestamp timestamp = doc.getTimestamp("createdAt");
@@ -148,7 +193,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                             paymentStatusColor = 0xFFFF9800; // Orange
                         }
                     } else if ("COD".equals(paymentMethod)) {
-                        if ("Đã giao".equals(status)) {
+                        if ("Đã giao".equals(status) || "Đã giao hàng".equals(status)) {
                             displayPaymentStatus = "Đã thanh toán (Thu hộ COD)";
                             paymentStatusColor = 0xFF4CAF50; // Green
                         } else {
@@ -168,9 +213,9 @@ public class OrderDetailActivity extends AppCompatActivity {
 
                     // Set status badge color based on status
                     if (status != null) {
-                        if (status.equals("Đã giao")) {
+                        if (status.equals("Đã giao") || status.equals("Đã giao hàng")) {
                             tvOrderStatus.setTextColor(0xFF4CAF50); // Green
-                        } else if (status.equals("Đang vận chuyển")) {
+                        } else if (status.equals("Đang vận chuyển") || status.equals("Đang giao hàng")) {
                             tvOrderStatus.setTextColor(0xFF00BCD4); // Cyan
                         } else if (status.equals("Chờ thanh toán")) {
                             tvOrderStatus.setTextColor(0xFFFF9800); // Orange
@@ -186,7 +231,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                             tvOrderStatus.setTextColor(0xFF607D8B); // Blue Gray
                         } else if (status.equals("Đã hủy")) {
                             tvOrderStatus.setTextColor(0xFFF44336); // Red
-                        } else if (status.contains("Trả hàng/Hoàn tiền") || status.contains("Trả hàng/Hoàn đơn") || status.contains("Yêu cầu")) {
+                        } else if (status.contains("Trả hàng") || status.contains("hoàn") || status.contains("Yêu cầu")) {
                             tvOrderStatus.setTextColor(0xFFE91E63); // Pink
                         } else if (status.equals("Đã hoàn tiền")) {
                             tvOrderStatus.setTextColor(0xFF4CAF50); // Green
@@ -205,9 +250,15 @@ public class OrderDetailActivity extends AppCompatActivity {
                     Double receivedRating = doc.getDouble("receivedRating");
                     boolean hasRated = receivedRating != null && receivedRating > 0;
 
+                    Boolean isReturnRequested = doc.getBoolean("isReturnRequested");
+                    Object returnedItemsObj = doc.get("returnedItems");
+                    boolean alreadyReturned = Boolean.TRUE.equals(isReturnRequested)
+                            || (returnedItemsObj instanceof List && !((List<?>) returnedItemsObj).isEmpty())
+                            || (status != null && (status.contains("Trả hàng") || status.contains("hoàn") || status.contains("Từ chối")));
+
                     boolean canCancel = status != null && (status.equals("Chờ xác nhận") || status.equals("Chờ thanh toán"));
-                    boolean canReturn = status != null && (status.equals("Đã giao hàng") || status.equals("Đã giao") || status.equals("Thành công"));
-                    boolean canConfirmReceived = status != null && (status.equals("Đang giao hàng"));
+                    boolean canReturn = !alreadyReturned && status != null && (status.equals("Đã giao hàng") || status.equals("Đã giao") || status.equals("Thành công"));
+                    boolean canConfirmReceived = status != null && (status.equals("Đang giao hàng") || status.equals("Đang vận chuyển"));
                     boolean canRate = false; // We don't use order-level rating anymore
 
                     if (canReturn || canConfirmReceived || canCancel) {
@@ -317,9 +368,40 @@ public class OrderDetailActivity extends AppCompatActivity {
 
                     if (btnReturnRefund != null) {
                         btnReturnRefund.setOnClickListener(v -> {
-                            android.content.Intent intent = new android.content.Intent(OrderDetailActivity.this, ReturnRequestActivity.class);
-                            intent.putExtra("orderId", orderId);
-                            startActivity(intent);
+                            Timestamp createdAt = doc.getTimestamp("createdAt");
+                            long now = System.currentTimeMillis();
+                            boolean isExpired = false;
+                            if (createdAt != null) {
+                                long diffDays = (now - createdAt.toDate().getTime()) / (1000L * 60 * 60 * 24);
+                                if (diffDays > 7) {
+                                    isExpired = true;
+                                }
+                            }
+
+                            if (isExpired) {
+                                new android.app.AlertDialog.Builder(OrderDetailActivity.this)
+                                        .setTitle("Quá hạn đổi trả")
+                                        .setMessage("Rất tiếc, đơn hàng đã vượt quá thời hạn 07 ngày kể từ khi nhận hàng. Theo chính sách của Trendify, hệ thống không thể tạo yêu cầu đổi trả cho đơn hàng này.")
+                                        .setPositiveButton("Đã hiểu", null)
+                                        .show();
+                                return;
+                            }
+
+                            new android.app.AlertDialog.Builder(OrderDetailActivity.this)
+                                    .setTitle("Quy định Trả hàng & Hoàn tiền")
+                                    .setMessage("Quý khách vui lòng lưu ý các quy định sau trước khi tiếp tục:\n\n"
+                                            + "1️⃣ Mỗi đơn hàng chỉ được yêu cầu Trả hàng / Hoàn tiền 01 LẦN DUY NHẤT.\n\n"
+                                            + "2️⃣ Thời hạn gửi yêu cầu: Trong vòng 07 NGÀY kể từ khi nhận hàng thành công.\n\n"
+                                            + "3️⃣ Sản phẩm phải còn nguyên tem mác, nguyên vẹn và chưa qua sử dụng / giặt tẩy.\n\n"
+                                            + "4️⃣ Tiền hoàn sẽ được tự động cộng vào Ví Trendify sau khi Admin kiểm tra và duyệt yêu cầu.\n\n"
+                                            + "Bạn có muốn tiếp tục chọn sản phẩm để gửi yêu cầu hoàn trả?")
+                                    .setPositiveButton("Tiếp tục", (dialog, which) -> {
+                                        android.content.Intent intent = new android.content.Intent(OrderDetailActivity.this, ReturnRequestActivity.class);
+                                        intent.putExtra("orderId", orderId);
+                                        startActivity(intent);
+                                    })
+                                    .setNegativeButton("Để sau", null)
+                                    .show();
                         });
                     }
 
@@ -346,21 +428,39 @@ public class OrderDetailActivity extends AppCompatActivity {
                         for (var itemData : itemsData) {
                             if (itemData instanceof java.util.Map) {
                                 java.util.Map<?, ?> itemMap = (java.util.Map<?, ?>) itemData;
-                                String productId = itemMap.get("productId") != null ? itemMap.get("productId").toString() : "";
-                                String name = itemMap.get("name") != null ? itemMap.get("name").toString() : "";
+                                String productId = itemMap.get("productId") != null ? itemMap.get("productId").toString() 
+                                        : (itemMap.get("id") != null ? itemMap.get("id").toString() 
+                                        : (itemMap.get("cartItemId") != null ? itemMap.get("cartItemId").toString() : ""));
+                                
+                                String name = itemMap.get("name") != null ? itemMap.get("name").toString() 
+                                        : (itemMap.get("productName") != null ? itemMap.get("productName").toString() 
+                                        : (itemMap.get("title") != null ? itemMap.get("title").toString() : "Sản phẩm"));
+                                
                                 String price = itemMap.get("price") != null ? itemMap.get("price").toString() : "0đ";
-                                Long qty = itemMap.get("quantity") instanceof Long ? (Long) itemMap.get("quantity") : 1;
-                                String imgUrl = itemMap.get("imageUrl") != null ? itemMap.get("imageUrl").toString() : "";
+                                long priceValue = 0;
+                                try {
+                                    priceValue = Long.parseLong(price.replaceAll("[^0-9]", ""));
+                                    price = String.format(Locale.getDefault(), "%,dđ", priceValue).replace(",", ".");
+                                } catch (Exception ignored) {}
+
+                                Long qty = 1L;
+                                if (itemMap.get("quantity") instanceof Number) {
+                                    qty = ((Number) itemMap.get("quantity")).longValue();
+                                } else if (itemMap.get("qty") instanceof Number) {
+                                    qty = ((Number) itemMap.get("qty")).longValue();
+                                } else if (itemMap.get("quantity") instanceof String) {
+                                    try { qty = Long.parseLong(itemMap.get("quantity").toString()); } catch (Exception ignored) {}
+                                }
+
+                                subtotal += priceValue * qty.intValue();
+
+                                String imgUrl = itemMap.get("imageUrl") != null ? itemMap.get("imageUrl").toString() 
+                                        : (itemMap.get("imgUrl") != null ? itemMap.get("imgUrl").toString() 
+                                        : (itemMap.get("image") != null ? itemMap.get("image").toString() : ""));
+                                
                                 String size = itemMap.get("size") != null ? itemMap.get("size").toString() : "";
                                 String color = itemMap.get("color") != null ? itemMap.get("color").toString() : "";
                                 Boolean isRated = itemMap.get("isRated") instanceof Boolean ? (Boolean) itemMap.get("isRated") : false;
-
-                                try {
-                                    long priceValue = Long.parseLong(price.replaceAll("[^0-9]", ""));
-                                    subtotal += priceValue * qty.intValue();
-                                } catch (Exception e) {
-                                    // Ignore parsing errors
-                                }
 
                                 CartItem cItem = new CartItem(productId, name, price, qty.intValue(), imgUrl, size, color, "");
                                 cItem.setRated(isRated);
@@ -369,16 +469,16 @@ public class OrderDetailActivity extends AppCompatActivity {
                         }
                     }
 
+                    if (docSubtotal != null && docSubtotal > 0) {
+                        subtotal = docSubtotal;
+                    }
+
                     tvSubtotal.setText(String.format("%,dđ", subtotal).replace(",", "."));
                     tvShippingFee.setText(shippingFee != null ? String.format("%,dđ", shippingFee).replace(",", ".") : "0đ");
                     tvDiscount.setText(discount != null && discount > 0 ? "-" + String.format("%,dđ", discount).replace(",", ".") : "0đ");
                     tvTotal.setText(total != null ? String.format("%,dđ", total).replace(",", ".") : "0đ");
 
                     adapter.setItems(items, status);
-                })
-                .addOnFailureListener(e -> {
-                    if (progressBar != null) progressBar.setVisibility(View.GONE);
-                    finish();
                 });
     }
 

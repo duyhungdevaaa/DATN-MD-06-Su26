@@ -1,6 +1,7 @@
 package fpoly.DatnMD06Su26.trendify.activity;
 
 import fpoly.DatnMD06Su26.trendify.R;
+import fpoly.DatnMD06Su26.trendify.helper.TrendifyNavHelper;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -50,6 +51,11 @@ public class NotificationsActivity extends AppCompatActivity {
 
         rvNotifications = findViewById(R.id.rvNotifications);
         tvEmpty = findViewById(R.id.tvEmpty);
+
+        androidx.compose.ui.platform.ComposeView composeBottomNav = findViewById(R.id.composeBottomNav);
+        if (composeBottomNav != null) {
+            TrendifyNavHelper.bind(composeBottomNav, 4, this);
+        }
 
         rvNotifications.setLayoutManager(new LinearLayoutManager(this));
         adapter = new NotificationAdapter();

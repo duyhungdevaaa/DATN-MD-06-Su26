@@ -129,15 +129,27 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+    private com.google.firebase.firestore.ListenerRegistration productsListener;
+    private com.google.firebase.firestore.ListenerRegistration categoriesListener;
+    private com.google.firebase.firestore.ListenerRegistration favoritesListener;
+
     @Override
-    public void onResume() {
-        super.onResume();
-        loadFavoriteIds();
-        loadNewArrivals();
+    public void onStart() {
+        super.onStart();
+        startRealtimeListeners();
     }
 
-    private void loadCategories() {
-        FirestoreHelper.loadCategories(new FirestoreHelper.CategoriesCallback() {
+    @Override
+    public void onStop() {
+        super.onStop();
+        stopRealtimeListeners();
+    }
+
+    private void startRealtimeListeners() {
+        stopRealtimeListeners();
+
+        // 1. Realtime Categories
+        categoriesListener = FirestoreHelper.listenToCategories(new FirestoreHelper.CategoriesCallback() {
             @Override
             public void onLoaded(List<CategoryItem> categories) {
                 showCategories(categories);
@@ -145,9 +157,79 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onFailure(String error) {
-                Toast.makeText(requireContext(), "Không thể tải danh mục: " + error, Toast.LENGTH_SHORT).show();
+                if (getContext() != null) {
+                    Toast.makeText(requireContext(), "Không thể tải danh mục: " + error, Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
+        // 2. Realtime Products
+        productsListener = FirestoreHelper.listenToAllProducts(new FirestoreHelper.ProductsCallback() {
+            @Override
+            public void onLoaded(List<ProductItem> products) {
+                int count = Math.min(products.size(), 10);
+                List<ProductItem> subList = products.subList(0, count);
+                newArrivalsAdapter.setItems(subList);
+                
+                // Filter products that have active discounts for Flash Sale
+                List<ProductItem> flashSaleProducts = new ArrayList<>();
+                for (ProductItem p : products) {
+                    if (p.getDiscount() > 0) {
+                        flashSaleProducts.add(p);
+                    }
+                }
+                int flashSaleCount = Math.min(flashSaleProducts.size(), 5);
+                if (rvFlashSale != null) {
+                    rvFlashSale.setAdapter(new FlashSaleAdapter(flashSaleProducts.subList(0, flashSaleCount)));
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+                if (getContext() != null) {
+                    Toast.makeText(requireContext(), "Không thể tải sản phẩm: " + error, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // 3. Realtime Favorites
+        if (SessionManager.getInstance().isLoggedIn()) {
+            favoritesListener = FirestoreHelper.listenToFavoriteIds(new FirestoreHelper.FavoriteIdsCallback() {
+                @Override
+                public void onLoaded(List<String> ids) {
+                    favoriteIds.clear();
+                    favoriteIds.addAll(ids);
+                    newArrivalsAdapter.setFavoriteIds(favoriteIds);
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    // Ignore
+                }
+            });
+        } else {
+            favoriteIds.clear();
+            newArrivalsAdapter.setFavoriteIds(favoriteIds);
+        }
+    }
+
+    private void stopRealtimeListeners() {
+        if (categoriesListener != null) {
+            categoriesListener.remove();
+            categoriesListener = null;
+        }
+        if (productsListener != null) {
+            productsListener.remove();
+            productsListener = null;
+        }
+        if (favoritesListener != null) {
+            favoritesListener.remove();
+            favoritesListener = null;
+        }
+    }
+
+    private void loadCategories() {
+        startRealtimeListeners();
     }
 
     private void showCategories(List<CategoryItem> categories) {
@@ -176,51 +258,11 @@ public class HomeFragment extends Fragment {
     }
 
     private void loadNewArrivals() {
-        FirestoreHelper.loadAllProducts(new FirestoreHelper.ProductsCallback() {
-            @Override
-            public void onLoaded(List<ProductItem> products) {
-                int count = Math.min(products.size(), 10);
-                List<ProductItem> subList = products.subList(0, count);
-                newArrivalsAdapter.setItems(subList);
-                
-                // Filter products that have active discounts for Flash Sale
-                List<ProductItem> flashSaleProducts = new ArrayList<>();
-                for (ProductItem p : products) {
-                    if (p.getDiscount() > 0) {
-                        flashSaleProducts.add(p);
-                    }
-                }
-                int flashSaleCount = Math.min(flashSaleProducts.size(), 5);
-                rvFlashSale.setAdapter(new FlashSaleAdapter(flashSaleProducts.subList(0, flashSaleCount)));
-            }
-
-            @Override
-            public void onFailure(String error) {
-                Toast.makeText(requireContext(), "Không thể tải sản phẩm mới: " + error, Toast.LENGTH_SHORT).show();
-            }
-        });
+        // Handled by realtime listeners
     }
 
     private void loadFavoriteIds() {
-        if (!SessionManager.getInstance().isLoggedIn()) {
-            favoriteIds.clear();
-            newArrivalsAdapter.setFavoriteIds(favoriteIds);
-            return;
-        }
-
-        FirestoreHelper.loadFavoriteIds(new FirestoreHelper.FavoriteIdsCallback() {
-            @Override
-            public void onLoaded(List<String> ids) {
-                favoriteIds.clear();
-                favoriteIds.addAll(ids);
-                newArrivalsAdapter.setFavoriteIds(favoriteIds);
-            }
-
-            @Override
-            public void onFailure(String error) {
-                Toast.makeText(requireContext(), "Không thể tải danh sách yêu thích: " + error, Toast.LENGTH_SHORT).show();
-            }
-        });
+        // Handled by realtime listeners
     }
 
     private void handleFavoriteToggle(ProductItem item, boolean shouldAdd) {
