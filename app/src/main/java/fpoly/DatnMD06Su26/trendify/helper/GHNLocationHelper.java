@@ -68,6 +68,11 @@ public class GHNLocationHelper {
                 try {
                     String body = response.body().string();
                     JSONObject jsonObject = new JSONObject(body);
+                    if (jsonObject.isNull("data")) {
+                        String msg = jsonObject.optString("message", "API returned null data");
+                        mainHandler.post(() -> callback.onFailure(msg));
+                        return;
+                    }
                     JSONArray data = jsonObject.getJSONArray("data");
                     List<Province> list = new ArrayList<>();
                     for (int i = 0; i < data.length(); i++) {
@@ -102,6 +107,11 @@ public class GHNLocationHelper {
                 try {
                     String body = response.body().string();
                     JSONObject jsonObject = new JSONObject(body);
+                    if (jsonObject.isNull("data")) {
+                        String msg = jsonObject.optString("message", "API returned null data");
+                        mainHandler.post(() -> callback.onFailure(msg));
+                        return;
+                    }
                     JSONArray data = jsonObject.getJSONArray("data");
                     List<District> list = new ArrayList<>();
                     for (int i = 0; i < data.length(); i++) {
@@ -134,6 +144,11 @@ public class GHNLocationHelper {
                 try {
                     String body = response.body().string();
                     JSONObject jsonObject = new JSONObject(body);
+                    if (jsonObject.isNull("data")) {
+                        String msg = jsonObject.optString("message", "API returned null data");
+                        mainHandler.post(() -> callback.onFailure(msg));
+                        return;
+                    }
                     JSONArray data = jsonObject.getJSONArray("data");
                     List<Ward> list = new ArrayList<>();
                     for (int i = 0; i < data.length(); i++) {
