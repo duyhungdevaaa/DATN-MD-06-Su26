@@ -321,26 +321,30 @@
                 android:orientation="horizontal"
                 android:paddingVertical="16dp">
 
+                <!-- Yêu thích -->
                 <LinearLayout
+                    android:id="@+id/llFavorite"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:background="?android:attr/selectableItemBackground">
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_shopping_bag"
-                        app:tint="#FF9800" />
+                        android:src="@drawable/ic_favorite"
+                        app:tint="#E91E63" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Trendify Xu"
+                        android:text="Yêu thích"
                         android:textColor="#555555"
                         android:textSize="11sp" />
                 </LinearLayout>
 
+                <!-- Ví Trendify -->
                 <LinearLayout
                     android:id="@+id/llWallet"
                     android:layout_width="0dp"
@@ -358,7 +362,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Ví TrendifyPay"
+                        android:text="Ví Trendify"
                         android:textColor="#555555"
                         android:textSize="11sp" />
                     <TextView
@@ -371,22 +375,48 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
+                <!-- Mã giảm giá -->
                 <LinearLayout
+                    android:id="@+id/llVouchers"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:background="?android:attr/selectableItemBackground">
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_box"
+                        android:src="@drawable/ic_voucher"
                         app:tint="#4CAF50" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Kho Voucher"
+                        android:text="Mã giảm giá"
+                        android:textColor="#555555"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <!-- Sổ địa chỉ -->
+                <LinearLayout
+                    android:id="@+id/llAddress"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:background="?android:attr/selectableItemBackground">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_location"
+                        app:tint="#2196F3" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Sổ địa chỉ"
                         android:textColor="#555555"
                         android:textSize="11sp" />
                 </LinearLayout>
