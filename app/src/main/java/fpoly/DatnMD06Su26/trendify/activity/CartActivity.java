@@ -56,6 +56,11 @@ public class CartActivity extends AppCompatActivity {
 
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
 
+        androidx.compose.ui.platform.ComposeView composeBottomNav = findViewById(R.id.composeBottomNav);
+        if (composeBottomNav != null) {
+            TrendifyNavHelper.bind(composeBottomNav, 0, this);
+        }
+
         View btnShopNow = findViewById(R.id.btnShopNow);
         if (btnShopNow != null) {
             btnShopNow.setOnClickListener(v -> {

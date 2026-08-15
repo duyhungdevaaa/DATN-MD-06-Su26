@@ -122,6 +122,28 @@ public class CartManager {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
+    // Realtime listen toàn bộ giỏ hàng
+    public com.google.firebase.firestore.ListenerRegistration listenToCart(CartLoadCallback callback) {
+        if (!ensureAuthenticated(callback)) return null;
+        return db.collection(COLLECTION_USERS)
+                .document(userId)
+                .collection(COLLECTION_CART)
+                .addSnapshotListener((snapshot, error) -> {
+                    if (error != null) {
+                        callback.onFailure(error.getMessage());
+                        return;
+                    }
+                    if (snapshot != null) {
+                        List<CartItem> items = new ArrayList<>();
+                        for (var doc : snapshot.getDocuments()) {
+                            CartItem item = doc.toObject(CartItem.class);
+                            if (item != null) items.add(item);
+                        }
+                        callback.onLoaded(items);
+                    }
+                });
+    }
+
     // Load toàn bộ giỏ hàng
     public void loadCart(CartLoadCallback callback) {
         if (!ensureAuthenticated(callback)) return;
@@ -143,6 +165,33 @@ public class CartManager {
     public interface CartCountCallback {
         void onCounted(int count);
         void onFailure(String error);
+    }
+
+    // Realtime listen tổng số lượng trong giỏ
+    public com.google.firebase.firestore.ListenerRegistration listenToCartCount(CartCountCallback callback) {
+        if (userId == null) {
+            if (callback != null) callback.onFailure("Vui lòng đăng nhập");
+            return null;
+        }
+        return db.collection(COLLECTION_USERS)
+                .document(userId)
+                .collection(COLLECTION_CART)
+                .addSnapshotListener((snapshot, error) -> {
+                    if (error != null) {
+                        if (callback != null) callback.onFailure(error.getMessage());
+                        return;
+                    }
+                    if (snapshot != null) {
+                        int totalCount = 0;
+                        for (var doc : snapshot.getDocuments()) {
+                            Long qty = doc.getLong("quantity");
+                            if (qty != null) {
+                                totalCount += qty.intValue();
+                            }
+                        }
+                        if (callback != null) callback.onCounted(totalCount);
+                    }
+                });
     }
 
     // Đếm tổng số lượng (quantity) của các món hàng trong giỏ

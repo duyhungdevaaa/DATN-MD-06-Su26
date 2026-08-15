@@ -28,10 +28,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import android.view.View;
 
+import androidx.compose.ui.platform.ComposeView;
+import fpoly.DatnMD06Su26.trendify.compose.TrendifyNavBridge;
+
 public class MainActivity extends AppCompatActivity {
 
     private ViewPager2 viewPager;
-    private BottomNavigationView bottomNavigationView;
+    private ComposeView composeBottomNav;
     private static com.google.firebase.firestore.ListenerRegistration notificationListener = null;
 
     @Override
@@ -47,60 +50,28 @@ public class MainActivity extends AppCompatActivity {
         });
 
         viewPager = findViewById(R.id.viewPager);
-        bottomNavigationView = findViewById(R.id.bottomNav);
-
-        // Seeder database categories and products if empty
-        // FirestoreHelper.checkAndSeedDatabase(); // Tắt seed data để tránh lỗi PERMISSION_DENIED
+        composeBottomNav = findViewById(R.id.composeBottomNav);
 
         ScreenPagerAdapter adapter = new ScreenPagerAdapter(this);
         viewPager.setAdapter(adapter);
         viewPager.setUserInputEnabled(false); // Disable horizontal swipe to change tabs
 
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            int id = item.getItemId();
-            animateBottomNavIcon(id);
-            if (id == R.id.nav_home) {
-                viewPager.setCurrentItem(0, false);
-                return true;
-            } else if (id == R.id.nav_search) {
-                viewPager.setCurrentItem(1, false);
-                return true;
-            } else if (id == R.id.nav_category) {
-                viewPager.setCurrentItem(2, false);
-                return true;
-            } else if (id == R.id.nav_favorite) {
-                viewPager.setCurrentItem(3, false);
-                return true;
-            } else if (id == R.id.nav_profile) {
-                viewPager.setCurrentItem(4, false);
-                return true;
-            }
-            return false;
-        });
+        int initialTab = 0;
+        if (getIntent() != null && getIntent().hasExtra(TrendifyNavHelper.EXTRA_TARGET_TAB)) {
+            initialTab = getIntent().getIntExtra(TrendifyNavHelper.EXTRA_TARGET_TAB, 0);
+        }
 
-
+        switchTab(initialTab);
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                if (position == 0) {
-                    bottomNavigationView.setSelectedItemId(R.id.nav_home);
-                } else if (position == 1) {
-                    bottomNavigationView.setSelectedItemId(R.id.nav_search);
-                } else if (position == 2) {
-                    bottomNavigationView.setSelectedItemId(R.id.nav_category);
-                } else if (position == 3) {
-                    bottomNavigationView.setSelectedItemId(R.id.nav_favorite);
-                } else {
-                    bottomNavigationView.setSelectedItemId(R.id.nav_profile);
-                }
+                TrendifyNavHelper.bind(composeBottomNav, position, MainActivity.this, targetIndex -> {
+                    viewPager.setCurrentItem(targetIndex, false);
+                });
             }
         });
-
-        if (savedInstanceState == null) {
-            bottomNavigationView.setSelectedItemId(R.id.nav_home);
-        }
 
         findViewById(R.id.fabChat).setOnClickListener(v -> {
             android.content.Intent intent = new android.content.Intent(this, fpoly.DatnMD06Su26.trendify.activity.ChatActivity.class);
@@ -127,37 +98,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void setCurrentPage(int page) {
-        if (viewPager != null) {
-            viewPager.setCurrentItem(page, false);
+    @Override
+    protected void onNewIntent(android.content.Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (intent != null && intent.hasExtra(TrendifyNavHelper.EXTRA_TARGET_TAB)) {
+            int targetTab = intent.getIntExtra(TrendifyNavHelper.EXTRA_TARGET_TAB, 0);
+            switchTab(targetTab);
         }
     }
-    private void animateBottomNavIcon(int itemId) {
-        try {
-            BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigationView.getChildAt(0);
-            for (int i = 0; i < menuView.getChildCount(); i++) {
-                BottomNavigationItemView itemView = (BottomNavigationItemView) menuView.getChildAt(i);
-                if (itemView.getId() == itemId) {
-                    View icon = itemView.findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view);
-                    if (icon != null) {
-                        icon.setScaleX(0.7f);
-                        icon.setScaleY(0.7f);
-                        icon.animate()
-                            .scaleX(1.2f).scaleY(1.2f)
-                            .setDuration(150)
-                            .withEndAction(() -> {
-                                icon.animate()
-                                    .scaleX(1.0f).scaleY(1.0f)
-                                    .setDuration(150)
-                                    .start();
-                            }).start();
-                    }
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+
+    public void switchTab(int tabIndex) {
+        if (viewPager != null) {
+            viewPager.setCurrentItem(tabIndex, false);
         }
+        if (composeBottomNav != null) {
+            TrendifyNavHelper.bind(composeBottomNav, tabIndex, this, targetIndex -> {
+                if (viewPager != null) {
+                    viewPager.setCurrentItem(targetIndex, false);
+                }
+            });
+        }
+    }
+
+    public void setCurrentPage(int page) {
+        switchTab(page);
     }
 
     private void createNotificationChannel() {
