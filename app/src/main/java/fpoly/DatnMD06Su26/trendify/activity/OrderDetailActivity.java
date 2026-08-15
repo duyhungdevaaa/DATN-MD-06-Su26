@@ -196,25 +196,29 @@ public class OrderDetailActivity extends AppCompatActivity {
                             tvOrderStatus.setTextColor(0xFF757575);
                         }
                     }
-
                     // Show or hide bottom action bar and individual buttons
                     View llBottomActions = findViewById(R.id.llBottomActions);
                     View btnReturnRefund = findViewById(R.id.btnReturnRefund);
+                    View btnCancelOrder = findViewById(R.id.btnCancelOrder);
                     com.google.android.material.button.MaterialButton btnConfirmReceived = findViewById(R.id.btnConfirmReceived);
 
                     Double receivedRating = doc.getDouble("receivedRating");
                     boolean hasRated = receivedRating != null && receivedRating > 0;
 
-                    boolean canReturn = status != null && (status.equals("Đã giao hàng") || status.equals("Đang giao hàng") || status.equals("Đang xử lý") || status.equals("Chờ xác nhận"));
+                    boolean canCancel = status != null && (status.equals("Chờ xác nhận") || status.equals("Chờ thanh toán"));
+                    boolean canReturn = status != null && (status.equals("Đã giao hàng") || status.equals("Đã giao") || status.equals("Thành công"));
                     boolean canConfirmReceived = status != null && (status.equals("Đang giao hàng"));
                     boolean canRate = false; // We don't use order-level rating anymore
 
-                    if (canReturn || canConfirmReceived) {
+                    if (canReturn || canConfirmReceived || canCancel) {
                         if (llBottomActions != null) {
                             llBottomActions.setVisibility(View.VISIBLE);
                         }
                         if (btnReturnRefund != null) {
                             btnReturnRefund.setVisibility(canReturn ? View.VISIBLE : View.GONE);
+                        }
+                        if (btnCancelOrder != null) {
+                            btnCancelOrder.setVisibility(canCancel ? View.VISIBLE : View.GONE);
                         }
                         if (btnConfirmReceived != null) {
                             if (canConfirmReceived) {
@@ -228,6 +232,87 @@ public class OrderDetailActivity extends AppCompatActivity {
                         if (llBottomActions != null) {
                             llBottomActions.setVisibility(View.GONE);
                         }
+                    }
+
+                    if (btnCancelOrder != null) {
+                        btnCancelOrder.setOnClickListener(v -> {
+                            new android.app.AlertDialog.Builder(this)
+                                    .setTitle("Hủy đơn hàng")
+                                    .setMessage("Bạn có chắc chắn muốn hủy đơn hàng này không?")
+                                    .setPositiveButton("Xác nhận hủy", (dialog, which) -> {
+                                        FirebaseFirestore.getInstance().collection("orders")
+                                                .whereEqualTo("orderId", orderId)
+                                                .get()
+                                                .addOnSuccessListener(s -> {
+                                                    if (!s.isEmpty()) {
+                                                        com.google.firebase.firestore.DocumentSnapshot cancelDoc = s.getDocuments().get(0);
+                                                        String cancelPaymentMethod = cancelDoc.getString("paymentMethod");
+                                                        if (cancelPaymentMethod == null) cancelPaymentMethod = "COD";
+                                                        Long cancelTotalObj = cancelDoc.getLong("total");
+                                                        long cancelTotal = cancelTotalObj != null ? cancelTotalObj : 0;
+                                                        Long cancelWalletUsedObj = cancelDoc.getLong("walletAmountUsed");
+                                                        long cancelWalletAmountUsed = cancelWalletUsedObj != null ? cancelWalletUsedObj : 0;
+                                                        String cancelUserId = cancelDoc.getString("userId");
+
+                                                        long amountToRefund = 0;
+                                                        if (!"COD".equals(cancelPaymentMethod)) {
+                                                            amountToRefund = cancelTotal + cancelWalletAmountUsed;
+                                                        } else {
+                                                            amountToRefund = cancelWalletAmountUsed;
+                                                        }
+
+                                                        com.google.firebase.firestore.WriteBatch batch = FirebaseFirestore.getInstance().batch();
+
+                                                        if (amountToRefund > 0 && cancelUserId != null) {
+                                                            com.google.firebase.firestore.DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(cancelUserId);
+                                                            batch.update(userRef, "walletBalance", com.google.firebase.firestore.FieldValue.increment(amountToRefund));
+                                                            
+                                                            com.google.firebase.firestore.DocumentReference txRef = FirebaseFirestore.getInstance().collection("transactions").document();
+                                                            java.util.Map<String, Object> tx = new java.util.HashMap<>();
+                                                            tx.put("userId", cancelUserId);
+                                                            tx.put("amount", amountToRefund);
+                                                            tx.put("type", "REFUND");
+                                                            tx.put("description", "Hoàn tiền tự động do hủy đơn hàng " + orderId);
+                                                            tx.put("timestamp", com.google.firebase.firestore.FieldValue.serverTimestamp());
+                                                            batch.set(txRef, tx);
+                                                        }
+
+                                                        // Return stock
+                                                        java.util.List<java.util.Map<String, Object>> itemsList = (java.util.List<java.util.Map<String, Object>>) cancelDoc.get("items");
+                                                        if (itemsList != null) {
+                                                            for (java.util.Map<String, Object> itemMap : itemsList) {
+                                                                String pId = null;
+                                                                if (itemMap.get("productId") != null) pId = itemMap.get("productId").toString();
+                                                                else if (itemMap.get("cartItemId") != null) pId = itemMap.get("cartItemId").toString();
+                                                                
+                                                                long qty = 0;
+                                                                if (itemMap.get("quantity") instanceof Number) {
+                                                                    qty = ((Number) itemMap.get("quantity")).longValue();
+                                                                } else if (itemMap.get("quantity") instanceof String) {
+                                                                    try { qty = Long.parseLong((String) itemMap.get("quantity")); } catch (Exception e) {}
+                                                                }
+                                                                
+                                                                if (pId != null && !pId.isEmpty() && qty > 0) {
+                                                                    com.google.firebase.firestore.DocumentReference prodRef = FirebaseFirestore.getInstance().collection("products").document(pId);
+                                                                    batch.update(prodRef, "stock", com.google.firebase.firestore.FieldValue.increment(qty));
+                                                                }
+                                                            }
+                                                        }
+
+                                                        batch.update(cancelDoc.getReference(), "status", "Đã hủy");
+
+                                                        batch.commit().addOnSuccessListener(aVoid -> {
+                                                            android.widget.Toast.makeText(this, "Hủy đơn thành công", android.widget.Toast.LENGTH_SHORT).show();
+                                                            loadOrderDetails();
+                                                        }).addOnFailureListener(e -> {
+                                                            android.widget.Toast.makeText(this, "Hủy đơn thất bại", android.widget.Toast.LENGTH_SHORT).show();
+                                                        });
+                                                    }
+                                                });
+                                    })
+                                    .setNegativeButton("Không", null)
+                                    .show();
+                        });
                     }
 
                     if (btnReturnRefund != null) {

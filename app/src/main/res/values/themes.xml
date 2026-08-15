@@ -26,6 +26,9 @@
         <item name="colorOnBackground">@color/text_primary</item>
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="colorOnError">@color/white</item>
+        <item name="colorSecondaryContainer">@color/secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/onSecondaryContainer</item>
+        <item name="colorOnSurfaceVariant">@color/text_hint</item>
     </style>
 
     <style name="Theme.Trendify" parent="Base.Theme.Trendify" />

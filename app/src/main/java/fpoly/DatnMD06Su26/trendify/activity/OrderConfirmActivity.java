@@ -240,7 +240,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
 
     private void calculateShippingFee(List<CartItem> items, Runnable onComplete) {
         if (selectedDistrictId == -1 || selectedWardCode == null || selectedWardCode.isEmpty() || items.isEmpty()) {
-            shippingFee = 30000; // Phí mặc định
+            shippingFee = 0;
             onComplete.run();
             return;
         }
@@ -257,7 +257,8 @@ public class OrderConfirmActivity extends AppCompatActivity {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put("service_type_id", 2);
-                payload.put("from_district_id", 1442); // Giả sử cửa hàng ở Bắc Từ Liêm
+                payload.put("from_district_id", 1482); // Quận Bắc Từ Liêm, Hà Nội
+                payload.put("from_ward_code", "11013"); // Phường Xuân Tảo, Bắc Từ Liêm
                 payload.put("to_district_id", selectedDistrictId);
                 payload.put("to_ward_code", selectedWardCode);
                 payload.put("height", 10);
@@ -287,16 +288,26 @@ public class OrderConfirmActivity extends AppCompatActivity {
                     while ((line = reader.readLine()) != null) sb.append(line);
                     
                     JSONObject responseJson = new JSONObject(sb.toString());
-                    if (responseJson.has("data")) {
+                    if (responseJson.has("data") && !responseJson.isNull("data")) {
                         JSONObject data = responseJson.getJSONObject("data");
                         shippingFee = data.getLong("total");
+                    } else {
+                        shippingFee = -1;
                     }
+                } else {
+                    shippingFee = -1;
                 }
             } catch (Exception e) {
                 Log.e("GHN", "Lỗi tính phí ship", e);
-                shippingFee = 30000;
+                shippingFee = -1;
             } finally {
-                runOnUiThread(onComplete);
+                runOnUiThread(() -> {
+                    if (shippingFee == -1) {
+                        shippingFee = 0;
+                        Toast.makeText(OrderConfirmActivity.this, "Không thể tính phí vận chuyển. Vui lòng thử lại sau.", Toast.LENGTH_LONG).show();
+                    }
+                    onComplete.run();
+                });
             }
         }).start();
     }
@@ -490,6 +501,12 @@ public class OrderConfirmActivity extends AppCompatActivity {
                     findViewById(R.id.btnPlaceOrder).setEnabled(true);
                     return;
                 }
+                if (shippingFee <= 0) {
+                    Toast.makeText(OrderConfirmActivity.this, "Không thể tính phí vận chuyển hoặc địa chỉ không hợp lệ. Vui lòng kiểm tra lại.", Toast.LENGTH_LONG).show();
+                    if (progressBar != null) progressBar.setVisibility(View.GONE);
+                    findViewById(R.id.btnPlaceOrder).setEnabled(true);
+                    return;
+                }
                 Log.d("PayOSIntegration", "Phuong thuc thanh toan da chon: " + paymentMethod);
                 
                 long subtotal = 0;
@@ -547,9 +564,47 @@ public class OrderConfirmActivity extends AppCompatActivity {
             total = 0;
         }
 
+        String rawShippingAddress = getIntent().getStringExtra("shipping_address");
+        String customerName = "Khách hàng";
+        String phone = "";
+        String cleanAddress = rawShippingAddress != null ? rawShippingAddress : "";
+
+        if (rawShippingAddress != null && rawShippingAddress.contains("|||")) {
+            String[] parts = rawShippingAddress.split("\\|\\|\\|");
+            if (parts.length >= 4) {
+                cleanAddress = parts[3];
+            }
+        }
+
+        if (cleanAddress != null && cleanAddress.contains(" - ")) {
+            try {
+                int dashIdx = cleanAddress.indexOf(" - ");
+                String namePart = cleanAddress.substring(0, dashIdx);
+                if (namePart.contains(": ")) {
+                    customerName = namePart.substring(namePart.indexOf(": ") + 2).trim();
+                } else {
+                    customerName = namePart.trim();
+                }
+                int newlineIdx = cleanAddress.indexOf("\n", dashIdx);
+                if (newlineIdx > dashIdx) {
+                    phone = cleanAddress.substring(dashIdx + 3, newlineIdx).trim();
+                }
+            } catch (Exception e) {}
+        }
+
+        String finalPaymentMethod = paymentMethod;
+        long grandTotalNeeded = subtotal + shippingFee - appliedDiscount;
+        if (walletAmountUsed > 0 && walletAmountUsed >= grandTotalNeeded) {
+            finalPaymentMethod = "Ví TrendifyPay";
+        }
+
         Map<String, Object> order = new HashMap<>();
         order.put("orderId", orderId);
         order.put("userId", uid);
+        order.put("customerName", customerName);
+        order.put("phone", phone);
+        order.put("address", cleanAddress);
+        order.put("shippingAddress", cleanAddress);
         order.put("date", date);
         order.put("createdAt", Timestamp.now());
         order.put("status", "Chờ xác nhận");
@@ -559,18 +614,15 @@ public class OrderConfirmActivity extends AppCompatActivity {
         order.put("walletAmountUsed", walletAmountUsed);
         order.put("originalTotal", originalTotal);
         order.put("total", total);
-        order.put("paymentMethod", paymentMethod);
+        order.put("paymentMethod", finalPaymentMethod);
         if (appliedVoucher != null) {
             order.put("voucherId", appliedVoucher.getVoucherId());
             order.put("voucherCode", appliedVoucher.getCode());
             order.put("discountRate", appliedVoucher.getDiscountRate());
         }
-        String shippingAddress = getIntent().getStringExtra("shipping_address");
-        if (shippingAddress != null && !shippingAddress.isEmpty()) {
-            order.put("shippingAddress", shippingAddress);
-        }
-        order.put("items", items); // Firestore tự serialize list
+        order.put("items", items);
 
+        final String finalAddress = cleanAddress;
         FirebaseFirestore.getInstance()
                 .collection("orders")
                 .document(orderId)
@@ -587,7 +639,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
                             if (progressBar != null) progressBar.setVisibility(View.GONE);
                             Intent intent = new Intent(OrderConfirmActivity.this, OrderSuccessActivity.class);
                             intent.putExtra("order_id", orderId);
-                            intent.putExtra("shipping_address", shippingAddress);
+                            intent.putExtra("shipping_address", finalAddress);
                             intent.putExtra("payment_method", paymentMethod);
                             startActivity(intent);
                             finish();
@@ -597,7 +649,7 @@ public class OrderConfirmActivity extends AppCompatActivity {
                             if (progressBar != null) progressBar.setVisibility(View.GONE);
                             Intent intent = new Intent(OrderConfirmActivity.this, OrderSuccessActivity.class);
                             intent.putExtra("order_id", orderId);
-                            intent.putExtra("shipping_address", shippingAddress);
+                            intent.putExtra("shipping_address", finalAddress);
                             intent.putExtra("payment_method", paymentMethod);
                             startActivity(intent);
                             finish();

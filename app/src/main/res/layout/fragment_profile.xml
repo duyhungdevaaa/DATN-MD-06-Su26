@@ -229,9 +229,9 @@
                         android:textSize="11sp" />
                 </LinearLayout>
 
-                <!-- Đánh giá -->
+                <!-- Đã giao -->
                 <LinearLayout
-                    android:id="@+id/llRate"
+                    android:id="@+id/llDelivered"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -241,13 +241,36 @@
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_star"
+                        android:src="@drawable/ic_check"
                         app:tint="#757575" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Đánh giá"
+                        android:text="Đã giao"
+                        android:textColor="#555555"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <!-- Trả hàng -->
+                <LinearLayout
+                    android:id="@+id/llReturns"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:background="?android:attr/selectableItemBackground">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_close"
+                        app:tint="#757575" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Trả hàng"
                         android:textColor="#555555"
                         android:textSize="11sp" />
                 </LinearLayout>
@@ -371,84 +394,7 @@
 
         </LinearLayout>
 
-        <!-- Hỗ Trợ Block -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@color/white"
-            android:orientation="vertical"
-            android:paddingBottom="12dp">
 
-            <!-- Trung tâm Trợ giúp -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="14dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_help_center"
-                    app:tint="#00BCD4" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:text="Trung tâm Trợ giúp"
-                    android:textColor="#333333"
-                    android:textSize="14sp" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_chevron_right"
-                    app:tint="#BDBDBD" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginStart="44dp"
-                android:background="#EEEEEE" />
-
-            <!-- Trò chuyện với Shopee -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="14dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_notifications"
-                    app:tint="#4CAF50" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:text="Trò chuyện với Trendify"
-                    android:textColor="#333333"
-                    android:textSize="14sp" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_chevron_right"
-                    app:tint="#BDBDBD" />
-            </LinearLayout>
-
-        </LinearLayout>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

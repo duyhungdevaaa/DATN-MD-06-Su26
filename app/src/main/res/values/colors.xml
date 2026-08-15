@@ -8,6 +8,8 @@
     <!-- Backgrounds & Surfaces (Light Mode) -->
     <color name="background">#F8FAFC</color>    <!-- Slate 50 (Very Light Gray) -->
     <color name="surface">#FFFFFF</color>       <!-- White -->
+    <color name="secondaryContainer">#DBEAFE</color> <!-- Blue 100 (for M3 Pill) -->
+    <color name="onSecondaryContainer">#1E3A8A</color> <!-- Blue 900 (for M3 Pill Icon) -->
     
     <!-- Backgrounds & Surfaces (Dark Mode) -->
     <color name="background_dark">#020617</color> <!-- Slate 950 -->

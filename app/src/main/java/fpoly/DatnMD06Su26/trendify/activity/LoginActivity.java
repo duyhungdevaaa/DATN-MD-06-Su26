@@ -201,7 +201,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void handleFacebookLogin() {
-        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile"));
+        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "email"));
     }
 
     @Override

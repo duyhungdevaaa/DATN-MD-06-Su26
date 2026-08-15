@@ -26,7 +26,6 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
   onSaveCategory,
   onCancel
 }) => {
-  // Local form states
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
@@ -37,16 +36,15 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  // Helper parser to auto generate friendly slugs from Vietnamese or English text
   const generateSlugOfName = (text: string) => {
     return text
       .toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // remove accent diacritics
+      .replace(/[\u0300-\u036f]/g, "")
       .replace(/[đĐ]/g, "d")
-      .replace(/[^a-z0-9\s-]/g, "") // remove special chars
+      .replace(/[^a-z0-9\s-]/g, "")
       .trim()
-      .replace(/\s+/g, "-"); // replace space with dashes
+      .replace(/\s+/g, "-");
   };
 
   useEffect(() => {
@@ -65,7 +63,6 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
     }
   }, [editingCategory]);
 
-  // Handle Name typing to generate default web path slug automatically
   const handleNameChange = (val: string) => {
     setName(val);
     if (!editingCategory) {
@@ -73,7 +70,6 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
     }
   };
 
-  // Drag & drop file reader handlers
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -116,15 +112,11 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
     e.preventDefault();
 
     if (!name.trim()) {
-      setErrorMsg("Tên danh mục phân loại không được phép bỏ trống.");
+      setErrorMsg("Tên danh mục không được để trống.");
       return;
     }
     if (!slug.trim()) {
-      setErrorMsg("Đường dẫn nhận dạng (Slug) không được trống.");
-      return;
-    }
-    if (!imageUrl.trim()) {
-      setErrorMsg("Vui lòng thiết lập hình ảnh đại diện cho nhóm danh mục.");
+      setErrorMsg("Đường dẫn SEO (Slug) không được để trống.");
       return;
     }
 
@@ -135,15 +127,14 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
       name: name.trim(),
       slug: slug.trim(),
       description: description.trim(),
-      imageUrl: imageUrl.trim(),
+      imageUrl: imageUrl.trim() || "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=600",
       isLive,
-      lastUpdated: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-      updatedBy: "Alexander Vane"
+      lastUpdated: new Date().toLocaleDateString(),
+      updatedBy: "Admin"
     };
 
     if (editingCategory) {
       payload.id = editingCategory.id;
-      // preserve old counters
       payload.productCount = editingCategory.productCount;
     } else {
       payload.productCount = 0;
@@ -151,261 +142,212 @@ export const CategoryFormView: React.FC<CategoryFormViewProps> = ({
 
     setTimeout(() => {
       onSaveCategory(payload);
-    }, 600);
+    }, 400);
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto animate-fade-in text-left font-sans">
-      
-      {/* Return header banner */}
+    <div className="space-y-6 max-w-3xl mx-auto font-sans text-left pb-12">
+      {/* Return button & header */}
       <div className="flex items-center justify-between">
         <button
           onClick={onCancel}
-          className="flex items-center gap-2 text-xs font-bold text-zinc-500 hover:text-zinc-900 uppercase tracking-wider font-sans transition-all"
+          className="flex items-center gap-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Quay lại bản danh mục
+          Quay lại danh sách danh mục
         </button>
-        <span className="font-mono text-[9px] text-zinc-400 uppercase font-bold">
-          {editingCategory ? "Biên tả: ID " + editingCategory.id : "Khai phá Danh mục mới"}
+        <span className="text-xs text-zinc-400 font-mono">
+          {editingCategory ? `Sửa danh mục: ${editingCategory.name}` : "Tạo danh mục mới"}
         </span>
       </div>
 
-      <div className="bg-white rounded-2xl border border-zinc-200/50 shadow-sm overflow-hidden">
-        
-        {/* Editorial Title Header */}
-        <div className="p-8 border-b border-zinc-100 bg-zinc-50/50">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-[#8c7623]" />
-            <span className="font-mono text-[9px] tracking-[0.2em] text-[#8c7623] uppercase font-bold">
-              Collections index
-            </span>
+      <div className="bg-white rounded-xl border border-zinc-200 shadow-xs overflow-hidden">
+        {/* Header */}
+        <div className="p-6 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-zinc-900">
+              {editingCategory ? "Chỉnh sửa danh mục" : "Thêm danh mục mới"}
+            </h2>
+            <p className="text-xs text-zinc-500 mt-0.5">
+              Cập nhật thông tin chi tiết và trạng thái hiển thị của danh mục
+            </p>
           </div>
-          <h3 className="font-serif text-2xl tracking-normal text-zinc-950 font-bold mt-2">
-            {editingCategory ? "Cải tạo Thông tin Danh mục" : "Đón đầu Phân nhóm thời trang"}
-          </h3>
-          <p className="font-sans text-xs text-zinc-450 mt-1 leading-relaxed">
-            Gửi gắm miêu tả gợi cảm hứng, tinh chỉnh đường dẫn slug bám theo chuẩn SEO, quyết định trưng bày live.
-          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-8">
-          
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {errorMsg && (
-            <div className="p-4 bg-rose-50 border border-rose-100 rounded-xl text-rose-700 text-xs font-semibold flex items-center gap-2.5">
+            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs font-semibold flex items-center gap-2">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           {successMsg && (
-            <div className="p-4 bg-emerald-50 border border-emerald-105 rounded-xl text-emerald-700 text-xs font-semibold flex items-center gap-2.5">
+            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 text-xs font-semibold flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 shrink-0" />
               <span>{successMsg}</span>
             </div>
           )}
 
-          {/* Form Layout Split Blocks */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            {/* Left Block Information */}
-            <div className="space-y-6">
-              
-              {/* Category Name input */}
-              <div>
-                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
-                  Tên danh mục mới *
-                </label>
+          <div className="space-y-4">
+            {/* Category Name */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-zinc-700">
+                Tên danh mục <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => handleNameChange(e.target.value)}
+                placeholder="VD: Áo Nam, Quần Jeans, Phụ Kiện..."
+                className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3.5 py-2.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900 focus:bg-white font-semibold"
+              />
+            </div>
+
+            {/* Slug URL */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-zinc-700">
+                Đường dẫn SEO (Slug) <span className="text-rose-500">*</span>
+              </label>
+              <div className="flex rounded-lg overflow-hidden border border-zinc-200">
+                <span className="bg-zinc-100 text-zinc-500 px-3 py-2 text-xs font-mono border-r border-zinc-200 font-medium">
+                  /category/
+                </span>
                 <input
                   type="text"
-                  value={name}
-                  onChange={(e) => handleNameChange(e.target.value)}
-                  placeholder="Ví dụ: Đầm tối muộn, Trang sức..."
-                  className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3.5 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-850 font-bold"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  placeholder="ao-nam"
+                  className="flex-1 bg-zinc-50 px-3 py-2 text-xs font-mono focus:outline-none focus:bg-white text-zinc-900 font-semibold"
                 />
               </div>
-
-              {/* URL Custom Slug Entry */}
-              <div>
-                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
-                  Đường dẫn SEO (Slug URL) *
-                </label>
-                <div className="flex rounded-xl overflow-hidden border border-zinc-200/80">
-                  <span className="bg-zinc-100 text-zinc-400 px-3 py-3 text-xs font-mono border-r border-zinc-200/80 font-bold flex items-center">
-                    /category/
-                  </span>
-                  <input
-                    type="text"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                    placeholder="dung-dan-seo-tu-dong"
-                    className="flex-1 bg-zinc-50 p-3 text-xs font-mono tracking-wider focus:outline-none focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-800 font-bold"
-                  />
-                </div>
-              </div>
-
-              {/* Live Availability Toggle Button Option */}
-              <div>
-                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
-                  Đưa lên thị trường trực tuyến (Live Status)
-                </label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsLive(true)}
-                    className={`font-sans text-[10px] font-bold uppercase tracking-wider py-3 px-4 rounded-xl border text-center transition-all flex-1 ${
-                      isLive
-                        ? "bg-zinc-900 text-white border-transparent shadow-sm"
-                        : "bg-zinc-55 border-zinc-200 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-850"
-                    }`}
-                  >
-                    BẬT CHẾ ĐỘ HIỂN THỊ (LIVE)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsLive(false)}
-                    className={`font-sans text-[10px] font-bold uppercase tracking-wider py-3 px-4 rounded-xl border text-center transition-all flex-1 ${
-                      !isLive
-                        ? "bg-rose-600 text-white border-transparent shadow-sm"
-                        : "bg-zinc-55 border-zinc-200 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-850"
-                    }`}
-                  >
-                    TẠM ẨN TRONG KHO (DRAFT)
-                  </button>
-                </div>
-              </div>
-
-              {/* Description of subcurations */}
-              <div>
-                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans mb-1.5">
-                  Mô tả định hướng thời trang cha
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Gợi mở: Đồ lót cao cấp, Khăn lụa tơ tằm nguyên chất hoặc giày gót nhọn thủ công..."
-                  rows={4}
-                  className="w-full bg-zinc-50 border border-zinc-200/80 rounded-xl p-3.5 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-700 leading-relaxed font-medium"
-                />
-              </div>
-
             </div>
 
-            {/* Right Block Cover Upload Image */}
-            <div className="space-y-6 flex flex-col justify-between">
-              
-              <div className="space-y-4">
-                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest font-sans">
-                  Ảnh bìa danh mục trưng bày *
-                </label>
-
-                {/* Drag-and-drop cover category image */}
-                <div 
-                  onDragEnter={handleDrag}
-                  onDragOver={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 relative ${
-                    dragActive 
-                      ? "border-[#8c7623] bg-[#8c7623]/5" 
-                      : "border-zinc-200 bg-zinc-50/50 hover:bg-zinc-100/50"
-                  }`}
-                >
-                  <input
-                    type="file"
-                    id="category-file-upload"
-                    multiple={false}
-                    accept="image/*"
-                    onChange={handleFileInput}
-                    className="hidden"
-                  />
-                  
-                  {imageUrl ? (
-                    <div className="space-y-4">
-                      <div className="aspect-[4/3] max-w-[240px] mx-auto rounded-xl overflow-hidden border border-zinc-200/60 shadow-md bg-white">
-                        <img 
-                          src={imageUrl} 
-                          alt="Cover category draft preview" 
-                          className="w-full h-full object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                      </div>
-                      <p className="font-sans text-[10px] text-zinc-450 font-medium">
-                        Ảnh chất tải thành công. Kéo thả file khác để thay đổi.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setImageUrl("")}
-                        className="text-[9px] font-mono text-rose-500 font-bold uppercase hover:underline"
-                      >
-                        Bỏ ảnh đại diện
-                      </button>
-                    </div>
-                  ) : (
-                    <label htmlFor="category-file-upload" className="cursor-pointer space-y-3 block">
-                      <div className="mx-auto w-12 h-12 rounded-full bg-white border border-zinc-150 flex items-center justify-center text-[#8c7623] shadow-sm">
-                        <UploadCloud className="h-6 w-6" />
-                      </div>
-                      <div className="space-y-1">
-                        <span className="font-sans text-xs font-bold text-zinc-700 block">
-                          Tải ảnh bìa danh mục đại diện
-                        </span>
-                        <span className="font-sans text-[10px] text-zinc-400 block pb-1">
-                          Kéo thả tệp tin ảnh vào vùng này
-                        </span>
-                        <span className="inline-block bg-white border border-zinc-200 text-[9px] font-bold uppercase tracking-wider font-sans px-4 py-2 rounded-xl shadow-sm hover:border-[#8c7623] transition-colors">
-                          Chọn File
-                        </span>
-                      </div>
-                    </label>
-                  )}
-                </div>
-
-                <div className="relative flex items-center justify-center my-4">
-                  <div className="absolute inset-y-1/2 left-0 right-0 h-[1px] bg-zinc-100" />
-                  <span className="relative bg-white px-3 font-mono text-[9px] text-zinc-300 uppercase font-bold tracking-wider">Hoặc liên kết ảnh trực tiếp</span>
-                </div>
-
-                {/* Direct image input URL box */}
-                <div className="flex gap-2">
-                  <span className="inline-flex items-center px-3 bg-zinc-100 rounded-xl text-zinc-400 border border-zinc-200">
-                    <LinkIcon className="h-4 w-4" />
-                  </span>
-                  <input
-                    type="url"
-                    value={imageUrl.startsWith("data:") ? "" : imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="Chèn link ảnh trực tuyến..."
-                    className="flex-1 bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-xs font-sans focus:outline-none focus:border-[#8c7623] focus:bg-white focus:ring-4 focus:ring-[#8c7623]/10 transition-all text-zinc-800 font-medium"
-                  />
-                </div>
-              </div>
-
-              {/* Action layout controls */}
-              <div className="flex items-center gap-4 pt-6 mt-auto border-t border-zinc-150 lg:justify-end">
+            {/* Status Toggle */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-zinc-700">
+                Trạng thái hiển thị
+              </label>
+              <div className="flex gap-3">
                 <button
                   type="button"
-                  onClick={onCancel}
-                  className="px-6 py-3 border border-zinc-300 rounded-xl text-zinc-700 hover:bg-zinc-50 font-sans text-xs font-bold tracking-wider uppercase transition-colors"
+                  onClick={() => setIsLive(true)}
+                  className={`text-xs font-semibold py-2 px-4 rounded-lg border transition-all flex-1 ${
+                    isLive
+                      ? "bg-zinc-900 text-white border-zinc-900"
+                      : "bg-zinc-50 border-zinc-200 text-zinc-600 hover:bg-zinc-100"
+                  }`}
                 >
-                  Hủy bỏ
+                  Đang hiển thị (LIVE)
                 </button>
                 <button
-                  type="submit"
-                  className="flex items-center gap-2 bg-zinc-900 hover:bg-[#8c7623] text-white px-7 py-3 rounded-xl text-xs font-bold tracking-wider uppercase font-sans transition-all duration-300 shadow-md shadow-zinc-900/5"
+                  type="button"
+                  onClick={() => setIsLive(false)}
+                  className={`text-xs font-semibold py-2 px-4 rounded-lg border transition-all flex-1 ${
+                    !isLive
+                      ? "bg-rose-600 text-white border-rose-600"
+                      : "bg-zinc-50 border-zinc-200 text-zinc-600 hover:bg-zinc-100"
+                  }`}
                 >
-                  <Save className="h-4 w-4" />
-                  {editingCategory ? "Lưu thông tin phân loại" : "Khai mở danh mục"}
+                  Tạm ẩn (DRAFT)
                 </button>
               </div>
-
             </div>
 
+            {/* Description */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-zinc-700">
+                Mô tả danh mục
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Nhập mô tả cho danh mục sản phẩm..."
+                rows={3}
+                className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-3 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900 focus:bg-white font-medium"
+              />
+            </div>
+
+            {/* Image Upload */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-zinc-700">
+                Ảnh đại diện danh mục
+              </label>
+              <div 
+                onDragEnter={handleDrag}
+                onDragOver={handleDrag}
+                onDragLeave={handleDrag}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${
+                  dragActive 
+                    ? "border-zinc-900 bg-zinc-100" 
+                    : "border-zinc-200 bg-zinc-50/50 hover:bg-zinc-100/50"
+                }`}
+              >
+                <input
+                  type="file"
+                  id="category-file-upload"
+                  accept="image/*"
+                  onChange={handleFileInput}
+                  className="hidden"
+                />
+                
+                {imageUrl ? (
+                  <div className="space-y-3">
+                    <img 
+                      src={imageUrl} 
+                      alt="Category preview" 
+                      className="w-20 h-20 object-cover rounded-lg mx-auto border border-zinc-200 shadow-xs"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=600";
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setImageUrl("")}
+                      className="text-xs font-semibold text-rose-600 hover:underline"
+                    >
+                      Bỏ ảnh
+                    </button>
+                  </div>
+                ) : (
+                  <label htmlFor="category-file-upload" className="cursor-pointer space-y-2 block">
+                    <UploadCloud className="h-6 w-6 text-zinc-400 mx-auto" />
+                    <span className="text-xs font-semibold text-zinc-700 block">Kéo thả ảnh hoặc chọn tệp</span>
+                  </label>
+                )}
+              </div>
+
+              <input
+                type="url"
+                value={imageUrl.startsWith("data:") ? "" : imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="Hoặc dán đường dẫn (URL) ảnh..."
+                className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900 mt-2 font-medium"
+              />
+            </div>
           </div>
 
+          {/* Form Actions */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-100">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 border border-zinc-200 rounded-lg text-zinc-700 hover:bg-zinc-100 text-xs font-semibold transition-colors"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              className="flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 text-white px-5 py-2 rounded-lg text-xs font-semibold transition-all shadow-xs"
+            >
+              <Save className="h-4 w-4" />
+              {editingCategory ? "Lưu thay đổi" : "Tạo danh mục"}
+            </button>
+          </div>
         </form>
       </div>
-
     </div>
   );
 };
+

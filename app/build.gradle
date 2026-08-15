@@ -48,10 +48,8 @@ android {
             signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "GEMINI_API_KEY", localProperties.getProperty('GEMINI_API_KEY', '""')
         }
         debug {
-            buildConfigField "String", "GEMINI_API_KEY", localProperties.getProperty('GEMINI_API_KEY', '""')
         }
     }
     compileOptions {
@@ -76,6 +74,7 @@ dependencies {
     implementation libs.firebase.firestore
     implementation "com.google.firebase:firebase-database"
     implementation "com.google.firebase:firebase-storage"
+    implementation "com.google.firebase:firebase-functions"
     implementation "org.mindrot:jbcrypt:0.4"
     implementation "com.github.bumptech.glide:glide:4.15.1"
     implementation "com.squareup.okhttp3:okhttp:4.12.0"

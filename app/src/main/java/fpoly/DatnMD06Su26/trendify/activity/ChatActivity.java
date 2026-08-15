@@ -26,13 +26,12 @@ import fpoly.DatnMD06Su26.trendify.adapter.ChatAdapter;
 import fpoly.DatnMD06Su26.trendify.model.ChatMessage;
 import fpoly.DatnMD06Su26.trendify.model.ProductItem;
 import fpoly.DatnMD06Su26.trendify.helper.FirestoreHelper;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -42,8 +41,6 @@ public class ChatActivity extends AppCompatActivity {
     private ChatAdapter chatAdapter;
     private List<ChatMessage> messageList;
 
-    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" + fpoly.DatnMD06Su26.trendify.BuildConfig.GEMINI_API_KEY;
-    private OkHttpClient client;
     private Handler mainHandler;
     private String productContext = "Hiện tại cửa hàng chưa tải được danh mục sản phẩm.";
 
@@ -52,7 +49,6 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        client = new OkHttpClient();
         mainHandler = new Handler(Looper.getMainLooper());
 
         Toolbar toolbar = findViewById(R.id.toolbarChat);
@@ -164,76 +160,48 @@ public class ChatActivity extends AppCompatActivity {
 
     private void callGeminiAPI(String prompt) {
         try {
-            JSONObject jsonBody = new JSONObject();
-
-            // 1. Set system instruction with system prompt & product context
-            JSONObject systemInstructionObj = new JSONObject();
-            JSONArray systemParts = new JSONArray();
-            JSONObject systemPart = new JSONObject();
-            systemPart.put("text", "Bạn là một trợ lý ảo tư vấn bán hàng thời trang cho ứng dụng Trendify. Hãy tư vấn nhiệt tình, thân thiện dựa vào dữ liệu sản phẩm có sẵn.\n" +
+            Map<String, Object> data = new HashMap<>();
+            
+            String sysInst = "Bạn là một trợ lý ảo tư vấn bán hàng thời trang cho ứng dụng Trendify. Hãy tư vấn nhiệt tình, thân thiện dựa vào dữ liệu sản phẩm có sẵn.\n" +
                                    "--- DỮ LIỆU SẢN PHẨM ---\n" +
                                    productContext + "\n" +
-                                   "------------------------");
-            systemParts.put(systemPart);
-            systemInstructionObj.put("parts", systemParts);
-            jsonBody.put("systemInstruction", systemInstructionObj);
+                                   "------------------------";
+            data.put("systemInstruction", sysInst);
 
-            // 2. Set contents array with the entire message history (excluding typing status)
-            JSONArray contents = new JSONArray();
+            List<Map<String, Object>> contents = new ArrayList<>();
             for (ChatMessage msg : messageList) {
                 if (msg.getType() == ChatMessage.TYPE_BOT_TYPING) {
                     continue;
                 }
-                JSONObject contentObj = new JSONObject();
+                Map<String, Object> contentObj = new HashMap<>();
                 String role = (msg.getType() == ChatMessage.TYPE_USER) ? "user" : "model";
                 contentObj.put("role", role);
 
-                JSONArray parts = new JSONArray();
-                JSONObject part = new JSONObject();
+                List<Map<String, String>> parts = new ArrayList<>();
+                Map<String, String> part = new HashMap<>();
                 part.put("text", msg.getText());
-                parts.put(part);
+                parts.add(part);
 
                 contentObj.put("parts", parts);
-                contents.put(contentObj);
+                contents.add(contentObj);
             }
-            jsonBody.put("contents", contents);
+            data.put("contents", contents);
 
-            RequestBody body = RequestBody.create(jsonBody.toString(), MediaType.parse("application/json; charset=utf-8"));
-            Request request = new Request.Builder()
-                    .url(API_URL)
-                    .post(body)
-                    .build();
-
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    addBotMessage("Xin lỗi, có lỗi kết nối mạng xảy ra.");
-                }
-
-                @Override
-                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    if (response.isSuccessful() && response.body() != null) {
-                        try {
-                            String responseBody = response.body().string();
-                            JSONObject jsonObject = new JSONObject(responseBody);
-                            JSONArray candidates = jsonObject.getJSONArray("candidates");
-                            if (candidates.length() > 0) {
-                                JSONObject firstCandidate = candidates.getJSONObject(0);
-                                JSONObject contentObj = firstCandidate.getJSONObject("content");
-                                JSONArray partsArray = contentObj.getJSONArray("parts");
-                                if (partsArray.length() > 0) {
-                                    String aiText = partsArray.getJSONObject(0).getString("text");
-                                    addBotMessage(aiText);
-                                }
+            FirebaseFunctions mFunctions = FirebaseFunctions.getInstance("asia-southeast1");
+            mFunctions.getHttpsCallable("chatWithGemini")
+                    .call(data)
+                    .addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<HttpsCallableResult> task) {
+                            if (task.isSuccessful()) {
+                                HashMap<String, Object> result = (HashMap<String, Object>) task.getResult().getData();
+                                String reply = (String) result.get("reply");
+                                addBotMessage(reply);
+                            } else {
+                                addBotMessage("Xin lỗi, dịch vụ AI đang gặp sự cố: " + task.getException().getMessage());
                             }
-                        } catch (JSONException e) {
-                            addBotMessage("Xin lỗi, tôi không thể xử lý phản hồi lúc này.");
                         }
-                    } else {
-                        addBotMessage("Xin lỗi, dịch vụ AI đang gặp sự cố. " + response.code());
-                    }
-                }
-            });
+                    });
 
         } catch (Exception e) {
             addBotMessage("Xin lỗi, đã có lỗi hệ thống xảy ra.");
