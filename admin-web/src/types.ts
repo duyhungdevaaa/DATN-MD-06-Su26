@@ -6,6 +6,7 @@
 export enum ActiveTab {
   DASHBOARD = "dashboard",
   ORDERS = "orders",
+  RETURNS = "returns",
   USERS = "users",
   PRODUCTS = "products",
   CATEGORIES = "categories",
@@ -79,6 +80,13 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  userId?: string;
+  ordererName?: string;
+  ordererEmail?: string;
+  ordererPhone?: string;
+  recipientName?: string;
+  recipientPhone?: string;
+  recipientAddress?: string;
   customerName: string;
   customerAvatar: string;
   email: string;
@@ -87,12 +95,21 @@ export interface Order {
   items: OrderItem[];
   subtotal: number;
   shippingFee: number;
+  discountAmount?: number;
+  voucherCode?: string;
   total: number;
   paymentMethod: string;
   paymentEndingCard: string;
   status: OrderStatus;
   date: string;
   time: string;
+  isReturnRequested?: boolean;
+  returnStatus?: string;
+  returnReason?: string;
+  returnDescription?: string;
+  returnRefundAmount?: number;
+  returnImages?: string[];
+  returnedItems?: OrderItem[];
   timeline: {
     confirmed: { active: boolean; time: string };
     packing: { active: boolean; time: string };
@@ -118,4 +135,26 @@ export interface Voucher {
   discountRate: number;
   maximumDiscount: number;
   expirationDate: string;
+}
+
+export interface ReturnedInventoryItem {
+  id: string;
+  orderId: string;
+  productId: string;
+  productName: string;
+  sku: string;
+  imageUrl: string;
+  size: string;
+  color: string;
+  price: number;
+  quantity: number;
+  totalAmount: number;
+  reason: string;
+  description: string;
+  proofImages: string[];
+  customerName: string;
+  customerPhone: string;
+  returnedAt: string;
+  warehouseStatus: "LƯU_KHO_HANG_LOI" | "DA_XUAT_HUY" | "NHAP_LAI_KHO_BAN";
+  note?: string;
 }

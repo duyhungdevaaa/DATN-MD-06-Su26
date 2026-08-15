@@ -164,7 +164,7 @@
         android:background="@color/white"
         android:elevation="8dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toTopOf="@id/composeBottomNav">
 
         <!-- Shopee Voucher -->
         <LinearLayout
@@ -256,13 +256,6 @@
                         android:textSize="16sp"
                         android:textStyle="bold" />
                 </LinearLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nhận 0 Trendify Xu"
-                    android:textColor="#FF9800"
-                    android:textSize="10sp" />
             </LinearLayout>
 
             <Button
@@ -277,5 +270,13 @@
 
         </LinearLayout>
     </LinearLayout>
+
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/composeBottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
