@@ -8,6 +8,7 @@ import { ActiveTab } from "../types";
 import { 
   LayoutDashboard, 
   ShoppingBag, 
+  RotateCcw,
   Users, 
   Tag, 
   FolderGit2, 
@@ -23,6 +24,7 @@ interface SidebarProps {
   setActiveTab: (tab: ActiveTab) => void;
   productCount: number;
   orderCount: number;
+  returnCount?: number;
   onLogout?: () => void;
 }
 
@@ -31,6 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setActiveTab,
   productCount,
   orderCount,
+  returnCount = 0,
   onLogout
 }) => {
   const menuItems = [
@@ -45,6 +48,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: "Đơn hàng",
       icon: ShoppingBag,
       badge: orderCount > 0 ? orderCount.toString() : null
+    },
+    {
+      id: ActiveTab.RETURNS,
+      label: "Đổi trả & Hàng hoàn",
+      icon: RotateCcw,
+      badge: returnCount > 0 ? returnCount.toString() : null,
+      badgeColor: "rose"
     },
     {
       id: ActiveTab.PRODUCTS,
@@ -132,7 +142,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${
                   isActive 
                     ? "bg-amber-400 text-zinc-950" 
-                    : "bg-zinc-100 text-zinc-700"
+                    : item.id === ActiveTab.RETURNS 
+                      ? "bg-rose-100 text-rose-700 border border-rose-200" 
+                      : "bg-zinc-100 text-zinc-700"
                 }`}>
                   {item.badge}
                 </span>

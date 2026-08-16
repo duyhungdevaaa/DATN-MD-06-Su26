@@ -50,8 +50,7 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
       {/* Header & filters */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-5 rounded-xl border border-zinc-200 shadow-xs">
         <div>
-          <h2 className="text-xl font-bold text-zinc-900">Quản lý đơn hàng</h2>
-          <p className="text-xs text-zinc-500 mt-0.5">Danh sách các đơn hàng phát sinh từ ứng dụng mua sắm</p>
+          <h2 className="text-lg font-bold text-zinc-900">Quản lý đơn hàng</h2>
         </div>
 
         <div className="flex items-center gap-2">
@@ -61,12 +60,13 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
             onChange={(e) => setStatusFilter(e.target.value)}
             className="bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-1.5 text-xs text-zinc-800 focus:outline-none focus:border-zinc-900 font-medium"
           >
-            <option value="All">Tất cả đơn hàng</option>
+            <option value="All">Tất cả ({orders.length})</option>
             <option value={OrderStatus.AWAITING_PAYMENT}>Chờ xác nhận</option>
             <option value={OrderStatus.PROCESSING}>Đang xử lý</option>
             <option value={OrderStatus.SHIPPING}>Đang giao hàng</option>
             <option value={OrderStatus.DELIVERED}>Đã giao hàng</option>
             <option value={OrderStatus.REFUNDED}>Trả hàng/Hoàn tiền</option>
+            <option value={OrderStatus.REFUND_COMPLETED}>Đã hoàn tiền</option>
             <option value={OrderStatus.CANCELLED}>Đã hủy</option>
           </select>
         </div>
@@ -77,7 +77,6 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
         <div className="bg-white rounded-xl border border-zinc-200 p-12 text-center shadow-xs">
           <ShoppingBag className="h-8 w-8 text-zinc-300 mx-auto mb-3" />
           <p className="text-sm font-semibold text-zinc-700">Không tìm thấy đơn hàng nào</p>
-          <p className="text-xs text-zinc-500 mt-1">Vui lòng thử gõ từ khóa khác hoặc chuyển bộ lọc trạng thái</p>
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-zinc-200 shadow-xs overflow-hidden">
@@ -85,12 +84,12 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
             <table className="w-full text-left text-sm border-collapse">
               <thead>
                 <tr className="bg-zinc-50/80 border-b border-zinc-200 text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                  <th className="py-3 px-3">Mã đơn hàng</th>
-                  <th className="py-3 px-3">Thời gian đặt</th>
-                  <th className="py-3 px-3">Tên khách hàng</th>
-                  <th className="py-3 px-3">Số điện thoại</th>
-                  <th className="py-3 px-3">Địa chỉ giao hàng</th>
-                  <th className="py-3 px-3">Phương thức thanh toán</th>
+                  <th className="py-3 px-3">Mã đơn</th>
+                  <th className="py-3 px-3">Thời gian</th>
+                  <th className="py-3 px-3">Người đặt (Tài khoản)</th>
+                  <th className="py-3 px-3">Người nhận & SĐT</th>
+                  <th className="py-3 px-3">Địa chỉ nhận</th>
+                  <th className="py-3 px-3">Thanh toán</th>
                   <th className="py-3 px-3 text-right">Tổng tiền</th>
                   <th className="py-3 px-3 text-center">Trạng thái</th>
                   <th className="py-3 px-3 text-right">Thao tác</th>
@@ -105,50 +104,53 @@ export const OrderListView: React.FC<OrderListViewProps> = ({
                     statusBadge = "bg-sky-50 text-sky-700 border-sky-200";
                   } else if (order.status === OrderStatus.DELIVERED) {
                     statusBadge = "bg-emerald-50 text-emerald-700 border-emerald-200";
+                  } else if (order.status === OrderStatus.REFUND_COMPLETED) {
+                    statusBadge = "bg-teal-50 text-teal-700 border-teal-200";
                   } else if (order.status === OrderStatus.CANCELLED || order.status === OrderStatus.REFUNDED) {
                     statusBadge = "bg-rose-50 text-rose-700 border-rose-200";
                   }
 
-                  const displayPhone = order.phone && order.phone.trim() ? order.phone.trim() : "Chưa có SĐT";
+                  const ordererName = order.ordererName || order.customerName || "Khách hàng";
+                  const recipientName = order.recipientName || ordererName;
+                  const displayPhone = (order.recipientPhone || order.phone || "").trim() || "Chưa có SĐT";
+                  const displayAddress = order.recipientAddress || order.address || "Tại cửa hàng";
 
                   return (
                     <tr 
                       key={order.id} 
                       className="hover:bg-zinc-50/60 transition-colors"
                     >
-                      {/* Mã đơn hàng (Clickable) */}
+                      {/* Mã đơn hàng */}
                       <td className="py-2.5 px-3">
                         <button
                           onClick={() => onSelectOrder(order)}
                           className="font-mono text-xs font-bold text-zinc-900 hover:text-blue-600 hover:underline cursor-pointer block text-left"
                           title="Nhấp để xem chi tiết đơn hàng"
                         >
-                          #{order.id.substring(0, 8)}
+                          #{order.id.length > 8 ? order.id.substring(0, 8) + '...' : order.id}
                         </button>
                       </td>
 
                       {/* Thời gian đặt */}
                       <td className="py-2.5 px-3 text-xs text-zinc-600 whitespace-nowrap">
-                        {order.date} {order.time || ""}
+                        {order.date} <span className="text-[10px] text-zinc-400 block">{order.time || ""}</span>
                       </td>
 
-                      {/* Tên khách hàng */}
-                      <td className="py-2.5 px-3 text-xs font-semibold text-zinc-900">
-                        {order.customerName || "Khách hàng"}
-                      </td>
-
-                      {/* Số điện thoại */}
+                      {/* Người đặt */}
                       <td className="py-2.5 px-3 text-xs">
-                        {displayPhone === "Chưa có SĐT" ? (
-                          <span className="text-rose-500 font-medium italic">{displayPhone}</span>
-                        ) : (
-                          <span className="font-mono text-zinc-700 font-semibold">{displayPhone}</span>
-                        )}
+                        <p className="font-bold text-zinc-900">{ordererName}</p>
+                        {order.email && <p className="text-[10px] text-zinc-400 truncate max-w-[130px]">{order.email}</p>}
+                      </td>
+
+                      {/* Người nhận & SĐT */}
+                      <td className="py-2.5 px-3 text-xs">
+                        <p className="font-semibold text-zinc-800">{recipientName}</p>
+                        <p className="font-mono text-[11px] text-zinc-500">{displayPhone}</p>
                       </td>
 
                       {/* Địa chỉ giao hàng */}
-                      <td className="py-2.5 px-3 text-xs text-zinc-700 max-w-xs truncate" title={order.address}>
-                        {order.address || "Tại cửa hàng"}
+                      <td className="py-2.5 px-3 text-xs text-zinc-600 max-w-[180px] truncate" title={displayAddress}>
+                        {displayAddress}
                       </td>
 
                       {/* Phương thức thanh toán */}

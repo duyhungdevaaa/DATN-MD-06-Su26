@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { ActiveTab, Product, Category, User, Order, ProductStatus, UserTier, OrderStatus, Voucher } from "./types";
+import { ActiveTab, Product, Category, User, Order, ProductStatus, UserTier, OrderStatus, Voucher, ReturnedInventoryItem } from "./types";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { DashboardView } from "./components/DashboardView";
@@ -15,12 +15,13 @@ import { CategoryFormView } from "./components/CategoryFormView";
 import { UserListView } from "./components/UserListView";
 import { OrderListView } from "./components/OrderListView";
 import { OrderDetailView } from "./components/OrderDetailView";
+import { ReturnsView } from "./components/ReturnsView";
 import { VoucherListView } from "./components/VoucherListView";
 import { VoucherFormView } from "./components/VoucherFormView";
 import { NotificationsView } from "./components/NotificationsView";
 import { BannersView } from "./components/BannersView";
 
-import { collection, onSnapshot, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, increment } from "firebase/firestore";
+import { collection, onSnapshot, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, increment, query, where, getDocs } from "firebase/firestore";
 import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { db, storage, auth } from "./firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
@@ -45,6 +46,7 @@ export default function App() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<User[]>(DEFAULT_USERS);
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [returnedInventory, setReturnedInventory] = useState<ReturnedInventoryItem[]>([]);
 
   // Focus and Active detail states
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -61,7 +63,6 @@ export default function App() {
     fetchGHNDistricts();
   }, []);
 
-  // Dynamically resolve customer details & parse raw GHN addresses for orders
   const resolvedOrders = React.useMemo(() => {
     return orders.map(order => {
       const parsed = parseRawAddress(order.address);
@@ -69,33 +70,43 @@ export default function App() {
         fetchGHNWards(parsed.districtId);
       }
       
-      const user = users.find(u => u.id === order.userId || u.id === order.customerName || (order.email && u.email === order.email));
+      const user = users.find(u => u.id === order.userId || (order.email && u.email === order.email));
       
-      let realPhone = "";
+      // Thông tin Người đặt hàng (Tài khoản đặt mua)
+      const ordererName = user?.name || (order.customerName && !order.customerName.startsWith("ORD-") ? order.customerName : "Khách hàng");
+      const ordererEmail = user?.email || order.email || "Chưa có email";
+      const ordererPhone = user?.phone || "";
+
+      // Thông tin Người nhận hàng (Thông tin nhận & địa chỉ giao)
+      const recipientName = parsed.extractedName || order.recipientName || ordererName;
+      let recipientPhone = "";
       if (parsed.extractedPhone && !parsed.extractedPhone.includes("x")) {
-        realPhone = parsed.extractedPhone;
+        recipientPhone = parsed.extractedPhone;
+      } else if (order.recipientPhone && !order.recipientPhone.includes("x")) {
+        recipientPhone = order.recipientPhone;
       } else if (order.phone && !order.phone.includes("x")) {
-        realPhone = order.phone;
+        recipientPhone = order.phone;
       } else if (user?.phone && !user.phone.includes("x")) {
-        realPhone = user.phone;
+        recipientPhone = user.phone;
       } else {
-        realPhone = "Chưa có SĐT";
+        recipientPhone = "Chưa có SĐT";
       }
 
-      let realName = order.customerName;
-      if (user && user.name && !user.name.startsWith("ORD-")) {
-        realName = user.name;
-      } else if (parsed.extractedName) {
-        realName = parsed.extractedName;
-      }
+      const recipientAddress = parsed.cleanAddress || order.address || "Tại cửa hàng";
 
       return {
         ...order,
-        customerName: realName,
+        ordererName,
+        ordererEmail,
+        ordererPhone,
+        recipientName,
+        recipientPhone,
+        recipientAddress,
+        customerName: ordererName,
         customerAvatar: user ? user.avatar : order.customerAvatar,
-        email: user ? user.email : order.email,
-        phone: realPhone,
-        address: parsed.cleanAddress
+        email: ordererEmail,
+        phone: recipientPhone,
+        address: recipientAddress
       };
     });
   }, [orders, users]);
@@ -205,20 +216,29 @@ export default function App() {
           const data = docSnap.data();
           const createdDate = data.createdAt ? new Date(data.createdAt.seconds * 1000) : new Date();
           
+          const rawStatus = (data.status || "").toString().toLowerCase();
           let status = OrderStatus.AWAITING_PAYMENT;
-          if (data.status === "Đã giao" || data.status === "Da giao" || data.status === "Đã giao hàng") {
-            status = OrderStatus.DELIVERED;
-          } else if (data.status === "Đang vận chuyển" || data.status === "Dang van chuyen" || data.status === "Đang giao hàng") {
-            status = OrderStatus.SHIPPING;
-          } else if (data.status === "Đang xử lý" || data.status === "Dang xu ly") {
-            status = OrderStatus.PROCESSING;
-          } else if (data.status === "Đã hủy" || data.status === "Da huy") {
-            status = OrderStatus.CANCELLED;
-          } else if (data.status === "Trả hàng/Hoàn tiền" || data.status === "Tra hang/Hoan tien" || data.status === "Trả hàng/Hoàn đơn") {
-            status = OrderStatus.REFUNDED;
-          } else if (data.status === "Đã hoàn tiền" || data.status === "Da hoan tien") {
+          if (rawStatus.includes("đã hoàn tiền") || rawStatus.includes("da hoan tien") || data.returnStatus === "APPROVED") {
             status = OrderStatus.REFUND_COMPLETED;
-          } else if (data.status === "Chờ thanh toán" || data.status === "Cho thanh toan" || data.status === "Chờ xác nhận" || data.status === "Cho xac nhan") {
+          } else if (
+            rawStatus.includes("trả hàng") || 
+            rawStatus.includes("tra hang") || 
+            rawStatus.includes("hoàn") || 
+            rawStatus.includes("hoan") || 
+            data.isReturnRequested === true || 
+            (Array.isArray(data.returnedItems) && data.returnedItems.length > 0) ||
+            Boolean(data.returnReason)
+          ) {
+            status = OrderStatus.REFUNDED;
+          } else if (rawStatus.includes("đã giao") || rawStatus.includes("da giao") || rawStatus.includes("thành công") || rawStatus.includes("hoàn thành")) {
+            status = OrderStatus.DELIVERED;
+          } else if (rawStatus.includes("vận chuyển") || rawStatus.includes("van chuyen") || rawStatus.includes("giao hàng") || rawStatus.includes("dang giao")) {
+            status = OrderStatus.SHIPPING;
+          } else if (rawStatus.includes("xử lý") || rawStatus.includes("xu ly") || rawStatus.includes("chuẩn bị") || rawStatus.includes("chuan bi")) {
+            status = OrderStatus.PROCESSING;
+          } else if (rawStatus.includes("hủy") || rawStatus.includes("huy")) {
+            status = OrderStatus.CANCELLED;
+          } else {
             status = OrderStatus.AWAITING_PAYMENT;
           }
 
@@ -229,6 +249,30 @@ export default function App() {
           const customerAvatar = data.customerAvatar || data.avatar || (matchingUser?.avatar ? matchingUser.avatar : "https://lh3.googleusercontent.com/aida-public/AB6AXuAx0BytEzbLFBt7DZ-Usl9CoGOMmn3pka2w2C-VaTEzI0u9G5YDjLKH_k2SYEizcrJHowoz_uvob6rCujIkBm9_Il0bgp1yWsoaeWPAScV_-Ve4nNiMP3Ks4da4iIFLajJ48jmLkQ9e7Q09fBtq_RV8F7IBg-n31usB1gHlqxvAjEvoo0W8IC-UryWomSVJnCF8gzH2YwPvFdL5KaagiWtrQXngCpio2zGNGMEmhNKbL4c20Wfnpaf950gD4wfxNynPvx13KwqQXiM");
           const email = data.email || (matchingUser?.email ? matchingUser.email : "");
 
+          const normalizeItem = (it: any, index: number): OrderItem => ({
+            id: it.id || it.productId || it.cartItemId || `item-${index}`,
+            sku: it.sku || it.productId || `SKU-${index + 1}`,
+            name: it.name || it.productName || it.title || "Sản phẩm",
+            size: it.size || it.variantSize || "",
+            color: it.color || it.variantColor || "",
+            quantity: Number(it.quantity || it.qty || 1),
+            price: Number(it.price || 0),
+            imageUrl: it.imageUrl || it.imgUrl || it.image || "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=200"
+          });
+
+          const rawItems = Array.isArray(data.items) ? data.items : [];
+          const items = rawItems.map(normalizeItem);
+
+          const rawReturnedItems = Array.isArray(data.returnedItems) ? data.returnedItems : [];
+          const returnedItems = rawReturnedItems.map(normalizeItem);
+
+          const subtotalCalculated = items.reduce((sum, it) => sum + (it.price * it.quantity), 0);
+          const subtotal = data.subtotal ? Number(data.subtotal) : (subtotalCalculated > 0 ? subtotalCalculated : Number(data.total || 0));
+          const shippingFee = Number(data.shippingFee || data.shipping || 0);
+          const discountAmount = Number(data.discountAmount || data.discount || data.voucherDiscount || 0);
+          const voucherCode = data.voucherCode || data.voucher || data.voucherApplied || "";
+          const total = data.total ? Number(data.total) : (subtotal + shippingFee - discountAmount);
+
           return {
             id: docSnap.id,
             userId: data.userId || "",
@@ -237,15 +281,24 @@ export default function App() {
             email,
             phone: customerPhone,
             address: data.address || data.shippingAddress || "Tại cửa hàng",
-            subtotal: data.total || 0,
-            shippingFee: data.shippingFee || 0,
-            total: data.total || 0,
+            subtotal: subtotal,
+            shippingFee: shippingFee,
+            discountAmount: discountAmount,
+            voucherCode: voucherCode,
+            total: total,
             paymentMethod: data.paymentMethod || "COD",
             paymentEndingCard: "",
             status,
             date: createdDate.toLocaleDateString(),
             time: createdDate.toLocaleTimeString(),
-            items: data.items || [],
+            items: items,
+            isReturnRequested: data.isReturnRequested || returnedItems.length > 0 || status === OrderStatus.REFUNDED,
+            returnStatus: data.returnStatus || "",
+            returnReason: data.returnReason || "",
+            returnDescription: data.returnDescription || "",
+            returnRefundAmount: data.returnRefundAmount || data.total || 0,
+            returnImages: Array.isArray(data.returnImages) ? data.returnImages : [],
+            returnedItems: returnedItems.length > 0 ? returnedItems : (status === OrderStatus.REFUNDED ? items : []),
             timestamp: createdDate.getTime(),
             timeline: {
               confirmed: { active: true, time: createdDate.toLocaleString() },
@@ -276,12 +329,41 @@ export default function App() {
       setVouchers(loadedVouchers);
     });
 
+    const unsubReturnedInventory = onSnapshot(collection(db, "returned_inventory"), (snapshot) => {
+      const loadedReturnedItems: ReturnedInventoryItem[] = snapshot.docs.map(docSnap => {
+        const data = docSnap.data();
+        return {
+          id: docSnap.id,
+          orderId: data.orderId || "",
+          productId: data.productId || "",
+          productName: data.productName || "Sản phẩm thu hồi",
+          sku: data.sku || "",
+          imageUrl: data.imageUrl || "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=200",
+          size: data.size || "",
+          color: data.color || "",
+          price: Number(data.price || 0),
+          quantity: Number(data.quantity || 1),
+          totalAmount: Number(data.totalAmount || (Number(data.price || 0) * Number(data.quantity || 1)) || 0),
+          reason: data.reason || "Lỗi sản phẩm / Không đúng mô tả",
+          description: data.description || "",
+          proofImages: Array.isArray(data.proofImages) ? data.proofImages : [],
+          customerName: data.customerName || "Khách hàng",
+          customerPhone: data.customerPhone || "",
+          returnedAt: data.returnedAt ? new Date(data.returnedAt).toLocaleString('vi-VN') : new Date().toLocaleDateString('vi-VN'),
+          warehouseStatus: data.warehouseStatus || "LƯU_KHO_HANG_LOI",
+          note: data.note || ""
+        };
+      });
+      setReturnedInventory(loadedReturnedItems);
+    });
+
     return () => {
       unsubProducts();
       unsubCategories();
       unsubOrders();
       unsubUsers();
       unsubVouchers();
+      unsubReturnedInventory();
     };
   }, [authUser]);
 
@@ -507,28 +589,173 @@ export default function App() {
 
   const handleApproveRefund = async (orderId: string) => {
     try {
-      const orderRef = doc(db, "orders", orderId);
-      const orderSnap = await getDoc(orderRef);
-      if (orderSnap.exists()) {
-        const orderData = orderSnap.data();
-        const refundAmount = orderData.returnRefundAmount || 0;
-        const userId = orderData.userId;
-        
-        if (userId && refundAmount > 0) {
+      let targetRef = doc(db, "orders", orderId);
+      let orderSnap = await getDoc(targetRef);
+
+      // Nếu không tìm thấy bằng doc ID, tìm kiếm qua trường 'orderId'
+      if (!orderSnap.exists()) {
+        const cleanId = orderId.replace("#", "").trim();
+        const q = query(collection(db, "orders"), where("orderId", "==", cleanId));
+        const querySnap = await getDocs(q);
+        if (!querySnap.empty) {
+          orderSnap = querySnap.docs[0];
+          targetRef = querySnap.docs[0].ref;
+        }
+      }
+
+      if (!orderSnap.exists()) {
+        alert("Không tìm thấy thông tin đơn hàng trên hệ thống!");
+        return;
+      }
+
+      const orderData = orderSnap.data();
+      const total = Number(orderData.total || 0);
+      const shippingFee = Number(orderData.shippingFee || orderData.shipping || 0);
+      const maxRefundAllowed = Math.max(0, total - shippingFee);
+      
+      let refundAmount = 0;
+      if (orderData.returnRefundAmount !== undefined && orderData.returnRefundAmount !== null) {
+        refundAmount = Number(orderData.returnRefundAmount);
+      } else {
+        // Fallback: Tiền hàng thực trừ phí ship (KHÔNG hoàn lại tiền ship)
+        refundAmount = maxRefundAllowed;
+      }
+
+      // Khống chế số tiền hoàn tuyệt đối không bao gồm tiền ship
+      refundAmount = Math.min(refundAmount, maxRefundAllowed);
+      refundAmount = Math.max(0, refundAmount);
+
+      // Xác định ID tài khoản người dùng nhận tiền hoàn
+      let userId = orderData.userId;
+      if (!userId) {
+        const matchedUser = loadedUsers.find(u => 
+          (orderData.phone && u.phone === orderData.phone) || 
+          (orderData.email && u.email === orderData.email)
+        );
+        if (matchedUser) userId = matchedUser.id;
+      }
+      
+      // 1. Hoàn tiền vào ví người dùng
+      let walletUpdated = false;
+      if (userId && refundAmount > 0) {
+        try {
           const userRef = doc(db, "users", userId);
-          // Increment wallet balance
           await updateDoc(userRef, {
             walletBalance: increment(refundAmount)
           });
+          walletUpdated = true;
+        } catch (uErr: any) {
+          console.warn("Could not update user wallet balance directly:", uErr);
         }
-        
-        await updateDoc(orderRef, { status: "Đã hoàn tiền" });
-        if (selectedOrder && selectedOrder.id === orderId) {
-          setSelectedOrder({ ...selectedOrder, status: OrderStatus.REFUND_COMPLETED });
+
+        // 2. Ghi nhận giao dịch hoàn tiền
+        try {
+          await addDoc(collection(db, "transactions"), {
+            userId: userId,
+            amount: refundAmount,
+            type: "REFUND",
+            description: `Hoàn tiền yêu cầu trả hàng cho đơn hàng #${orderId}`,
+            timestamp: new Date().toISOString()
+          });
+        } catch (tErr: any) {
+          console.warn("Could not record transaction:", tErr);
         }
       }
-    } catch (e) {
+      
+      // 3. LƯU VÀO KHO LƯU TRỮ HÀNG HOÀN / HÀNG LỖI (TUYỆT ĐỐI KHÔNG TỰ ĐỘNG CỘNG VÀO KHO BÁN CHÍNH)
+      const returnedItems = orderData.returnedItems || [];
+      const reason = orderData.returnReason || "Lỗi sản phẩm / Không đúng mô tả";
+      const returnDescription = orderData.returnDescription || "";
+      const proofImages = orderData.returnImages || [];
+
+      for (const item of returnedItems) {
+        const productId = item.productId || item.cartItemId || item.id || "";
+        let quantity = 0;
+        if (typeof item.quantity === 'string') {
+          try { quantity = parseInt(item.quantity, 10); } catch(e) {}
+        } else {
+          quantity = item.quantity || 1;
+        }
+        
+        if (quantity > 0) {
+          try {
+            await addDoc(collection(db, "returned_inventory"), {
+              orderId: orderId,
+              productId: productId,
+              productName: item.name || "Sản phẩm thu hồi",
+              sku: item.sku || productId || "",
+              imageUrl: item.imageUrl || "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=200",
+              size: item.size || "",
+              color: item.color || "",
+              price: Number(item.price || 0),
+              quantity: quantity,
+              totalAmount: Number(item.price || 0) * quantity,
+              reason: reason,
+              description: returnDescription,
+              proofImages: proofImages,
+              customerName: orderData.customerName || "Khách hàng",
+              customerPhone: orderData.phone || "",
+              returnedAt: new Date().toISOString(),
+              warehouseStatus: "LƯU_KHO_HANG_LOI",
+              note: `Hàng hoàn từ đơn #${orderId}`
+            });
+          } catch (retErr: any) {
+            console.warn("Could not record to returned_inventory collection:", retErr);
+          }
+        }
+      }
+
+      // 4. Cập nhật trạng thái đơn hàng
+      await updateDoc(targetRef, { 
+        status: "Đã hoàn tiền",
+        returnStatus: "APPROVED"
+      });
+
+      alert(`✅ Duyệt yêu cầu đổi trả thành công!\n` + 
+            `• Đã hoàn ${refundAmount.toLocaleString('vi-VN')}₫ vào ví của khách hàng.\n` +
+            `• Các sản phẩm hoàn trả đã được đưa vào [Kho Hàng Hoàn / Hàng Lỗi] (Không cộng vào kho bán chính).`);
+
+      if (selectedOrder && selectedOrder.id === orderId) {
+        setSelectedOrder({ ...selectedOrder, status: OrderStatus.REFUND_COMPLETED, returnStatus: "APPROVED" });
+      }
+    } catch (e: any) {
       console.error("Error approving refund:", e);
+      alert("Lỗi khi duyệt hoàn tiền: " + (e?.message || e));
+    }
+  };
+
+  // Thao tác quản lý Kho Hàng Hoàn / Hàng Lỗi
+  const handleRestockReturnedItem = async (item: ReturnedInventoryItem) => {
+    if (!confirm(`Xác nhận sản phẩm "${item.productName}" (SL: ${item.quantity}) đạt chuẩn chất lượng và nhập lại vào Kho Bán Lẻ?`)) return;
+    try {
+      if (item.productId) {
+        const prodRef = doc(db, "products", item.productId);
+        await updateDoc(prodRef, {
+          stock: increment(item.quantity)
+        });
+      }
+      const itemRef = doc(db, "returned_inventory", item.id);
+      await updateDoc(itemRef, {
+        warehouseStatus: "NHAP_LAI_KHO_BAN",
+        note: `Đã kiểm định và nhập lại kho bán lẻ lúc ${new Date().toLocaleString('vi-VN')}`
+      });
+      alert(`✅ Đã nhập lại ${item.quantity} sản phẩm vào kho bán lẻ thành công!`);
+    } catch (e: any) {
+      alert("Lỗi khi nhập kho bán: " + (e?.message || e));
+    }
+  };
+
+  const handleDisposeReturnedItem = async (item: ReturnedInventoryItem) => {
+    if (!confirm(`Xác nhận xuất hủy / tiêu hủy ${item.quantity} sản phẩm "${item.productName}" do bị lỗi hỏng/phế phẩm?`)) return;
+    try {
+      const itemRef = doc(db, "returned_inventory", item.id);
+      await updateDoc(itemRef, {
+        warehouseStatus: "DA_XUAT_HUY",
+        note: `Đã xuất hủy lúc ${new Date().toLocaleString('vi-VN')}`
+      });
+      alert(`🗑️ Đã chuyển trạng thái xuất hủy phế phẩm thành công.`);
+    } catch (e: any) {
+      alert("Lỗi khi xuất hủy: " + (e?.message || e));
     }
   };
 
@@ -635,6 +862,29 @@ export default function App() {
           />
         );
 
+      case ActiveTab.RETURNS:
+        if (selectedOrder) {
+          const resolvedSelectedOrder = resolvedOrders.find(o => o.id === selectedOrder.id) || selectedOrder;
+          return (
+            <OrderDetailView
+              order={resolvedSelectedOrder}
+              onUpdateOrderStatus={handleUpdateOrderStatus}
+              onCancel={() => setSelectedOrder(null)}
+              onApproveRefund={handleApproveRefund}
+            />
+          );
+        }
+        return (
+          <ReturnsView
+            orders={resolvedOrders}
+            returnedInventory={returnedInventory}
+            onSelectOrder={(order) => setSelectedOrder(order)}
+            onApproveRefund={handleApproveRefund}
+            onRestockItem={handleRestockReturnedItem}
+            onDisposeItem={handleDisposeReturnedItem}
+          />
+        );
+
 
       case ActiveTab.VOUCHERS:
         if (isAddingVoucher || editingVoucher) {
@@ -700,6 +950,11 @@ export default function App() {
     return <LoginView />;
   }
 
+  const pendingReturnsCount = resolvedOrders.filter(o => 
+    (o.isReturnRequested || o.status === OrderStatus.REFUNDED || (o.returnedItems && o.returnedItems.length > 0) || Boolean(o.returnReason)) &&
+    o.status !== OrderStatus.REFUND_COMPLETED && o.returnStatus !== "APPROVED"
+  ).length;
+
   return (
     <div className="flex bg-zinc-50 min-h-screen text-zinc-900 font-sans selection:bg-zinc-200 selection:text-zinc-900">
       
@@ -719,6 +974,7 @@ export default function App() {
         }}
         productCount={products.length}
         orderCount={orders.filter(o => o.status === OrderStatus.AWAITING_PAYMENT || o.status === OrderStatus.PROCESSING).length}
+        returnCount={pendingReturnsCount}
         onLogout={handleLogout}
       />
 

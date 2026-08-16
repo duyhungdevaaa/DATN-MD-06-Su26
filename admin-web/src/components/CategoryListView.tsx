@@ -50,8 +50,7 @@ export const CategoryListView: React.FC<CategoryListViewProps> = ({
       {/* Header bar & controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-zinc-200 shadow-xs">
         <div>
-          <h2 className="text-xl font-bold text-zinc-900">Quản lý danh mục sản phẩm</h2>
-          <p className="text-xs text-zinc-500 mt-0.5">Danh sách các danh mục và phân loại sản phẩm trên ứng dụng</p>
+          <h2 className="text-lg font-bold text-zinc-900">Quản lý danh mục</h2>
         </div>
 
         <button
