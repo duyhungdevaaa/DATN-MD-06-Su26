@@ -52,6 +52,10 @@ public class ReturnRequestActivity extends AppCompatActivity {
     
     private Set<String> selectedReturnProductIds = new HashSet<>();
     private List<Map<String, Object>> orderItems = new ArrayList<>();
+    private long orderSubtotal = 0;
+    private long orderDiscountAmount = 0;
+    private long orderShippingFee = 0;
+    private long orderTotal = 0;
 
     private final String[] sampleOrders = {
             "#TRF-2026-001234 - 02/06/2026",
@@ -121,9 +125,45 @@ public class ReturnRequestActivity extends AppCompatActivity {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
                         DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
+                        
+                        // Lưu thông tin thanh toán của đơn hàng
+                        Long subtotalVal = doc.getLong("subtotal");
+                        Long shippingVal = doc.getLong("shippingFee");
+                        Long discountVal = doc.getLong("discountAmount");
+                        if (discountVal == null) discountVal = doc.getLong("discount");
+                        Long totalVal = doc.getLong("total");
+
+                        orderShippingFee = (shippingVal != null) ? shippingVal : 0;
+                        orderDiscountAmount = (discountVal != null) ? discountVal : 0;
+                        orderTotal = (totalVal != null) ? totalVal : 0;
+
+                        // Kiểm tra nếu đơn hàng này đã từng yêu cầu trả hàng hoàn tiền
+                        Boolean isReturnRequested = doc.getBoolean("isReturnRequested");
+                        Object returnedItemsObj = doc.get("returnedItems");
+                        String status = doc.getString("status");
+                        boolean alreadyRequested = Boolean.TRUE.equals(isReturnRequested)
+                                || (returnedItemsObj instanceof List && !((List<?>) returnedItemsObj).isEmpty())
+                                || (status != null && (status.contains("Trả hàng") || status.contains("hoàn") || status.contains("Từ chối")));
+
+                        if (alreadyRequested) {
+                            Toast.makeText(this, "Đơn hàng này đã gửi yêu cầu trả hàng/hoàn tiền. Mỗi đơn hàng chỉ được hoàn 1 lần duy nhất.", Toast.LENGTH_LONG).show();
+                            if (btnSubmitReturn != null) {
+                                btnSubmitReturn.setEnabled(false);
+                                btnSubmitReturn.setText("ĐÃ GỬI YÊU CẦU HOÀN TRẢ");
+                            }
+                        }
+
                         Object itemsObj = doc.get("items");
                         if (itemsObj instanceof List) {
                             orderItems = (List<Map<String, Object>>) itemsObj;
+                            long calcSubtotal = 0;
+                            for (Map<String, Object> itemMap : orderItems) {
+                                long p = 0, q = 1;
+                                if (itemMap.get("price") instanceof Number) p = ((Number) itemMap.get("price")).longValue();
+                                if (itemMap.get("quantity") instanceof Number) q = ((Number) itemMap.get("quantity")).longValue();
+                                calcSubtotal += (p * q);
+                            }
+                            orderSubtotal = (subtotalVal != null && subtotalVal > 0) ? subtotalVal : calcSubtotal;
                             renderOrderItems();
                         }
                     }
@@ -221,7 +261,7 @@ public class ReturnRequestActivity extends AppCompatActivity {
 
             // Lọc ra các sản phẩm được hoàn trả
             List<Map<String, Object>> returnedItemsList = new ArrayList<>();
-            long totalRefundAmount = 0;
+            long returnedItemsRawAmount = 0;
             for (Map<String, Object> item : orderItems) {
                 String productId = item.containsKey("productId") ? (String) item.get("productId") : null;
                 if (productId == null) {
@@ -229,7 +269,7 @@ public class ReturnRequestActivity extends AppCompatActivity {
                 }
                 if (selectedReturnProductIds.contains(productId)) {
                     returnedItemsList.add(item);
-                    long quantityVal = 0;
+                    long quantityVal = 1;
                     if (item.get("quantity") != null) {
                         Object qtyObj = item.get("quantity");
                         if (qtyObj instanceof Number) quantityVal = ((Number) qtyObj).longValue();
@@ -247,60 +287,141 @@ public class ReturnRequestActivity extends AppCompatActivity {
                         }
                     }
                     
-                    totalRefundAmount += (priceVal * quantityVal);
+                    returnedItemsRawAmount += (priceVal * quantityVal);
                 }
+            }
+
+            // TÍNH TIỀN HOÀN CHÍNH XÁC:
+            // Tiền hoàn = Giá trị các sản phẩm được trả - (Giảm giá voucher tương ứng)
+            // TUYỆT ĐỐI KHÔNG HOÀN TIỀN SHIP (vì phí vận chuyển đã dùng cho dịch vụ giao nhận)
+            long calculatedDiscount = 0;
+            if (orderSubtotal > 0 && orderDiscountAmount > 0) {
+                double ratio = (double) returnedItemsRawAmount / (double) orderSubtotal;
+                if (ratio > 1.0) ratio = 1.0;
+                calculatedDiscount = Math.round(orderDiscountAmount * ratio);
+            }
+            
+            long totalRefundAmount = returnedItemsRawAmount - calculatedDiscount;
+            if (totalRefundAmount < 0) totalRefundAmount = 0;
+
+            // Giới hạn tối đa không vượt quá (Tổng tiền khách trả - Phí ship)
+            long maxRefundAllowed = Math.max(0, orderTotal - orderShippingFee);
+            if (orderTotal > 0 && totalRefundAmount > maxRefundAllowed) {
+                totalRefundAmount = maxRefundAllowed;
             }
 
             // Prepare updates map
             Map<String, Object> updates = new HashMap<>();
             updates.put("status", "Trả hàng/Hoàn tiền");
+            updates.put("isReturnRequested", true);
+            updates.put("returnStatus", "PENDING");
             updates.put("returnReason", reason);
             updates.put("returnDescription", description);
             updates.put("returnedItems", returnedItemsList);
             updates.put("returnRefundAmount", totalRefundAmount);
-            
-            // Set return images (using selectedImageUriString if present, otherwise mock image)
-            java.util.List<String> images = new java.util.ArrayList<>();
-            if (!selectedImageUriString.isEmpty()) {
-                images.add(selectedImageUriString);
-            } else {
-                images.add("https://firebasestorage.googleapis.com/v0/b/ketnoifirebase-3a966.appspot.com/o/return_mock.png?alt=media");
-            }
-            updates.put("returnImages", images);
-
             final String finalOrderId = targetOrderId;
-            com.google.firebase.firestore.FirebaseFirestore.getInstance()
-                    .collection("orders")
-                    .document(targetOrderId)
-                    .update(updates)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(ReturnRequestActivity.this, "Đã gửi yêu cầu đổi trả thành công!", Toast.LENGTH_LONG).show();
-                        finish();
+            final long finalTotalRefundAmount = totalRefundAmount;
+            final long finalReturnedItemsRawAmount = returnedItemsRawAmount;
+            final long finalCalculatedDiscount = calculatedDiscount;
+            final int selectedCount = returnedItemsList.size();
+
+            new android.app.AlertDialog.Builder(ReturnRequestActivity.this)
+                    .setTitle("Xác nhận gửi yêu cầu hoàn trả")
+                    .setMessage("Bạn có chắc chắn muốn gửi yêu cầu đổi trả cho " + selectedCount + " sản phẩm đã chọn?\n\n"
+                            + "• Giá trị sản phẩm hoàn trả: " + String.format("%,dđ", finalReturnedItemsRawAmount).replace(",", ".") + "\n"
+                            + (finalCalculatedDiscount > 0 ? "• Giảm giá voucher khấu trừ: -" + String.format("%,dđ", finalCalculatedDiscount).replace(",", ".") + "\n" : "")
+                            + "• Phí vận chuyển: Không hoàn trả\n"
+                            + "👉 Tổng tiền hoàn vào Ví: " + String.format("%,dđ", finalTotalRefundAmount).replace(",", ".") + "\n\n"
+                            + "⚠️ Lưu ý:\n"
+                            + "• Mỗi đơn hàng chỉ được yêu cầu đổi trả 01 LẦN DUY NHẤT.\n"
+                            + "• Tiền hoàn chỉ tính trên sản phẩm sau voucher và không hoàn phí vận chuyển.")
+                    .setPositiveButton("Xác nhận gửi", (dialog, which) -> {
+                        android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(ReturnRequestActivity.this);
+                        progressDialog.setMessage("Đang gửi yêu cầu đổi trả...");
+                        progressDialog.setCancelable(false);
+                        progressDialog.show();
+
+                        if (selectedImageBytes != null && selectedImageBytes.length > 0) {
+                            final String base64Image = "data:image/jpeg;base64," + android.util.Base64.encodeToString(selectedImageBytes, android.util.Base64.NO_WRAP);
+                            String fileName = "return_" + finalOrderId + "_" + System.currentTimeMillis() + ".jpg";
+                            com.google.firebase.storage.StorageReference storageRef = com.google.firebase.storage.FirebaseStorage.getInstance()
+                                    .getReference("return_proofs/" + fileName);
+
+                            storageRef.putBytes(selectedImageBytes)
+                                    .addOnSuccessListener(taskSnapshot -> {
+                                        storageRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                                            java.util.List<String> images = new java.util.ArrayList<>();
+                                            images.add(downloadUri.toString());
+                                            updates.put("returnImages", images);
+                                            executeOrderUpdate(finalOrderId, updates, progressDialog);
+                                        }).addOnFailureListener(e -> {
+                                            // Fallback to Base64 so image is never lost
+                                            java.util.List<String> images = new java.util.ArrayList<>();
+                                            images.add(base64Image);
+                                            updates.put("returnImages", images);
+                                            executeOrderUpdate(finalOrderId, updates, progressDialog);
+                                        });
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        // Fallback to Base64 so image is never lost
+                                        java.util.List<String> images = new java.util.ArrayList<>();
+                                        images.add(base64Image);
+                                        updates.put("returnImages", images);
+                                        executeOrderUpdate(finalOrderId, updates, progressDialog);
+                                    });
+                        } else {
+                            updates.put("returnImages", new java.util.ArrayList<>());
+                            executeOrderUpdate(finalOrderId, updates, progressDialog);
+                        }
                     })
-                    .addOnFailureListener(e -> {
-                        // If document ID matches orderId field but the doc ID is random:
-                        com.google.firebase.firestore.FirebaseFirestore.getInstance()
-                                .collection("orders")
-                                .whereEqualTo("orderId", finalOrderId)
-                                .get()
-                                .addOnSuccessListener(queryDocumentSnapshots -> {
-                                    if (!queryDocumentSnapshots.isEmpty()) {
-                                        queryDocumentSnapshots.getDocuments().get(0).getReference()
-                                                .update(updates)
-                                                .addOnSuccessListener(aVoid2 -> {
-                                                    Toast.makeText(ReturnRequestActivity.this, "Đã gửi yêu cầu đổi trả thành công!", Toast.LENGTH_LONG).show();
-                                                    finish();
-                                                })
-                                                .addOnFailureListener(err -> {
-                                                    Toast.makeText(ReturnRequestActivity.this, "Lỗi gửi yêu cầu: " + err.getMessage(), Toast.LENGTH_SHORT).show();
-                                                });
-                                    } else {
-                                        Toast.makeText(ReturnRequestActivity.this, "Không tìm thấy đơn hàng trong hệ thống: " + finalOrderId, Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                    });
+                    .setNegativeButton("Kiểm tra lại", null)
+                    .show();
         });
     }
+
+    private void executeOrderUpdate(String finalOrderId, Map<String, Object> updates, android.app.ProgressDialog progressDialog) {
+        com.google.firebase.firestore.FirebaseFirestore db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
+        
+        // Find document by orderId field first
+        db.collection("orders")
+                .whereEqualTo("orderId", finalOrderId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        queryDocumentSnapshots.getDocuments().get(0).getReference()
+                                .update(updates)
+                                .addOnSuccessListener(aVoid -> {
+                                    if (progressDialog != null && progressDialog.isShowing()) progressDialog.dismiss();
+                                    Toast.makeText(ReturnRequestActivity.this, "Đã gửi yêu cầu đổi trả thành công!", Toast.LENGTH_LONG).show();
+                                    finish();
+                                })
+                                .addOnFailureListener(err -> {
+                                    if (progressDialog != null && progressDialog.isShowing()) progressDialog.dismiss();
+                                    Toast.makeText(ReturnRequestActivity.this, "Lỗi cập nhật đơn: " + err.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                    } else {
+                        // Try updating by document ID
+                        db.collection("orders").document(finalOrderId)
+                                .update(updates)
+                                .addOnSuccessListener(aVoid -> {
+                                    if (progressDialog != null && progressDialog.isShowing()) progressDialog.dismiss();
+                                    Toast.makeText(ReturnRequestActivity.this, "Đã gửi yêu cầu đổi trả thành công!", Toast.LENGTH_LONG).show();
+                                    finish();
+                                })
+                                .addOnFailureListener(err -> {
+                                    if (progressDialog != null && progressDialog.isShowing()) progressDialog.dismiss();
+                                    Toast.makeText(ReturnRequestActivity.this, "Không tìm thấy đơn hàng: " + finalOrderId, Toast.LENGTH_SHORT).show();
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (progressDialog != null && progressDialog.isShowing()) progressDialog.dismiss();
+                    Toast.makeText(ReturnRequestActivity.this, "Lỗi kết nối máy chủ: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private android.net.Uri selectedImageUri = null;
+    private byte[] selectedImageBytes = null;
 
     private void setupImageUpload() {
         if (layoutUploadImage != null) {
@@ -315,12 +436,32 @@ public class ReturnRequestActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            android.net.Uri imageUri = data.getData();
+            selectedImageUri = data.getData();
+            try {
+                java.io.InputStream is = getContentResolver().openInputStream(selectedImageUri);
+                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeStream(is);
+                if (bitmap != null) {
+                    int maxDim = 800;
+                    int w = bitmap.getWidth();
+                    int h = bitmap.getHeight();
+                    if (w > maxDim || h > maxDim) {
+                        float r = Math.min((float) maxDim / w, (float) maxDim / h);
+                        w = Math.round(w * r);
+                        h = Math.round(h * r);
+                        bitmap = android.graphics.Bitmap.createScaledBitmap(bitmap, w, h, true);
+                    }
+                    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                    bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 75, baos);
+                    selectedImageBytes = baos.toByteArray();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             if (ivProofImage != null) {
-                ivProofImage.setImageURI(imageUri);
+                ivProofImage.setImageURI(selectedImageUri);
                 ivProofImage.setVisibility(View.VISIBLE);
             }
-            selectedImageUriString = imageUri.toString();
         }
     }
 }

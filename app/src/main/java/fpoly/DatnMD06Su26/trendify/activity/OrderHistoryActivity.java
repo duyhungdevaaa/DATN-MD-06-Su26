@@ -49,6 +49,11 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
         findViewById(R.id.ivBack).setOnClickListener(v -> finish());
 
+        androidx.compose.ui.platform.ComposeView composeBottomNav = findViewById(R.id.composeBottomNav);
+        if (composeBottomNav != null) {
+            TrendifyNavHelper.bind(composeBottomNav, 4, this);
+        }
+
         progressBar = findViewById(R.id.progressBar);
         RecyclerView rv = findViewById(R.id.rvOrders);
         adapter = new OrderHistoryAdapter();
@@ -84,17 +89,44 @@ public class OrderHistoryActivity extends AppCompatActivity {
         loadOrders();
     }
 
+    private com.google.firebase.firestore.ListenerRegistration ordersListener;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loadOrders();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (ordersListener != null) {
+            ordersListener.remove();
+            ordersListener = null;
+        }
+    }
+
     private void loadOrders() {
+        if (ordersListener != null) {
+            ordersListener.remove();
+            ordersListener = null;
+        }
+
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
         String uid = SessionManager.getInstance().getUserId();
 
-        FirebaseFirestore.getInstance()
+        ordersListener = FirebaseFirestore.getInstance()
                 .collection("orders")
                 .whereEqualTo("userId", uid)
-                .get()
-                .addOnSuccessListener(snapshot -> {
+                .addSnapshotListener((snapshot, error) -> {
                     if (progressBar != null) progressBar.setVisibility(View.GONE);
-                    List<com.google.firebase.firestore.DocumentSnapshot> documents = snapshot.getDocuments();
+                    if (error != null) {
+                        Toast.makeText(this, "Lỗi tải đơn hàng: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (snapshot == null) return;
+
+                    List<com.google.firebase.firestore.DocumentSnapshot> documents = new ArrayList<>(snapshot.getDocuments());
                     documents.sort((a, b) -> {
                         Timestamp ta = a.getTimestamp("createdAt");
                         Timestamp tb = b.getTimestamp("createdAt");
@@ -185,7 +217,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                                         filteredOrders.add(order);
                                     }
                                 } else if (statusFilter.equals("DA_GIAO")) {
-                                    if (st.equals("Đã giao")) {
+                                    if (st.equals("Đã giao") || st.equals("Đã giao hàng")) {
                                         filteredOrders.add(order);
                                     }
                                 } else if (statusFilter.equals("DA_HUY")) {
@@ -193,7 +225,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                                         filteredOrders.add(order);
                                     }
                                 } else if (statusFilter.equals("TRA_HANG_HOAN_TIEN")) {
-                                    if (st.equals("Trả hàng/Hoàn tiền") || st.equals("Trả hàng/Hoàn đơn")) {
+                                    if (st.contains("Trả hàng") || st.contains("hoàn") || st.contains("Hoàn") || st.contains("Tra hang")) {
                                         filteredOrders.add(order);
                                     }
                                 }
@@ -203,10 +235,6 @@ public class OrderHistoryActivity extends AppCompatActivity {
                         filteredOrders.addAll(orders);
                     }
                     adapter.setOrderList(filteredOrders);
-                })
-                .addOnFailureListener(e -> {
-                    if (progressBar != null) progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this, "Lỗi tải đơn hàng", Toast.LENGTH_SHORT).show();
                 });
     }
 }

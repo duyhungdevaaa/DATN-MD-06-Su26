@@ -48,7 +48,6 @@ public class ProfileFragment extends Fragment {
     private LinearLayout llDeliveryAddress;
     private LinearLayout llPaymentMethods;
     private LinearLayout llNotifications;
-    private LinearLayout btnHelpCenter;
     private LinearLayout btnPrivacyPolicy;
     private LinearLayout btnTermsOfService;
     private LinearLayout llSettings;
@@ -92,7 +91,8 @@ public class ProfileFragment extends Fragment {
         LinearLayout llWaitingConfirm = view.findViewById(R.id.llWaitingConfirm);
         LinearLayout llWaitingPickup = view.findViewById(R.id.llWaitingPickup);
         LinearLayout llShipping = view.findViewById(R.id.llShipping);
-        LinearLayout llRate = view.findViewById(R.id.llRate);
+        LinearLayout llDelivered = view.findViewById(R.id.llDelivered);
+        LinearLayout llReturns = view.findViewById(R.id.llReturns);
 
         if (llWaitingConfirm != null) {
             llWaitingConfirm.setOnClickListener(v -> openOrderHistoryWithFilter("CHO_XAC_NHAN"));
@@ -103,8 +103,42 @@ public class ProfileFragment extends Fragment {
         if (llShipping != null) {
             llShipping.setOnClickListener(v -> openOrderHistoryWithFilter("DANG_GIAO"));
         }
-        if (llRate != null) {
-            llRate.setOnClickListener(v -> openPlayStoreForRating());
+        if (llDelivered != null) {
+            llDelivered.setOnClickListener(v -> openOrderHistoryWithFilter("DA_GIAO"));
+        }
+        if (llReturns != null) {
+            llReturns.setOnClickListener(v -> openOrderHistoryWithFilter("TRA_HANG_HOAN_TIEN"));
+        }
+
+        LinearLayout llFavorite = view.findViewById(R.id.llFavorite);
+        if (llFavorite != null) {
+            llFavorite.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra("EXTRA_TARGET_TAB", 3);
+                startActivity(intent);
+            });
+        }
+
+        LinearLayout llWallet = view.findViewById(R.id.llWallet);
+        if (llWallet != null) {
+            llWallet.setOnClickListener(v -> {
+                Toast.makeText(getContext(), "Ví Trendify - Số dư mua sắm", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        LinearLayout llVouchers = view.findViewById(R.id.llVouchers);
+        if (llVouchers != null) {
+            llVouchers.setOnClickListener(v -> {
+                startActivity(new Intent(requireContext(), VoucherListActivity.class));
+            });
+        }
+
+        LinearLayout llAddress = view.findViewById(R.id.llAddress);
+        if (llAddress != null) {
+            llAddress.setOnClickListener(v -> {
+                startActivity(new Intent(requireContext(), AddressManagementActivity.class));
+            });
         }
 
         ivUserAvatar = view.findViewById(R.id.ivUserAvatar);
@@ -132,13 +166,35 @@ public class ProfileFragment extends Fragment {
         startActivity(intent);
     }
 
-    private void loadUserProfile() {
+    private com.google.firebase.firestore.ListenerRegistration profileListener;
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        startRealtimeListeners();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (profileListener != null) {
+            profileListener.remove();
+            profileListener = null;
+        }
+    }
+
+    private void startRealtimeListeners() {
+        if (profileListener != null) {
+            profileListener.remove();
+            profileListener = null;
+        }
+
         if (!SessionManager.getInstance().isLoggedIn()) {
             showLoggedOutState();
             return;
         }
 
-        FirestoreHelper.loadUserProfile(new FirestoreHelper.ProfileCallback() {
+        profileListener = FirestoreHelper.listenToUserProfile(new FirestoreHelper.ProfileCallback() {
             @Override
             public void onLoaded(UserProfile profile) {
                 currentProfile = profile;
@@ -158,17 +214,21 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onFailure(String error) {
-                String displayName = "Khách hàng";
-                String email = "";
-                currentProfile = new UserProfile(SessionManager.getInstance().getUserId(), displayName, email, "", null);
-                if (tvUserName != null) tvUserName.setText(displayName);
-                // if (tvUserEmail != null) tvUserEmail.setText(email);
-                if (ivUserAvatar != null) {
-                    showAvatarPlaceholder();
+                if (currentProfile == null) {
+                    String displayName = "Khách hàng";
+                    String email = "";
+                    currentProfile = new UserProfile(SessionManager.getInstance().getUserId(), displayName, email, "", null);
+                    if (tvUserName != null) tvUserName.setText(displayName);
+                    if (ivUserAvatar != null) {
+                        showAvatarPlaceholder();
+                    }
                 }
-                Toast.makeText(getContext(), "Không thể tải hồ sơ: " + error, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void loadUserProfile() {
+        startRealtimeListeners();
     }
 
     private void handleEditProfile() {

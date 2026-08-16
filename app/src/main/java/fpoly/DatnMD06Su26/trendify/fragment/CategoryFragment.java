@@ -58,29 +58,61 @@ public class CategoryFragment extends Fragment {
         RecyclerView rvLeftCategories = view.findViewById(R.id.rvLeftCategories);
         RecyclerView rvRightCategories = view.findViewById(R.id.rvRightCategories);
 
-        FirestoreHelper.loadCategories(new FirestoreHelper.CategoriesCallback() {
+        startRealtimeListeners(rvLeftCategories, rvRightCategories);
+
+        return view;
+    }
+
+    private com.google.firebase.firestore.ListenerRegistration categoriesListener;
+    private com.google.firebase.firestore.ListenerRegistration productsListener;
+    private String selectedCategoryId = null;
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (categoriesListener != null) {
+            categoriesListener.remove();
+            categoriesListener = null;
+        }
+        if (productsListener != null) {
+            productsListener.remove();
+            productsListener = null;
+        }
+    }
+
+    private void startRealtimeListeners(RecyclerView rvLeftCategories, RecyclerView rvRightCategories) {
+        if (categoriesListener != null) categoriesListener.remove();
+        categoriesListener = FirestoreHelper.listenToCategories(new FirestoreHelper.CategoriesCallback() {
             @Override
             public void onLoaded(List<CategoryItem> categories) {
                 LeftCategoryAdapter leftAdapter = new LeftCategoryAdapter(categories, position -> {
-                    loadRightProducts(rvRightCategories, categories.get(position).getId());
+                    selectedCategoryId = categories.get(position).getId();
+                    loadRightProducts(rvRightCategories, selectedCategoryId);
                 });
                 rvLeftCategories.setAdapter(leftAdapter);
                 if (!categories.isEmpty()) {
-                    loadRightProducts(rvRightCategories, categories.get(0).getId());
+                    if (selectedCategoryId == null) {
+                        selectedCategoryId = categories.get(0).getId();
+                    }
+                    loadRightProducts(rvRightCategories, selectedCategoryId);
                 }
             }
 
             @Override
             public void onFailure(String error) {
-                Toast.makeText(requireContext(), "Không thể tải danh mục: " + error, Toast.LENGTH_LONG).show();
+                if (getContext() != null) {
+                    Toast.makeText(requireContext(), "Không thể tải danh mục: " + error, Toast.LENGTH_LONG).show();
+                }
             }
         });
-
-        return view;
     }
 
     private void loadRightProducts(RecyclerView rvRightCategories, String categoryId) {
-        FirestoreHelper.loadProducts(categoryId, new FirestoreHelper.ProductsCallback() {
+        if (productsListener != null) {
+            productsListener.remove();
+            productsListener = null;
+        }
+        productsListener = FirestoreHelper.listenToProducts(categoryId, new FirestoreHelper.ProductsCallback() {
             @Override
             public void onLoaded(List<ProductItem> products) {
                 ProductAdapter rightAdapter = new ProductAdapter(products);
@@ -89,7 +121,9 @@ public class CategoryFragment extends Fragment {
 
             @Override
             public void onFailure(String error) {
-                Toast.makeText(requireContext(), "Không thể tải sản phẩm: " + error, Toast.LENGTH_LONG).show();
+                if (getContext() != null) {
+                    Toast.makeText(requireContext(), "Không thể tải sản phẩm: " + error, Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
